@@ -1,21 +1,35 @@
 "use client";
 
 import React from "react";
-import { buttonRecipe, sizeVariants, ButtonColorVariant } from "./button.css";
+import { buttonRecipe, sizeVariants, ButtonVariant, ButtonColor } from "./button.css";
 
 type ButtonSize = keyof typeof sizeVariants;
-type ButtonVariant = ButtonColorVariant;
-type ButtonTextColor = ButtonColorVariant;
+
+export type { ButtonSize };
+
+type ButtonState = {
+  forceHover?: boolean;
+  forceFocus?: boolean;
+  forceDisabled?: boolean;
+};
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: ButtonSize;
   variant?: ButtonVariant;
-  textColor?: ButtonTextColor;
+  color?: ButtonColor;
 };
 
-const Button: React.FC<ButtonProps> = ({ size = "md", variant = "brand-500", textColor = "gray-900", children, ...rest }) => {
+const Button: React.FC<ButtonProps & ButtonState> = ({ size = "md", variant = "solid", color = "brand-600", forceHover, forceFocus, forceDisabled, children, className, ...rest }) => {
   return (
-    <button className={buttonRecipe({ size, variant, textColor })} {...rest}>
+    <button
+      className={[buttonRecipe({ size, variant, color }), className].filter(Boolean).join(" ")}
+      data-hover={forceHover || undefined}
+      data-focus={forceFocus || undefined}
+      data-focus-visible={forceFocus || undefined}
+      data-disabled={forceDisabled || undefined}
+      disabled={rest.disabled || forceDisabled}
+      {...rest}
+    >
       {children}
     </button>
   );
