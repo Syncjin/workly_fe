@@ -1,8 +1,138 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-gray-25: #FDFDFD;
+  --color-gray-50: #FAFAFA;
+  --color-gray-100: #F5F5F5;
+  --color-gray-200: #E9EAEB;
+  --color-gray-300: #D5D7DA;
+  --color-gray-400: #A4A7AE;
+  --color-gray-500: #717680;
+  --color-gray-600: #535862;
+  --color-gray-700: #414651;
+  --color-gray-800: #252B37;
+  --color-gray-900: #181D27;
+  --color-brand-25: #F5F8FF;
+  --color-brand-50: #EEF4FF;
+  --color-brand-100: #E0EAFF;
+  --color-brand-200: #C7D7FE;
+  --color-brand-300: #A4BCFD;
+  --color-brand-400: #8098F9;
+  --color-brand-500: #6172F3;
+  --color-brand-600: #444CE7;
+  --color-brand-700: #3538CD;
+  --color-brand-800: #2D31A6;
+  --color-brand-900: #2D3282;
+  --color-error-25: #FFFBFA;
+  --color-error-50: #FEF3F2;
+  --color-error-100: #FEE4E2;
+  --color-error-200: #FECDCA;
+  --color-error-300: #FDA29B;
+  --color-error-400: #F97066;
+  --color-error-500: #F04438;
+  --color-error-600: #D92D20;
+  --color-error-700: #B42318;
+  --color-error-800: #912018;
+  --color-error-900: #7A271A;
+  --color-warning-25: #FFFCF5;
+  --color-warning-50: #FFFAEB;
+  --color-warning-100: #FEF0C7;
+  --color-warning-200: #FEDF89;
+  --color-warning-300: #FEC84B;
+  --color-warning-400: #FDB022;
+  --color-warning-500: #F79009;
+  --color-warning-600: #DC6803;
+  --color-warning-700: #B54708;
+  --color-warning-800: #93370D;
+  --color-warning-900: #7A2E0E;
+  --color-success-25: #F6FEF9;
+  --color-success-50: #ECFDF3;
+  --color-success-100: #D1FADF;
+  --color-success-200: #A6F4C5;
+  --color-success-300: #6CE9A6;
+  --color-success-400: #32D583;
+  --color-success-500: #12B76A;
+  --color-success-600: #039855;
+  --color-success-700: #027A48;
+  --color-success-800: #05603A;
+  --color-success-900: #054F31;
+  --color-blue-gray-25: #FCFCFD;
+  --color-blue-gray-50: #F8F9FC;
+  --color-blue-gray-100: #EAECF5;
+  --color-blue-gray-200: #D5D9EB;
+  --color-blue-gray-300: #AFB5D9;
+  --color-blue-gray-400: #717BBC;
+  --color-blue-gray-500: #4E5BA6;
+  --color-blue-gray-600: #3E4784;
+  --color-blue-gray-700: #363F72;
+  --color-blue-gray-800: #293056;
+  --color-blue-gray-900: #101323;
+  --color-blue-light-25: #F5FBFF;
+  --color-blue-light-50: #F0F9FF;
+  --color-blue-light-100: #E0F2FE;
+  --color-blue-light-200: #B9E6FE;
+  --color-blue-light-300: #7CD4FD;
+  --color-blue-light-400: #36BFFA;
+  --color-blue-light-500: #0BA5EC;
+  --color-blue-light-600: #0086C9;
+  --color-blue-light-700: #026AA2;
+  --color-blue-light-800: #065986;
+  --color-blue-light-900: #0B4A6F;
+  --color-blue-25: #F5FAFF;
+  --color-blue-50: #EFF8FF;
+  --color-blue-100: #D1E9FF;
+  --color-blue-200: #B2DDFF;
+  --color-blue-300: #84CAFF;
+  --color-blue-400: #53B1FD;
+  --color-blue-500: #2E90FA;
+  --color-blue-600: #1570EF;
+  --color-blue-700: #175CD3;
+  --color-blue-800: #1849A9;
+  --color-blue-900: #194185;
+  --color-purple-25: #FAFAFF;
+  --color-purple-50: #F4F3FF;
+  --color-purple-100: #EBE9FE;
+  --color-purple-200: #D9D6FE;
+  --color-purple-300: #BDB4FE;
+  --color-purple-400: #9B8AFB;
+  --color-purple-500: #7A5AF8;
+  --color-purple-600: #6938EF;
+  --color-purple-700: #5925DC;
+  --color-purple-800: #4A1FB8;
+  --color-purple-900: #3E1C96;
+  --color-pink-25: #FEF6FB;
+  --color-pink-50: #FDF2FA;
+  --color-pink-100: #FCE7F6;
+  --color-pink-200: #FCCEEE;
+  --color-pink-300: #FAA7E0;
+  --color-pink-400: #F670C7;
+  --color-pink-500: #EE46BC;
+  --color-pink-600: #DD2590;
+  --color-pink-700: #C11574;
+  --color-pink-800: #9E165F;
+  --color-pink-900: #851651;
+  --color-rose-25: #FFF5F6;
+  --color-rose-50: #FFF1F3;
+  --color-rose-100: #FFE4E8;
+  --color-rose-200: #FECDD6;
+  --color-rose-300: #FEA3B4;
+  --color-rose-400: #FD6F8E;
+  --color-rose-500: #F63D68;
+  --color-rose-600: #E31B54;
+  --color-rose-700: #C01048;
+  --color-rose-800: #A11043;
+  --color-rose-900: #89123E;
+  --color-orange-25: #FFFAF5;
+  --color-orange-50: #FFF6ED;
+  --color-orange-100: #FFEAD5;
+  --color-orange-200: #FDDCAB;
+  --color-orange-300: #FEB273;
+  --color-orange-400: #FD853A;
+  --color-orange-500: #FB6514;
+  --color-orange-600: #EC4A0A;
+  --color-orange-700: #C4320A;
+  --color-orange-800: #9C2A10;
+  --color-orange-900: #7E2410;
 }
 
 @theme inline {
@@ -19,8 +149,15 @@
   }
 }
 
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/src/assets/fonts/Pretendard-Medium.woff2') format('woff2'),
+       url('/src/assets/fonts/Pretendard-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
 }
