@@ -3,16 +3,31 @@ import { recipe } from "@vanilla-extract/recipes";
 import { colorGroups, colorLevels, ColorVariant, createColorVariantStyles } from "@/shared/styles/colorVariants";
 
 export const baseInput = {
-  border: "1px solid #d1d5db",
+  fontSize: "16px",
+  lineHeight: "24px",
+  padding: "10px 14px",
   borderRadius: "8px",
-  fontWeight: 400,
-  fontFamily: "Pretendard, sans-serif",
+  border: "1px solid var(--color-gray-300)",
+  background: "#fff",
+  boxShadow: "0px 1px 2px 0px rgba(10, 13, 18, 0.05)",
   outline: "none",
-  transition: "border-color 0.2s, background-color 0.2s, color 0.2s",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  // boxSizing: "border-box", // 타입 에러 방지 위해 제거
+  color: "var(--color-gray-900)",
+  transition: "border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s",
+  selectors: {
+    "&:focus": {
+      boxShadow: "0 0 0 2px var(--color-brand-300)",
+      background: "#fff",
+    },
+    "&:disabled": {
+      background: "var(--color-gray-50)",
+      color: "var(--color-gray-500)",
+      borderColor: "var(--color-gray-300)",
+      cursor: "not-allowed",
+    },
+    "&::placeholder": {
+      color: "var(--color-gray-500)",
+    },
+  },
 };
 
 export const sizeVariants = styleVariants({
@@ -21,7 +36,7 @@ export const sizeVariants = styleVariants({
     fontSize: "14px",
   },
   md: {
-    padding: "8px 14px",
+    padding: "10px 14px",
     fontSize: "16px",
   },
   lg: {

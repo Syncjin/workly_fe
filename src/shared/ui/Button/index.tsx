@@ -19,7 +19,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   color?: ButtonColor;
 };
 
-const Button: React.FC<ButtonProps & ButtonState> = ({ size = "md", variant = "solid", color = "brand-600", forceHover, forceFocus, forceDisabled, children, className, ...rest }) => {
+export const Button: React.FC<ButtonProps & ButtonState> = ({ size = "md", variant = "solid", color = "brand-600", forceHover, forceFocus, forceDisabled, children, className, ...rest }) => {
   return (
     <button
       className={[buttonRecipe({ size, variant, color }), className].filter(Boolean).join(" ")}
@@ -34,5 +34,3 @@ const Button: React.FC<ButtonProps & ButtonState> = ({ size = "md", variant = "s
     </button>
   );
 };
-
-export default Button;
