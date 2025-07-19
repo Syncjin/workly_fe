@@ -1,17 +1,16 @@
 import React from "react";
-import Button from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/Button";
 import { colorGroups, colorLevels } from "@/shared/styles/colorVariants";
 import { ButtonVariant } from "@/shared/ui/Button/button.css";
 import type { ButtonSize } from "@/shared/ui/Button";
+import { Badge } from "@/shared/ui/Badge";
+import type { BadgeSize } from "@/shared/ui/Badge";
+import Icon from "@/shared/ui/Icon";
+import { Input } from "@/shared/ui/Input";
+import { Field } from "@/shared/ui/Field";
+import InputHint from "@/shared/ui/InputHint";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
-const colors = colorGroups.flatMap((group) =>
-  colorLevels.map((level) => ({
-    key: `${group}-${level}`,
-    group,
-    level,
-  }))
-);
 
 const buttonStates = [
   { label: "Default", props: {} },
@@ -76,6 +75,41 @@ export default function GuidePage() {
           ))}
         </tbody>
       </table>
+      <h1>Badge Size Guide</h1>
+      <table style={{ borderCollapse: "collapse", marginBottom: 48 }}>
+        <thead>
+          <tr>
+            <th style={{ width: 120, textAlign: "left" }}>Size</th>
+            <th style={{ width: 120, textAlign: "center" }}>Badge</th>
+            <th style={{ width: 160, textAlign: "center" }}>왼쪽 아이콘</th>
+            <th style={{ width: 160, textAlign: "center" }}>오른쪽 아이콘</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(["sm", "md", "lg"] as BadgeSize[]).map((size) => (
+            <tr key={size}>
+              <td style={{ fontWeight: 600, padding: "8px 12px" }}>{size}</td>
+              <td style={{ padding: "8px 12px", textAlign: "center" }}>
+                <Badge size={size} color="brand-50">
+                  Label
+                </Badge>
+              </td>
+              <td style={{ padding: "8px 12px", textAlign: "center" }}>
+                <Badge size={size} color="brand-50" icon={<Icon name="star" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />}>
+                  Label
+                </Badge>
+              </td>
+              <td style={{ padding: "8px 12px", textAlign: "center" }}>
+                <Badge size={size} color="brand-50" icon={<Icon name="star" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />} iconPosition="right">
+                  Label
+                </Badge>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* Badge 아이콘 예제 */}
+
       <h1>Color Palette</h1>
       <table style={{ borderCollapse: "collapse", marginBottom: 48 }}>
         <thead>
@@ -113,6 +147,38 @@ export default function GuidePage() {
           ))}
         </tbody>
       </table>
+      {/* Input Guide */}
+      <h1>Input Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 400, marginBottom: 48 }}>
+        <Input placeholder="기본 인풋" />
+        <Input placeholder="왼쪽 아이콘" iconLeft={<Icon name="search" size={18} color="#fff" />} />
+        <Input placeholder="오른쪽 아이콘" iconRight={<Icon name="x" size={18} color="gray-500" />} />
+        <Input placeholder="양쪽 아이콘" iconLeft={<Icon name="search" size={18} color="#fff" />} iconRight={<Icon name="x" size={18} color="gray-500" />} />
+        <Input
+          placeholder="focus"
+          style={{
+            boxShadow: "0 0 0 2px var(--color-brand-300)",
+            background: "#fff",
+          }}
+        />
+        <Input placeholder="비활성화(disabled)" disabled />
+      </div>
+      {/* Field Guide */}
+      <h1>Field Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 400, marginBottom: 48 }}>
+        <Field label="이메일">
+          <Input placeholder="이메일을 입력하세요" />
+          <InputHint>기본 안내 메시지입니다.</InputHint>
+        </Field>
+        <Field label="검색">
+          <Input placeholder="검색어 입력" status="success" iconLeft={<Icon name="search" size={18} color="#fff" />} />
+          <InputHint variant="success">성공 메시지입니다.</InputHint>
+        </Field>
+        <Field label="비밀번호">
+          <Input placeholder="비밀번호 입력" status="error" iconRight={<Icon name="eye" size={18} color="#fff" />} />
+          <InputHint variant="error">에러 메시지입니다.</InputHint>
+        </Field>
+      </div>
     </div>
   );
 }

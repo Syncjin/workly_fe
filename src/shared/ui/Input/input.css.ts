@@ -14,10 +14,6 @@ export const baseInput = {
   color: "var(--color-gray-900)",
   transition: "border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s",
   selectors: {
-    "&:focus": {
-      boxShadow: "0 0 0 2px var(--color-brand-300)",
-      background: "#fff",
-    },
     "&:disabled": {
       background: "var(--color-gray-50)",
       color: "var(--color-gray-500)",
@@ -59,15 +55,42 @@ export const variantStyles = createColorVariantStyles(colorGroups, colorLevels, 
   },
 }));
 
+export const inputStatus = styleVariants({
+  default: {
+    selectors: {
+      "&:focus": {
+        boxShadow: "0 0 0 2px var(--color-brand-300)",
+        background: "#fff",
+      },
+    },
+  },
+  success: {
+    selectors: {
+      "&:focus": {
+        boxShadow: "0px 0px 0px 4px #D1FADF",
+      },
+    },
+  },
+  error: {
+    selectors: {
+      "&:focus": {
+        boxShadow: "0px 0px 0px 4px #FEE4E2",
+      },
+    },
+  },
+});
+
 export const inputRecipe = recipe({
   base: baseInput,
   variants: {
     size: sizeVariants,
     variant: variantStyles,
+    status: inputStatus,
   },
   defaultVariants: {
     size: "md",
     variant: "gray-50",
+    status: "default",
   },
 });
 

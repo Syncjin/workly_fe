@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useLayoutEffect, useState, useEffect } from "react";
-import { inputRecipe, sizeVariants, InputColorVariant } from "./input.css";
+import React, { useRef, useLayoutEffect, useState } from "react";
+import { inputRecipe, sizeVariants, InputColorVariant, inputStatus } from "./input.css";
 
 export type InputSize = keyof typeof sizeVariants;
 export type InputVariant = InputColorVariant;
@@ -11,9 +11,11 @@ type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   variant?: InputVariant;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
+  forceFocus?: boolean;
+  status?: "default" | "success" | "error";
 };
 
-export const Input: React.FC<InputProps> = ({ size = "md", variant = "gray-50", iconLeft, iconRight, className, style, ...rest }) => {
+export const Input: React.FC<InputProps> = ({ size = "md", variant = "gray-50", iconLeft, iconRight, className, style, forceFocus, status = "default", ...rest }) => {
   const leftRef = useRef<HTMLSpanElement>(null);
   const rightRef = useRef<HTMLSpanElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +55,7 @@ export const Input: React.FC<InputProps> = ({ size = "md", variant = "gray-50", 
       )}
       <input
         ref={inputRef}
-        className={inputRecipe({ size, variant })}
+        className={inputRecipe({ size, variant, status })}
         style={{
           flex: 1,
           paddingLeft: iconLeft ? leftWidth + 12 + iconGap : basePadding,
@@ -81,22 +83,3 @@ export const Input: React.FC<InputProps> = ({ size = "md", variant = "gray-50", 
     </div>
   );
 };
-
-export const Field: React.FC<{ label: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }> = ({ label, children, className, style }) => (
-  <div className={className} style={{ display: "flex", flexDirection: "column", gap: 6, ...style }}>
-    <label
-      style={{
-        color: "var(--Gray-700, #414651)",
-        fontFamily: "Pretendard",
-        fontSize: 14,
-        fontStyle: "normal",
-        fontWeight: 500,
-        lineHeight: "20px",
-        marginBottom: 2,
-      }}
-    >
-      {label}
-    </label>
-    {children}
-  </div>
-);
