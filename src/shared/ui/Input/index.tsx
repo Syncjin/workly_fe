@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useLayoutEffect, useState } from "react";
-import { inputRecipe, sizeVariants, InputColorVariant, inputStatus } from "./input.css";
+import { inputRecipe, sizeVariants, InputColorVariant } from "./input.css";
 
 export type InputSize = keyof typeof sizeVariants;
 export type InputVariant = InputColorVariant;
@@ -11,11 +11,10 @@ type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   variant?: InputVariant;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
-  forceFocus?: boolean;
   status?: "default" | "success" | "error";
 };
 
-export const Input: React.FC<InputProps> = ({ size = "md", variant = "gray-50", iconLeft, iconRight, className, style, forceFocus, status = "default", ...rest }) => {
+export const Input: React.FC<InputProps> = ({ size = "md", variant = "gray-50", iconLeft, iconRight, className, style, status = "default", ...rest }) => {
   const leftRef = useRef<HTMLSpanElement>(null);
   const rightRef = useRef<HTMLSpanElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

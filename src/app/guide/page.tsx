@@ -9,6 +9,7 @@ import Icon from "@/shared/ui/Icon";
 import { Input } from "@/shared/ui/Input";
 import { Field } from "@/shared/ui/Field";
 import InputHint from "@/shared/ui/InputHint";
+import Textarea from "@/shared/ui/Input/Textarea";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -178,6 +179,14 @@ export default function GuidePage() {
           <Input placeholder="비밀번호 입력" status="error" iconRight={<Icon name="eye" size={18} color="#fff" />} />
           <InputHint variant="error">에러 메시지입니다.</InputHint>
         </Field>
+      </div>
+      {/* Textarea Guide */}
+      <h1>Textarea Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 400, marginBottom: 48 }}>
+        <Textarea placeholder="기본 텍스트에어리어" />
+        <Textarea placeholder="성공 상태" status="success" />
+        <Textarea placeholder="에러 상태" status="error" />
+        <Textarea placeholder="비활성화(disabled)" disabled />
       </div>
     </div>
   );
