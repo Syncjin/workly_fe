@@ -13,6 +13,7 @@ import InputHint from "@/shared/ui/InputHint";
 import Textarea from "@/shared/ui/Input/Textarea";
 import CheckBox from "@/shared/ui/CheckBox";
 import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
+import InputField from "@/shared/ui/Input/InputField";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -165,27 +166,33 @@ export default function GuidePage() {
         <Input
           placeholder="focus"
           style={{
-            boxShadow: "0 0 0 2px var(--color-brand-300)",
+            boxShadow: "0 0 0 4px var(--color-brand-300)",
             background: "#fff",
           }}
         />
         <Input placeholder="비활성화(disabled)" disabled />
       </div>
-      {/* Field Guide */}
-      <h1>Field Guide</h1>
+      {/* Input Field Guide */}
+      <h1>Input Field Guide</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 400, marginBottom: 48 }}>
-        <Field label="이메일">
-          <Input placeholder="이메일을 입력하세요" />
-          <InputHint>기본 안내 메시지입니다.</InputHint>
-        </Field>
-        <Field label="검색">
-          <Input placeholder="검색어 입력" status="success" iconLeft={<Icon name="search-line" size={18} color="#000" />} />
-          <InputHint variant="success">성공 메시지입니다.</InputHint>
-        </Field>
-        <Field label="비밀번호">
-          <Input placeholder="비밀번호 입력" status="error" iconRight={<Icon name="eye-line" size={18} color="#000" />} />
-          <InputHint variant="error">에러 메시지입니다.</InputHint>
-        </Field>
+        <InputField
+          label="이메일"
+          placeholder="이메일을 입력하세요"
+          helperText="기본 안내 메시지입니다."
+        />
+       
+       <InputField
+          label="검색"
+          successText="성공 메시지입니다."
+          placeholder="검색어 입력" status="success" iconLeft={<Icon name="search-line" size={18} color="#000" />}
+        />
+
+        <InputField
+          label="비밀번호"
+          errorText="에러 메시지입니다."
+          placeholder="비밀번호 입력" status="error" iconLeft={<Icon name="eye-line" size={18} color="#000" />}
+        />
+     
       </div>
       {/* Textarea Guide */}
       <h1>Textarea Guide</h1>

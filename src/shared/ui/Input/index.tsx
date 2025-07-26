@@ -6,7 +6,7 @@ import { inputRecipe, sizeVariants, InputColorVariant } from "./input.css";
 export type InputSize = keyof typeof sizeVariants;
 export type InputVariant = InputColorVariant;
 
-type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
+export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   size?: InputSize;
   variant?: InputVariant;
   iconLeft?: React.ReactNode;

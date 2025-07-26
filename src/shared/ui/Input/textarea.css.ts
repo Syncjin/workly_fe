@@ -13,11 +13,7 @@ export const baseTextarea = style({
   transition: "border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s",
   resize: "none",
   selectors: {
-    "&:focus": {
-      borderColor: "var(--color-brand-500)",
-      boxShadow: "0px 1px 2px 0px rgba(10, 13, 18, 0.05), 0px 0px 0px 4px var(--color-brand-100)",
-      background: "#fff",
-    },
+   
     "&:disabled": {
       background: "var(--color-gray-50)",
       color: "var(--color-gray-500)",
@@ -26,7 +22,6 @@ export const baseTextarea = style({
     },
     "&::placeholder": {
       color: "var(--color-gray-500)",
-      opacity: 1,
     },
   },
 });
@@ -35,7 +30,7 @@ export const textareaStatus = styleVariants({
   default: {
     selectors: {
       "&:focus": {
-        boxShadow: "0 0 0 2px var(--color-brand-300)",
+        boxShadow: "0 0 0 4px var(--color-brand-300)",
         background: "#fff",
       },
     },

@@ -59,7 +59,7 @@ export const inputStatus = styleVariants({
   default: {
     selectors: {
       "&:focus": {
-        boxShadow: "0 0 0 2px var(--color-brand-300)",
+        boxShadow: "0 0 0 4px var(--color-brand-300)",
         background: "#fff",
       },
     },
