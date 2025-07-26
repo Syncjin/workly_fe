@@ -12,6 +12,7 @@ import { Field } from "@/shared/ui/Field";
 import InputHint from "@/shared/ui/InputHint";
 import Textarea from "@/shared/ui/Input/Textarea";
 import CheckBox from "@/shared/ui/CheckBox";
+import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -195,17 +196,18 @@ export default function GuidePage() {
         <Textarea placeholder="비활성화(disabled)" disabled />
       </div>
       {/* CheckBox Guide */}
-      <h1>CheckBox Guide</h1>
+      <h1>CheckBoxField Guide</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 400, marginBottom: 48 }}>
-        <CheckBox label="기본 체크박스" checked={checked} onChange={e => setChecked(e.target.checked)} />
-        <CheckBox label="체크됨" checked={checked2} onChange={e => setChecked2(e.target.checked)} />
-        <CheckBox label="비활성화" disabled readOnly/>
-        <CheckBox label="체크+비활성화" checked disabled onChange={() => {}} />
+        <CheckBoxField label="기본 체크박스" checked={checked} onChange={e => setChecked(e.target.checked)} description="설명 메시지입니다."/>
+        <CheckBoxField label="체크됨" checked={checked2} onChange={e => setChecked2(e.target.checked)} />
+        <CheckBoxField label="비활성화" disabled readOnly/>
+        <CheckBoxField label="체크+비활성화" checked disabled onChange={() => {}} />
       
+        <h2>CheckBox Size (sm, md, lg)</h2>
         <div style={{ display: "flex", gap: 16 }}>
-          <CheckBox size="sm" label="Small" checked readOnly />
-          <CheckBox size="md" label="Medium" checked readOnly />
-          <CheckBox size="lg" label="Large" checked readOnly />
+          <CheckBox size="sm" checked readOnly />
+          <CheckBox size="md"  checked readOnly />
+          <CheckBox size="lg" checked readOnly />
         </div>
       </div>
     </div>
