@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Button } from "@/shared/ui/Button";
 import { colorGroups, colorLevels } from "@/shared/styles/colorVariants";
 import { ButtonVariant } from "@/shared/ui/Button/button.css";
@@ -10,6 +11,7 @@ import { Input } from "@/shared/ui/Input";
 import { Field } from "@/shared/ui/Field";
 import InputHint from "@/shared/ui/InputHint";
 import Textarea from "@/shared/ui/Input/Textarea";
+import CheckBox from "@/shared/ui/CheckBox";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -21,6 +23,10 @@ const buttonStates = [
 ];
 
 export default function GuidePage() {
+  const [checked, setChecked] = useState(false);
+  const [checked2, setChecked2] = useState(true);
+  
+
   return (
     <div style={{ padding: 32 }}>
       <h1>Button Variant Guide</h1>
@@ -96,12 +102,12 @@ export default function GuidePage() {
                 </Badge>
               </td>
               <td style={{ padding: "8px 12px", textAlign: "center" }}>
-                <Badge size={size} color="brand-50" icon={<Icon name="star" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />}>
+                <Badge size={size} color="brand-50" icon={<Icon name="arrow-right-line" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />}>
                   Label
                 </Badge>
               </td>
               <td style={{ padding: "8px 12px", textAlign: "center" }}>
-                <Badge size={size} color="brand-50" icon={<Icon name="star" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />} iconPosition="right">
+                <Badge size={size} color="brand-50" icon={<Icon name="arrow-right-line" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />} iconPosition="right">
                   Label
                 </Badge>
               </td>
@@ -152,9 +158,9 @@ export default function GuidePage() {
       <h1>Input Guide</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 400, marginBottom: 48 }}>
         <Input placeholder="기본 인풋" />
-        <Input placeholder="왼쪽 아이콘" iconLeft={<Icon name="search" size={18} color="#fff" />} />
-        <Input placeholder="오른쪽 아이콘" iconRight={<Icon name="x" size={18} color="gray-500" />} />
-        <Input placeholder="양쪽 아이콘" iconLeft={<Icon name="search" size={18} color="#fff" />} iconRight={<Icon name="x" size={18} color="gray-500" />} />
+        <Input placeholder="왼쪽 아이콘" iconLeft={<Icon name="search-line" size={18} color="#000" />} />
+        <Input placeholder="오른쪽 아이콘" iconRight={<Icon name="close-line" size={18} color="gray-500" />} />
+        <Input placeholder="양쪽 아이콘" iconLeft={<Icon name="search-line" size={18} color="#000" />} iconRight={<Icon name="close-line" size={18} color="gray-500" />} />
         <Input
           placeholder="focus"
           style={{
@@ -172,11 +178,11 @@ export default function GuidePage() {
           <InputHint>기본 안내 메시지입니다.</InputHint>
         </Field>
         <Field label="검색">
-          <Input placeholder="검색어 입력" status="success" iconLeft={<Icon name="search" size={18} color="#fff" />} />
+          <Input placeholder="검색어 입력" status="success" iconLeft={<Icon name="search-line" size={18} color="#000" />} />
           <InputHint variant="success">성공 메시지입니다.</InputHint>
         </Field>
         <Field label="비밀번호">
-          <Input placeholder="비밀번호 입력" status="error" iconRight={<Icon name="eye" size={18} color="#fff" />} />
+          <Input placeholder="비밀번호 입력" status="error" iconRight={<Icon name="eye-line" size={18} color="#000" />} />
           <InputHint variant="error">에러 메시지입니다.</InputHint>
         </Field>
       </div>
@@ -187,6 +193,20 @@ export default function GuidePage() {
         <Textarea placeholder="성공 상태" status="success" />
         <Textarea placeholder="에러 상태" status="error" />
         <Textarea placeholder="비활성화(disabled)" disabled />
+      </div>
+      {/* CheckBox Guide */}
+      <h1>CheckBox Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 400, marginBottom: 48 }}>
+        <CheckBox label="기본 체크박스" checked={checked} onChange={e => setChecked(e.target.checked)} />
+        <CheckBox label="체크됨" checked={checked2} onChange={e => setChecked2(e.target.checked)} />
+        <CheckBox label="비활성화" disabled readOnly/>
+        <CheckBox label="체크+비활성화" checked disabled onChange={() => {}} />
+      
+        <div style={{ display: "flex", gap: 16 }}>
+          <CheckBox size="sm" label="Small" checked readOnly />
+          <CheckBox size="md" label="Medium" checked readOnly />
+          <CheckBox size="lg" label="Large" checked readOnly />
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import Button from "@/shared/ui/Button";
+import {Button} from "@/shared/ui/Button";
 import Image from "next/image";
 
 export default function Home() {

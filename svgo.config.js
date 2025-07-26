@@ -1,15 +1,10 @@
 module.exports = {
   plugins: [
+    { name: "removeDimensions" }, // width/height 제거
     {
-      name: "removeDimensions", // width, height 제거
-      active: true,
-    },
-    {
-      name: "preset-default",
+      name: "removeAttrs",
       params: {
-        overrides: {
-          // 추가 설정
-        },
+        attrs: ["fill", "stroke", "color"], // 제거하고 싶은 속성
       },
     },
   ],
