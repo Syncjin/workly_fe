@@ -62,7 +62,7 @@ const Avatar: React.FC<AvatarProps> = ({
         <img src={src} alt={alt} className={avatarImage} />
       ) : (
         <div className={avatarIcon}>
-          <Icon name="user-line" size={iconSizeMap[size]} />
+          <Icon name="user-line" size={iconSizeMap[size]} color="brand-600"/>
         </div>
       )}
       {showDot && !icon && (

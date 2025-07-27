@@ -74,4 +74,4 @@ export const avatarIconSize = styleVariants({
   lg: { width: 16, height: 16 },
   xl: { width: 18, height: 18 },
   "2xl": { width: 20, height: 20 },
-}); 
+});
