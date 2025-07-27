@@ -15,6 +15,7 @@ import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
 import InputField from "@/shared/ui/Input/InputField";
 import RadioGroup from "@/shared/ui/Radio/RadioGroup";
 import Avatar from "@/shared/ui/Avatar";
+import AvatarGroup from "@/shared/ui/Avatar/AvatarGroup";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -424,6 +425,102 @@ export default function GuidePage() {
               }}
             />
             <span>포커스 상태 (Tab으로 포커스 가능)</span>
+          </div>
+        </div>
+      </div>
+      {/* AvatarGroup Guide */}
+      <h1>AvatarGroup Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 600, marginBottom: 48 }}>
+        <div>
+          <h2>AvatarGroup Size (xs, sm, md)</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ minWidth: 40 }}>xs:</span>
+              <AvatarGroup
+                avatars={[
+                  { src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+                ]}
+                size="xs"
+                max={3}
+                showDot={true}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ minWidth: 40 }}>sm:</span>
+              <AvatarGroup
+                avatars={[
+                  { src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+                ]}
+                size="sm"
+                max={5}
+                showDot={true}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ minWidth: 40 }}>md:</span>
+              <AvatarGroup
+                avatars={[
+                  { src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+                ]}
+                size="md"
+                max={2}
+                showDot={true}
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h2>AvatarGroup with Different Max Values</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ minWidth: 80 }}>Max 2:</span>
+              <AvatarGroup
+                avatars={[
+                  { src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+                ]}
+                size="md"
+                max={2}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ minWidth: 80 }}>Max 4:</span>
+              <AvatarGroup
+                avatars={[
+                  { src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+                  { icon: <Icon name="star-line" color="var(--color-warning-600)" /> },
+                ]}
+                size="md"
+                max={4}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ minWidth: 80 }}>Max 6:</span>
+              <AvatarGroup
+                avatars={[
+                  { src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+                  { src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+                  { icon: <Icon name="star-line" color="var(--color-warning-600)" /> },
+                  { icon: <Icon name="star-line" color="var(--color-warning-600)" /> },
+                  { icon: <Icon name="star-line" color="var(--color-warning-600)" /> },
+                  { icon: <Icon name="star-line" color="var(--color-warning-600)" /> },
+                ]}
+                size="md"
+                max={6}
+                showDot={true}
+              />
+            </div>
           </div>
         </div>
       </div>
