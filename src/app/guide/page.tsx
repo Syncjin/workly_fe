@@ -8,12 +8,12 @@ import { Badge } from "@/shared/ui/Badge";
 import type { BadgeSize } from "@/shared/ui/Badge";
 import Icon from "@/shared/ui/Icon";
 import { Input } from "@/shared/ui/Input";
-import { Field } from "@/shared/ui/Field";
 import InputHint from "@/shared/ui/InputHint";
 import Textarea from "@/shared/ui/Input/Textarea";
 import CheckBox from "@/shared/ui/CheckBox";
 import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
 import InputField from "@/shared/ui/Input/InputField";
+import RadioGroup from "@/shared/ui/Radio/RadioGroup";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -27,6 +27,8 @@ const buttonStates = [
 export default function GuidePage() {
   const [checked, setChecked] = useState(false);
   const [checked2, setChecked2] = useState(true);
+  const [radioValue, setRadioValue] = useState("option1");
+  const [radioValue2, setRadioValue2] = useState("option2");
   
 
   return (
@@ -215,6 +217,92 @@ export default function GuidePage() {
           <CheckBox size="sm" checked readOnly />
           <CheckBox size="md"  checked readOnly />
           <CheckBox size="lg" checked readOnly />
+        </div>
+      </div>
+      {/* RadioGroup Guide */}
+      <h1>RadioGroup Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 400, marginBottom: 48 }}>
+        <RadioGroup
+          label="기본 라디오 그룹"
+          options={[
+            { label: "옵션 1", value: "option1" },
+            { label: "옵션 2", value: "option2" },
+            { label: "옵션 3", value: "option3" },
+          ]}
+          value={radioValue}
+          onChange={setRadioValue}
+          description="기본 라디오 그룹 예제입니다."
+        />
+        
+        <RadioGroup
+          label="가로 방향 라디오 그룹"
+          options={[
+            { label: "옵션 A", value: "optionA" },
+            { label: "옵션 B", value: "optionB" },
+            { label: "옵션 C", value: "optionC" },
+          ]}
+          value={radioValue2}
+          onChange={setRadioValue2}
+          direction="row"
+          helperText="가로 방향으로 배치된 라디오 그룹입니다."
+        />
+        
+        <RadioGroup
+          label="에러 상태 라디오 그룹"
+          options={[
+            { label: "옵션 X", value: "optionX" },
+            { label: "옵션 Y", value: "optionY" },
+          ]}
+          errorText="에러 메시지가 표시됩니다."
+        />
+        
+        <RadioGroup
+          label="비활성화 라디오 그룹"
+          options={[
+            { label: "옵션 1", value: "disabled1" },
+            { label: "옵션 2", value: "disabled2", disabled: true },
+            { label: "옵션 3", value: "disabled3" },
+          ]}
+          
+        />
+        
+        <RadioGroup
+          label="체크된 상태로 비활성화된 라디오 그룹"
+          options={[
+            { label: "옵션 1", value: "checked-disabled1" },
+            { label: "옵션 2 (체크됨)", value: "checked-disabled2" },
+            { label: "옵션 3", value: "checked-disabled3" },
+          ]}
+          value="checked-disabled2"
+          disabled
+        />
+        
+        <h2>RadioGroup Size (sm, md, lg)</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <RadioGroup
+            label="Small Size"
+            options={[
+              { label: "Small 1", value: "small1" },
+              { label: "Small 2", value: "small2" },
+            ]}
+            size="sm"
+          />
+          <RadioGroup
+            label="Medium Size"
+            options={[
+              { label: "Medium 1", value: "medium1" },
+              { label: "Medium 2", value: "medium2" },
+            ]}
+            size="md"
+          />
+          <RadioGroup
+            label="Large Size"
+            options={[
+              { label: "Large 1", value: "large1" },
+              { label: "Large 2", value: "large2" },
+            ]}
+            size="lg"
+          />
         </div>
       </div>
     </div>
