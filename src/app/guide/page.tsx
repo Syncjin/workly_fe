@@ -14,6 +14,7 @@ import CheckBox from "@/shared/ui/CheckBox";
 import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
 import InputField from "@/shared/ui/Input/InputField";
 import RadioGroup from "@/shared/ui/Radio/RadioGroup";
+import Avatar from "@/shared/ui/Avatar";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -303,6 +304,127 @@ export default function GuidePage() {
             ]}
             size="lg"
           />
+        </div>
+      </div>
+      {/* Avatar Guide */}
+      <h1>Avatar Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 600, marginBottom: 48 }}>
+        <div>
+          <h2>Avatar Size (xs, sm, md, lg, xl, 2xl)</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <Avatar size="xs" />
+              <span style={{ fontSize: 12 }}>XS</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <Avatar size="sm" />
+              <span style={{ fontSize: 12 }}>Small</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <Avatar size="md" />
+              <span style={{ fontSize: 12 }}>Medium</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <Avatar size="lg" />
+              <span style={{ fontSize: 12 }}>Large</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <Avatar size="xl" />
+              <span style={{ fontSize: 12 }}>XLarge</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <Avatar size="2xl" />
+              <span style={{ fontSize: 12 }}>2XL</span>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h2>Avatar with Image</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
+              alt="User Avatar"
+              size="lg"
+            />
+            <span>이미지가 있는 아바타</span>
+          </div>
+        </div>
+        
+        <div>
+          <h2>Avatar with Status Dot</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar showDot size="lg" />
+            <span>온라인 상태 (기본 초록색)</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              showDot 
+              dotColor="var(--color-warning-500)" 
+              size="lg" 
+            />
+            <span>자리 비움 상태 (주황색)</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              showDot 
+              dotColor="var(--color-error-500)" 
+              size="lg" 
+            />
+            <span>오프라인 상태 (빨간색)</span>
+          </div>
+        </div>
+        
+        <div>
+          <h2>Avatar with Status Icon</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              icon={<Icon name="check-line" size={12} color="var(--color-success-600)" />}
+              size="lg" 
+            />
+            <span>승인 상태 (체크 아이콘)</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              icon={<Icon name="star-line" size={12} color="var(--color-warning-600)" />}
+              size="lg" 
+            />
+            <span>프리미엄 상태 (별 아이콘)</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              icon={<Icon name="shield-check-line"  color="var(--color-brand-600)" />}
+              size="lg" 
+            />
+            <span>인증 상태 (방패 아이콘)</span>
+          </div>
+        </div>
+        
+        <div>
+          <h2>Avatar with Image and Status Dot</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
+              alt="User Avatar"
+              showDot
+              size="lg"
+            />
+            <span>이미지와 온라인 상태</span>
+          </div>
+        </div>
+        
+        <div>
+          <h2>Avatar Focus State</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+            <Avatar 
+              size="lg"
+              tabIndex={0}
+              style={{
+                boxShadow: "0 0 0 4px var(--color-brand-100)",
+              }}
+            />
+            <span>포커스 상태 (Tab으로 포커스 가능)</span>
+          </div>
         </div>
       </div>
     </div>
