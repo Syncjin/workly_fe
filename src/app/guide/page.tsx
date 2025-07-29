@@ -16,6 +16,7 @@ import InputField from "@/shared/ui/Input/InputField";
 import RadioGroup from "@/shared/ui/Radio/RadioGroup";
 import Avatar from "@/shared/ui/Avatar";
 import AvatarGroup from "@/shared/ui/Avatar/AvatarGroup";
+import Dropdown from "@/shared/ui/Dropdown";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -523,6 +524,19 @@ export default function GuidePage() {
             </div>
           </div>
         </div>
+      </div>
+      {/* Dropdown Guide */}
+      <h1>Dropdown Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 600, marginBottom: 48 }}>
+      <Dropdown>
+  <Dropdown.Trigger>
+    <button>옵션 열기 ⌄</button>
+  </Dropdown.Trigger>
+  <Dropdown.Menu>
+    <Dropdown.Item icon={<Icon name="star-line" color="var(--color-warning-600)" />} text="설정" />
+    <Dropdown.Item icon={<Icon name="star-line" color="var(--color-warning-600)" />} text="로그아웃" />
+  </Dropdown.Menu>
+</Dropdown>
       </div>
     </div>
   );
