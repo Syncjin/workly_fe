@@ -32,7 +32,7 @@ export default function GuidePage() {
   const [checked2, setChecked2] = useState(true);
   const [radioValue, setRadioValue] = useState("option1");
   const [radioValue2, setRadioValue2] = useState("option2");
-  
+  const [open, setOpen] = useState(true);
 
   return (
     <div style={{ padding: 32 }}>
@@ -528,15 +528,33 @@ export default function GuidePage() {
       {/* Dropdown Guide */}
       <h1>Dropdown Guide</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 600, marginBottom: 48 }}>
-      <Dropdown>
-  <Dropdown.Trigger>
-    <button>옵션 열기 ⌄</button>
-  </Dropdown.Trigger>
-  <Dropdown.Menu>
-    <Dropdown.Item icon={<Icon name="star-line" color="var(--color-warning-600)" />} text="설정" />
-    <Dropdown.Item icon={<Icon name="star-line" color="var(--color-warning-600)" />} text="로그아웃" />
-  </Dropdown.Menu>
-</Dropdown>
+        <Dropdown>
+          <Dropdown.Trigger>
+            <button>옵션 열기 ⌄</button>
+          </Dropdown.Trigger>
+          <Dropdown.Menu>
+            <Dropdown.Item icon={<Icon name="star-line" color="var(--color-warning-600)" />} text="설정" />
+            <Dropdown.Item icon={<Icon name="star-line" color="var(--color-warning-600)" />} text="로그아웃" />
+          </Dropdown.Menu>
+        </Dropdown>
+        <h2>Dropdown use setState</h2>
+        <Dropdown open={open} onOpenChange={setOpen}>
+          <Dropdown.Trigger>
+            <button>메뉴 열기</button>
+          </Dropdown.Trigger>
+          <Dropdown.Menu>
+            <Dropdown.Header>보기 설정</Dropdown.Header>
+            <Dropdown.Item closeOnClick={false}>
+              <div style={{display:"flex", flexDirection:"column", gap:4}}>
+                <CheckBoxField label="기본 체크박스" checked={checked} onChange={e => setChecked(e.target.checked)} />
+                <span>즐겨찾기만 보기</span>
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Line />
+            <Dropdown.Item text="프로필" />
+            <Dropdown.Item text="로그아웃" onClick={() => console.log("로그아웃")} />
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </div>
   );

@@ -37,3 +37,15 @@ export const iconStyle = style({
   alignItems: "center",
   justifyContent: "center",
 });
+
+export const headerStyle = style({
+  padding: "12px 16px",
+  fontWeight: 600,
+  fontSize: "14px",
+  color: "var(--color-gray-700)",
+});
+
+export const lineStyle = style({
+  height: "1px",
+  background: "var(--color-gray-200)",
+});
