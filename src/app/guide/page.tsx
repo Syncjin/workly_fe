@@ -8,7 +8,6 @@ import { Badge } from "@/shared/ui/Badge";
 import type { BadgeSize } from "@/shared/ui/Badge";
 import Icon from "@/shared/ui/Icon";
 import { Input } from "@/shared/ui/Input";
-import InputHint from "@/shared/ui/InputHint";
 import Textarea from "@/shared/ui/Input/Textarea";
 import CheckBox from "@/shared/ui/CheckBox";
 import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
@@ -17,6 +16,7 @@ import RadioGroup from "@/shared/ui/Radio/RadioGroup";
 import Avatar from "@/shared/ui/Avatar";
 import AvatarGroup from "@/shared/ui/Avatar/AvatarGroup";
 import Dropdown from "@/shared/ui/Dropdown";
+import Select, { OptionShape } from "@/shared/ui/Select";
 
 const variants: ButtonVariant[] = ["solid", "light", "border", "ghost", "link"];
 
@@ -27,12 +27,22 @@ const buttonStates = [
   { label: "Disabled", props: { disabled: true } },
 ];
 
+const options: OptionShape[] = [
+  { value: "apple", text: "사과", subText: "달콤한 과일", icon: <Icon name="add-box-line" /> },
+  { value: "grape", text: "포도", subText: "달콤한 과일", },
+  { value: "banana", text: "바나나" },
+  { value: "melon", text: "멜론", visualType: "dot", dotColor: "var(--color-success-500)" },
+  { value: "strawberry", text: "딸기", visualType: "avatar", avatar: <Avatar src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" size="xs" /> },
+];
+
 export default function GuidePage() {
   const [checked, setChecked] = useState(false);
   const [checked2, setChecked2] = useState(true);
   const [radioValue, setRadioValue] = useState("option1");
   const [radioValue2, setRadioValue2] = useState("option2");
   const [open, setOpen] = useState(true);
+  const [selected, setSelected] = useState<OptionShape | null>(null);
+
 
   return (
     <div style={{ padding: 32 }}>
@@ -556,6 +566,20 @@ export default function GuidePage() {
           </Dropdown.Menu>
         </Dropdown>
       </div>
+
+      {/* Select Guide */}
+      <h1>Select Guide</h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 320, marginBottom: 48 }}>
+        <Select value={selected?.value} onChange={setSelected} options={options} placeholder="과일을 선택하세요">
+          <Select.Menu>
+            {options.map(opt => (
+              <Select.Option key={opt.value} {...opt} />
+            ))}
+          </Select.Menu>
+        </Select>
+      </div>
+
+      
     </div>
   );
 }

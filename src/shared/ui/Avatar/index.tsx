@@ -33,15 +33,6 @@ const Avatar: React.FC<AvatarProps> = ({
     xl: 18,
     "2xl": 20,
   };
-  // dot의 최대 크기
-  const dotSizeMap = {
-    xs: 6,
-    sm: 8,
-    md: 10,
-    lg: 12,
-    xl: 14,
-    "2xl": 16,
-  };
 
   // icon이 ReactElement이고 size prop이 없으면 dot의 최대 크기로 size를 지정
   let renderedIcon = icon;
