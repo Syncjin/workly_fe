@@ -20,6 +20,7 @@ interface SelectProps {
   placeholder?: string;
   children: React.ReactNode;
   options: OptionShape[];
+  searchable?: boolean;
 }
 
 interface SelectContextValue {
@@ -28,19 +29,30 @@ interface SelectContextValue {
   isOpen: boolean;
   toggle: () => void;
   close: () => void;
+  search: string;
+  setSearch: (val: string) => void;
+  filteredOptions: OptionShape[];
+  searchable: boolean;
 }
 
 const SelectContext = createContext<SelectContextValue | null>(null);
 
-const Select = ({ value, onChange, placeholder, children, options }: SelectProps) => {
+const Select = ({ value, onChange, placeholder, children, options, searchable = false}: SelectProps) => {
 	const selected = options.find((opt) => opt.value === value);
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const toggle = () => setOpen((prev) => !prev);
-  const close = () => setOpen(false);
+  const close = () => {
+    setOpen(false);
+    setSearch("");
+  };
 
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, close);
+  useClickOutside(ref, () => {
+    setOpen(false);
+    setSearch("");
+  });
 
 	const onSelect = (val: string) => {
 		const selectedOption = options.find(opt => opt.value === val);
@@ -50,8 +62,17 @@ const Select = ({ value, onChange, placeholder, children, options }: SelectProps
 		}
 	};
 
+  const filteredOptions = searchable
+    ? options.filter((opt) =>
+        opt.text.toLowerCase().includes(search.toLowerCase())
+      )
+    : options;
+
   return (
-    <SelectContext.Provider value={{ selected, onSelect, isOpen: open, toggle, close }}>
+    <SelectContext.Provider value={{ selected, onSelect, isOpen: open, toggle, close, search,
+      setSearch,
+      filteredOptions,
+      searchable }}>
       <div className={styles.selectContainer} ref={ref}>
         <Trigger placeholder={placeholder} />
         {children}
@@ -63,11 +84,20 @@ const Select = ({ value, onChange, placeholder, children, options }: SelectProps
 const Trigger = ({ placeholder }: { placeholder?: string }) => {
   const ctx = useContext(SelectContext);
   if (!ctx) throw new Error("Select.Trigger 필수");
-  const { selected, isOpen, toggle } = ctx;
+  const { selected, isOpen, toggle, search, setSearch, searchable } = ctx;
 
   return (
 		<div className={styles.trigger({ focused: isOpen })} onClick={toggle}>
-      {selected ? (
+      {isOpen && searchable ? (
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className={styles.searchInput}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : selected ? (
         <div className={styles.optionContent({ visualType: selected.visualType })}>
           <div className={styles.centerText}>
             {renderLeftVisual(selected)}
@@ -83,10 +113,23 @@ const Trigger = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-const Menu = ({ children }: { children: React.ReactNode }) => {
+const Menu = () => {
   const ctx = useContext(SelectContext);
   if (!ctx?.isOpen) return null;
-  return <div className={styles.menu}>{children}</div>;
+
+  const { filteredOptions, searchable, search } = ctx;
+
+  return (
+    <div className={styles.menu}>
+      {filteredOptions.length > 0 ? (
+        filteredOptions.map((opt) => (
+          <Select.Option key={opt.value} {...opt} />
+        ))
+      ) : searchable && search.trim() !== "" ? (
+        <div className={styles.empty}>검색 결과가 없습니다</div>
+      ) : null}
+    </div>
+  );
 };
 
 interface OptionProps extends OptionShape {

@@ -30,6 +30,9 @@ const buttonStates = [
 const options: OptionShape[] = [
   { value: "apple", text: "사과", subText: "달콤한 과일", icon: <Icon name="add-box-line" /> },
   { value: "grape", text: "포도", subText: "달콤한 과일", },
+  { value: "grape2", text: "포도2", subText: "달콤한 과일", },
+  { value: "grape3", text: "포도3", subText: "달콤한 과일", },
+  { value: "grape4", text: "포도4", subText: "달콤한 과일", },
   { value: "banana", text: "바나나" },
   { value: "melon", text: "멜론", visualType: "dot", dotColor: "var(--color-success-500)" },
   { value: "strawberry", text: "딸기", visualType: "avatar", avatar: <Avatar src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" size="xs" /> },
@@ -571,11 +574,11 @@ export default function GuidePage() {
       <h1>Select Guide</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 320, marginBottom: 48 }}>
         <Select value={selected?.value} onChange={setSelected} options={options} placeholder="과일을 선택하세요">
-          <Select.Menu>
-            {options.map(opt => (
-              <Select.Option key={opt.value} {...opt} />
-            ))}
-          </Select.Menu>
+          <Select.Menu />
+        </Select>
+        <h2>Select search</h2>
+        <Select value={selected?.value} onChange={setSelected} options={options} placeholder="과일을 선택하세요" searchable>
+          <Select.Menu />
         </Select>
       </div>
 

@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { recipe, RecipeVariants } from "@vanilla-extract/recipes";
+import { recipe } from "@vanilla-extract/recipes";
 
 export const selectContainer = style({
   display: "inline-block",
@@ -46,6 +46,17 @@ export const menu = style({
   boxShadow:
     "0 12px 16px -4px rgba(10, 13, 18, 0.08), 0 4px 6px -2px rgba(10, 13, 18, 0.03)",
   zIndex: 10,
+  maxHeight: "336px", // 48px * 7
+  overflowY: "auto",
+  selectors: {
+    '&::-webkit-scrollbar': {
+      width: "8px",
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: "var(--color-gray-200)",
+      borderRadius: "8px",
+    },
+  }
 });
 
 export const option = recipe({
@@ -133,4 +144,24 @@ export const placeholder = style({
   color: "var(--color-gray-500)",
   fontSize: "16px",
   lineHeight: "24px"
+});
+
+export const searchInput = style({
+  flex: 1,
+  border: "none",
+  outline: "none",
+  fontSize: "16px",
+  color: "var(--color-gray-900)",
+  backgroundColor: "transparent",
+  "::placeholder": {
+    color: "var(--color-gray-400)",
+  },
+});
+
+export const empty = style({
+  padding: "12px 16px",
+  textAlign: "center",
+  color: "var(--color-gray-500)",
+  fontSize: "14px",
+  lineHeight: "20px",
 });
