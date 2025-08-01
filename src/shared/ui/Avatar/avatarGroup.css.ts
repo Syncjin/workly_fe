@@ -10,15 +10,15 @@ export const avatarGroupItem = style({
 });
 
 export const avatarGroupOverflowBase = style({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "50%",
-    background: "var(--color-brand-50)",
-    border: "2px solid #fff",
-    color: "var(--color-brand-600)",
-    fontWeight: 500,
-  });
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "50%",
+  background: "var(--color-brand-50)",
+  border: "2px solid #fff",
+  color: "var(--color-brand-600)",
+  fontWeight: 500,
+});
 
 export const avatarGroupOverflow = styleVariants({
   xs: {

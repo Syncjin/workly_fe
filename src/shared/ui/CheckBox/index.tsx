@@ -18,10 +18,14 @@ const CheckBox: React.FC<CheckBoxProps> = ({ size = "md", checked, defaultChecke
       <input
         type="checkbox"
         className={[checkboxBase, checkboxSize[size], isChecked ? checkboxChecked : "", className].filter(Boolean).join(" ")}
-        style={{ ...style, width: boxSize, height: boxSize, margin: 0, padding: 0 }}
-        {...(isControlled
-          ? { checked, onChange: rest.onChange }
-          : { defaultChecked })}
+        style={{
+          ...style,
+          width: boxSize,
+          height: boxSize,
+          margin: 0,
+          padding: 0,
+        }}
+        {...(isControlled ? { checked, onChange: rest.onChange } : { defaultChecked })}
         {...rest}
       />
       {isChecked && (

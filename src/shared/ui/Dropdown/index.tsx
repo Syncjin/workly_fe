@@ -58,27 +58,16 @@ const Menu = ({ children }: { children: React.ReactNode }) => {
   return <div className={styles.dropdownMenu}>{children}</div>;
 };
 
-
 interface HeaderProps {
   children: React.ReactNode;
 }
 
 const Header = ({ children }: HeaderProps) => {
-  return (
-    <div
-      className={styles.headerStyle}
-    >
-      {children}
-    </div>
-  );
+  return <div className={styles.headerStyle}>{children}</div>;
 };
 
 const Line = () => {
-  return (
-    <div
-      className={styles.lineStyle}
-    />
-  );
+  return <div className={styles.lineStyle} />;
 };
 
 interface ItemProps {

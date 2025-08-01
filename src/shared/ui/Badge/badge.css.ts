@@ -22,7 +22,10 @@ export const sizeVariants = styleVariants({
 
 export type BadgeColor = ColorVariant;
 
-const colorCompoundVariants: { variants: { color: BadgeColor }; style: Record<string, string> }[] = [];
+const colorCompoundVariants: {
+  variants: { color: BadgeColor };
+  style: Record<string, string>;
+}[] = [];
 colorGroups.forEach((group) => {
   colorLevels.forEach((level) => {
     const color = `${group}-${level}` as BadgeColor;

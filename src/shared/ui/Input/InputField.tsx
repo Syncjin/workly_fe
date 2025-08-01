@@ -1,9 +1,9 @@
 import React from "react";
 import { Input, InputProps } from "./index";
 import InputHint from "@/shared/ui/InputHint";
-import {fieldWrapper, labelStyle, descriptionStyle} from "./inputField.css";
+import { fieldWrapper, labelStyle, descriptionStyle } from "./inputField.css";
 
-interface InputFieldProps extends Omit<InputProps, 'status'> {
+interface InputFieldProps extends Omit<InputProps, "status"> {
   label?: React.ReactNode;
   description?: React.ReactNode;
   errorText?: React.ReactNode;
@@ -12,50 +12,17 @@ interface InputFieldProps extends Omit<InputProps, 'status'> {
   status?: "default" | "success" | "error";
 }
 
-const InputField: React.FC<InputFieldProps> = ({ 
-  label, 
-  description, 
-  errorText, 
-  helperText, 
-  successText,
-  status = "default",
-  ...inputProps 
-}) => {
-
-  
+const InputField: React.FC<InputFieldProps> = ({ label, description, errorText, helperText, successText, status = "default", ...inputProps }) => {
   return (
     <div className={fieldWrapper}>
-      {label && (
-        <label className={labelStyle}>
-          {label}
-        </label>
-      )}
-      <Input 
-        status={status} 
-        {...inputProps} 
-      />
-      {description && (
-        <div className={descriptionStyle}>
-          {description}
-        </div>
-      )}
-      {status === "error" && errorText && (
-        <InputHint variant="error">
-          {errorText}
-        </InputHint>
-      )}
-      {status === "success" && successText && (
-        <InputHint variant="success">
-          {successText}
-        </InputHint>
-      )}
-      {helperText && (
-        <InputHint variant="default">
-          {helperText}
-        </InputHint>
-      )}
+      {label && <label className={labelStyle}>{label}</label>}
+      <Input status={status} {...inputProps} />
+      {description && <div className={descriptionStyle}>{description}</div>}
+      {status === "error" && errorText && <InputHint variant="error">{errorText}</InputHint>}
+      {status === "success" && successText && <InputHint variant="success">{successText}</InputHint>}
+      {helperText && <InputHint variant="default">{helperText}</InputHint>}
     </div>
   );
 };
 
-export default InputField; 
+export default InputField;

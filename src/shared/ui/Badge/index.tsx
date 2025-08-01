@@ -20,9 +20,15 @@ export const Badge: React.FC<BadgeProps> = ({ size = "md", color = "brand-50", i
   let style = rest.style || {};
   if (icon) {
     if (iconPosition === "left") {
-      style = { ...style, paddingLeft: paddingMap[size as keyof typeof paddingMap] };
+      style = {
+        ...style,
+        paddingLeft: paddingMap[size as keyof typeof paddingMap],
+      };
     } else {
-      style = { ...style, paddingRight: paddingMap[size as keyof typeof paddingMap] };
+      style = {
+        ...style,
+        paddingRight: paddingMap[size as keyof typeof paddingMap],
+      };
     }
   }
   return (

@@ -23,20 +23,24 @@ const Radio: React.FC<RadioProps> = ({ size = "md", checked, defaultChecked, cla
       <input
         type="radio"
         className={[radioBase, radioSize[size], isChecked ? radioChecked : "", className].filter(Boolean).join(" ")}
-        style={{ ...style, width: boxSize, height: boxSize, margin: 0, padding: 0 }}
-        {...(isControlled
-          ? { checked, onChange: rest.onChange }
-          : { defaultChecked })}
+        style={{
+          ...style,
+          width: boxSize,
+          height: boxSize,
+          margin: 0,
+          padding: 0,
+        }}
+        {...(isControlled ? { checked, onChange: rest.onChange } : { defaultChecked })}
         disabled={disabled}
         {...rest}
       />
       {isChecked && (
         <span
           className={radioDot}
-          style={{ 
-            width: dotSize, 
+          style={{
+            width: dotSize,
             height: dotSize,
-            background: disabled ? "var(--color-gray-200)" : "var(--color-brand-600)"
+            background: disabled ? "var(--color-gray-200)" : "var(--color-brand-600)",
           }}
         />
       )}
@@ -44,4 +48,4 @@ const Radio: React.FC<RadioProps> = ({ size = "md", checked, defaultChecked, cla
   );
 };
 
-export default Radio; 
+export default Radio;

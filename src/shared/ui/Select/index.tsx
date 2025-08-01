@@ -13,9 +13,8 @@ export interface OptionShape {
   visualType?: "icon" | "dot" | "avatar";
 }
 
-  
 interface SelectProps {
-	value?: string;
+  value?: string;
   onChange?: (value: OptionShape) => void;
   placeholder?: string;
   children: React.ReactNode;
@@ -37,8 +36,8 @@ interface SelectContextValue {
 
 const SelectContext = createContext<SelectContextValue | null>(null);
 
-const Select = ({ value, onChange, placeholder, children, options, searchable = false}: SelectProps) => {
-	const selected = options.find((opt) => opt.value === value);
+const Select = ({ value, onChange, placeholder, children, options, searchable = false }: SelectProps) => {
+  const selected = options.find((opt) => opt.value === value);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -54,25 +53,30 @@ const Select = ({ value, onChange, placeholder, children, options, searchable = 
     setSearch("");
   });
 
-	const onSelect = (val: string) => {
-		const selectedOption = options.find(opt => opt.value === val);
-		if (selectedOption) {
-			onChange?.(selectedOption);
-			close();
-		}
-	};
+  const onSelect = (val: string) => {
+    const selectedOption = options.find((opt) => opt.value === val);
+    if (selectedOption) {
+      onChange?.(selectedOption);
+      close();
+    }
+  };
 
-  const filteredOptions = searchable
-    ? options.filter((opt) =>
-        opt.text.toLowerCase().includes(search.toLowerCase())
-      )
-    : options;
+  const filteredOptions = searchable ? options.filter((opt) => opt.text.toLowerCase().includes(search.toLowerCase())) : options;
 
   return (
-    <SelectContext.Provider value={{ selected, onSelect, isOpen: open, toggle, close, search,
-      setSearch,
-      filteredOptions,
-      searchable }}>
+    <SelectContext.Provider
+      value={{
+        selected,
+        onSelect,
+        isOpen: open,
+        toggle,
+        close,
+        search,
+        setSearch,
+        filteredOptions,
+        searchable,
+      }}
+    >
       <div className={styles.selectContainer} ref={ref}>
         <Trigger placeholder={placeholder} />
         {children}
@@ -87,16 +91,9 @@ const Trigger = ({ placeholder }: { placeholder?: string }) => {
   const { selected, isOpen, toggle, search, setSearch, searchable } = ctx;
 
   return (
-		<div className={styles.trigger({ focused: isOpen })} onClick={toggle}>
+    <div className={styles.trigger({ focused: isOpen })} onClick={toggle}>
       {isOpen && searchable ? (
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={styles.searchInput}
-          onClick={(e) => e.stopPropagation()}
-        />
+        <input type="text" placeholder={placeholder} value={search} onChange={(e) => setSearch(e.target.value)} className={styles.searchInput} onClick={(e) => e.stopPropagation()} />
       ) : selected ? (
         <div className={styles.optionContent({ visualType: selected.visualType })}>
           <div className={styles.centerText}>
@@ -108,7 +105,7 @@ const Trigger = ({ placeholder }: { placeholder?: string }) => {
       ) : (
         <span className={styles.placeholder}>{placeholder}</span>
       )}
-      <Icon name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"} size={20} color="gray-500"/>
+      <Icon name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"} size={20} color="gray-500" />
     </div>
   );
 };
@@ -119,43 +116,22 @@ const Menu = () => {
 
   const { filteredOptions, searchable, search } = ctx;
 
-  return (
-    <div className={styles.menu}>
-      {filteredOptions.length > 0 ? (
-        filteredOptions.map((opt) => (
-          <Select.Option key={opt.value} {...opt} />
-        ))
-      ) : searchable && search.trim() !== "" ? (
-        <div className={styles.empty}>검색 결과가 없습니다</div>
-      ) : null}
-    </div>
-  );
+  return <div className={styles.menu}>{filteredOptions.length > 0 ? filteredOptions.map((opt) => <Select.Option key={opt.value} {...opt} />) : searchable && search.trim() !== "" ? <div className={styles.empty}>검색 결과가 없습니다</div> : null}</div>;
 };
 
 interface OptionProps extends OptionShape {
   visualType?: "icon" | "dot" | "avatar";
 }
 
-
-function renderLeftVisual({
-  visualType = "icon",
-  icon,
-  avatar,
-  dotColor,
-}: Pick<OptionShape, "visualType" | "icon" | "avatar" | "dotColor">) {
+function renderLeftVisual({ visualType = "icon", icon, avatar, dotColor }: Pick<OptionShape, "visualType" | "icon" | "avatar" | "dotColor">) {
   switch (visualType) {
     case "dot":
-      return (
-        <div
-          className={styles.dot}
-          style={{ backgroundColor: dotColor ?? "#ccc" }}
-        />
-      );
+      return <div className={styles.dot} style={{ backgroundColor: dotColor ?? "#ccc" }} />;
     case "avatar":
-      if(!avatar) return null;
+      if (!avatar) return null;
       return <div className={styles.leftVisual}>{avatar}</div>;
     case "icon":
-      if(!icon) return null;
+      if (!icon) return null;
       return <div className={styles.leftVisual}>{icon}</div>;
     default:
       return null;
@@ -189,4 +165,4 @@ const Option = ({ value, text, subText, icon, avatar, dotColor, visualType = "ic
 Select.Menu = Menu;
 Select.Option = Option;
 
-export default Select; 
+export default Select;

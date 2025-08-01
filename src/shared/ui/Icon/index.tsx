@@ -32,10 +32,21 @@ const Icon = ({ name, size = 20, color = "currentColor", className }: IconProps)
   const fillColor = isColorVariant(color) ? `var(--color-${color})` : color;
 
   return (
-    <span style={{ display: "inline-flex", width: size, height: size, color: fillColor }} className={className}>
-      {ImportedIcon && (
-        React.createElement(ImportedIcon as any, { width: size, height: size, fill: fillColor })
-      )}
+    <span
+      style={{
+        display: "inline-flex",
+        width: size,
+        height: size,
+        color: fillColor,
+      }}
+      className={className}
+    >
+      {ImportedIcon &&
+        React.createElement(ImportedIcon as any, {
+          width: size,
+          height: size,
+          fill: fillColor,
+        })}
     </span>
   );
 };

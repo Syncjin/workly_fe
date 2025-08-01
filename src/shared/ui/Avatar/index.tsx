@@ -14,17 +14,7 @@ interface AvatarProps {
   tabIndex?: number;
 }
 
-const Avatar: React.FC<AvatarProps> = ({
-  src,
-  alt = "Avatar",
-  size = "md",
-  showDot = false,
-  dotColor = "var(--color-success-500)",
-  icon,
-  className,
-  style,
-  tabIndex,
-}) => {
+const Avatar: React.FC<AvatarProps> = ({ src, alt = "Avatar", size = "md", showDot = false, dotColor = "var(--color-success-500)", icon, className, style, tabIndex }) => {
   const iconSizeMap = {
     xs: 10,
     sm: 12,
@@ -44,33 +34,24 @@ const Avatar: React.FC<AvatarProps> = ({
   }
 
   return (
-    <div 
-      className={`${avatarBase} ${avatarSize[size]} ${className || ""}`} 
-      style={style}
-      tabIndex={tabIndex}
-    >
+    <div className={`${avatarBase} ${avatarSize[size]} ${className || ""}`} style={style} tabIndex={tabIndex}>
       {src ? (
         <img src={src} alt={alt} className={avatarImage} />
       ) : (
         <div className={avatarIcon}>
-          <Icon name="user-line" size={iconSizeMap[size]} color="brand-600"/>
+          <Icon name="user-line" size={iconSizeMap[size]} color="brand-600" />
         </div>
       )}
-      {showDot && !icon && (
-        <div 
-          className={`${avatarDot} ${avatarDotSize[size]}`}
-          style={{ background: dotColor }}
-        />
-      )}
+      {showDot && !icon && <div className={`${avatarDot} ${avatarDotSize[size]}`} style={{ background: dotColor }} />}
       {icon && (
-        <div 
+        <div
           className={`${avatarDot} ${avatarIconSize[size]}`}
-          style={{ 
-            background: "#fff", 
+          style={{
+            background: "#fff",
             border: "1.5px solid #fff",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           {renderedIcon}
@@ -80,4 +61,4 @@ const Avatar: React.FC<AvatarProps> = ({
   );
 };
 
-export default Avatar; 
+export default Avatar;

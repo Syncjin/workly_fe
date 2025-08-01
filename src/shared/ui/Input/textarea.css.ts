@@ -13,7 +13,6 @@ export const baseTextarea = style({
   transition: "border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s",
   resize: "none",
   selectors: {
-   
     "&:disabled": {
       background: "var(--color-gray-50)",
       color: "var(--color-gray-500)",

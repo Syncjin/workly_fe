@@ -43,20 +43,19 @@ export const menu = style({
   backgroundColor: "#fff",
   border: "1px solid var(--color-gray-200)",
   borderRadius: "8px",
-  boxShadow:
-    "0 12px 16px -4px rgba(10, 13, 18, 0.08), 0 4px 6px -2px rgba(10, 13, 18, 0.03)",
-  zIndex: 10,
+  boxShadow: "0 12px 16px -4px rgba(10, 13, 18, 0.08), 0 4px 6px -2px rgba(10, 13, 18, 0.03)",
+  zIndex: 9999,
   maxHeight: "336px", // 48px * 7
   overflowY: "auto",
   selectors: {
-    '&::-webkit-scrollbar': {
+    "&::-webkit-scrollbar": {
       width: "8px",
     },
-    '&::-webkit-scrollbar-thumb': {
+    "&::-webkit-scrollbar-thumb": {
       backgroundColor: "var(--color-gray-200)",
       borderRadius: "8px",
     },
-  }
+  },
 });
 
 export const option = recipe({
@@ -67,7 +66,7 @@ export const option = recipe({
     alignItems: "center",
     cursor: "pointer",
     selectors: {
-      '&:hover': {
+      "&:hover": {
         backgroundColor: "var(--color-gray-50)",
       },
     },
@@ -127,10 +126,10 @@ export const centerText = style({
 });
 
 export const mainText = style({
-    fontSize: "16px",
-    color: "var(--color-gray-900)",
-    lineHeight: "24px",
-    fontWeight: 500,
+  fontSize: "16px",
+  color: "var(--color-gray-900)",
+  lineHeight: "24px",
+  fontWeight: 500,
 });
 
 export const subText = style({
@@ -143,7 +142,7 @@ export const subText = style({
 export const placeholder = style({
   color: "var(--color-gray-500)",
   fontSize: "16px",
-  lineHeight: "24px"
+  lineHeight: "24px",
 });
 
 export const searchInput = style({
@@ -151,6 +150,7 @@ export const searchInput = style({
   border: "none",
   outline: "none",
   fontSize: "16px",
+  lineHeight: "22px",
   color: "var(--color-gray-900)",
   backgroundColor: "transparent",
   "::placeholder": {

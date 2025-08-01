@@ -55,7 +55,9 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": { backgroundColor: `var(--color-${group}-100)` },
+          "&:hover, &[data-hover='true']": {
+            backgroundColor: `var(--color-${group}-100)`,
+          },
           "&:focus, &[data-focus='true']": {
             outline: "none",
           },
@@ -77,7 +79,9 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: `1px solid var(--color-${group}-300)`,
         selectors: {
-          "&:hover, &[data-hover='true']": { backgroundColor: `var(--color-${group}-50)` },
+          "&:hover, &[data-hover='true']": {
+            backgroundColor: `var(--color-${group}-50)`,
+          },
           "&:focus, &[data-focus='true']": {
             outline: "none",
           },
@@ -99,7 +103,9 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": { backgroundColor: `var(--color-${group}-50)` },
+          "&:hover, &[data-hover='true']": {
+            backgroundColor: `var(--color-${group}-50)`,
+          },
           "&:focus, &[data-focus='true']": {
             outline: "none",
           },
@@ -115,7 +121,9 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": { color: `var(--color-${group}-700)` },
+          "&:hover, &[data-hover='true']": {
+            color: `var(--color-${group}-700)`,
+          },
           "&:disabled, &[data-disabled='true']": {
             color: `var(--color-gray-300)`,
           },

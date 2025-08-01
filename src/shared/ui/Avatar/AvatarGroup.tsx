@@ -23,32 +23,25 @@ const marginMap = {
   md: -12,
 };
 
-const AvatarGroup: React.FC<AvatarGroupProps> = ({
-  avatars,
-  size = "md",
-  max = 5,
-  className,
-  showDot = false,
-  style,
-}) => {
+const AvatarGroup: React.FC<AvatarGroupProps> = ({ avatars, size = "md", max = 5, className, showDot = false, style }) => {
   const overflowCount = avatars.length - max;
   const displayAvatars = avatars.slice(0, max);
 
   return (
     <div className={`${avatarGroupContainer} ${className || ""}`} style={style}>
       {displayAvatars.map((avatar, index) => (
-        <div 
-          key={index} 
+        <div
+          key={index}
           className={avatarGroupItem}
-          style={{ 
+          style={{
             zIndex: index + 1,
-            marginLeft: index > 0 ? `${marginMap[size]}px` : 0 
+            marginLeft: index > 0 ? `${marginMap[size]}px` : 0,
           }}
         >
           <Avatar {...avatar} size={size} />
         </div>
       ))}
-       {showDot && overflowCount > 0 && (
+      {showDot && overflowCount > 0 && (
         <div
           className={avatarGroupItem}
           style={{
@@ -56,9 +49,7 @@ const AvatarGroup: React.FC<AvatarGroupProps> = ({
             marginLeft: `${marginMap[size]}px`,
           }}
         >
-          <div
-            className={`${avatarGroupOverflowBase} ${avatarGroupOverflow[size]} ${avatarSize[size]}`}
-          >
+          <div className={`${avatarGroupOverflowBase} ${avatarGroupOverflow[size]} ${avatarSize[size]}`}>
             <span>+{overflowCount}</span>
           </div>
         </div>
@@ -67,4 +58,4 @@ const AvatarGroup: React.FC<AvatarGroupProps> = ({
   );
 };
 
-export default AvatarGroup; 
+export default AvatarGroup;

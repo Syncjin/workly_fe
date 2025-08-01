@@ -17,4 +17,4 @@ export const descriptionStyle = style({
   fontSize: 14,
   color: "var(--color-gray-600)",
   lineHeight: "20px",
-}); 
+});
