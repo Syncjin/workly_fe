@@ -89,10 +89,10 @@ const Carousel = ({ children, autoSlide = false, autoSlideInterval = 3000, size 
       </div>
 
       <button className={arrowButton({ size, color })} style={{ left: size === "md" ? 16 : 20 }} onClick={prev}>
-        <Icon name="arrow-left-s-line" color={iconColorMap[color]} size={size === "md" ? 20 : 24} />
+        <Icon name="arrow-left-s-line" color={iconColorMap[color]} size={size === "md" ? { width: 20, height: 20 } : { width: 24, height: 24 }} />
       </button>
       <button className={arrowButton({ size, color })} style={{ right: size === "md" ? 16 : 20 }} onClick={next}>
-        <Icon name="arrow-right-s-line" color={iconColorMap[color]} size={size === "md" ? 20 : 24} />
+        <Icon name="arrow-right-s-line" color={iconColorMap[color]} size={size === "md" ? { width: 20, height: 20 } : { width: 24, height: 24 }} />
       </button>
 
       <div className={dotsContainer({ size, color })}>

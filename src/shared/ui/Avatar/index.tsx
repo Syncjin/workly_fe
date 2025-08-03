@@ -1,6 +1,6 @@
-import React, { isValidElement, cloneElement, ReactElement } from "react";
+import React, { cloneElement, isValidElement, ReactElement } from "react";
 import Icon from "../Icon";
-import { avatarBase, avatarSize, avatarImage, avatarIcon, avatarDot, avatarDotSize, avatarIconSize } from "./avatar.css";
+import { avatarBase, avatarDot, avatarDotSize, avatarIcon, avatarIconSize, avatarImage, avatarSize } from "./avatar.css";
 
 interface AvatarProps {
   src?: string;
@@ -16,12 +16,12 @@ interface AvatarProps {
 
 const Avatar: React.FC<AvatarProps> = ({ src, alt = "Avatar", size = "md", showDot = false, dotColor = "var(--color-success-500)", icon, className, style, tabIndex }) => {
   const iconSizeMap = {
-    xs: 10,
-    sm: 12,
-    md: 14,
-    lg: 16,
-    xl: 18,
-    "2xl": 20,
+    xs: { width: 10, height: 10 },
+    sm: { width: 12, height: 12 },
+    md: { width: 14, height: 14 },
+    lg: { width: 16, height: 16 },
+    xl: { width: 18, height: 18 },
+    "2xl": { width: 20, height: 20 },
   };
 
   // icon이 ReactElement이고 size prop이 없으면 dot의 최대 크기로 size를 지정

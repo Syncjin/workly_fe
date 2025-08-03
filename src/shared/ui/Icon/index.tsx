@@ -1,12 +1,12 @@
 "use client";
 import { IconName } from "@/assets/images/icons/icon-types";
+import type { ColorVariant } from "@/shared/styles/colorTypes";
 import dynamic from "next/dynamic";
 import React from "react";
-import type { ColorVariant } from "@/shared/styles/colorTypes";
 
 type IconProps = {
   name: IconName;
-  size?: number;
+  size?: { width: number; height: number };
   color?: string | ColorVariant;
   className?: string;
 };
@@ -25,7 +25,7 @@ function getDynamicIcon(name: string) {
   return iconCache[name];
 }
 
-const Icon = ({ name, size = 20, color = "currentColor", className }: IconProps) => {
+const Icon = ({ name, size = { width: 20, height: 20 }, color = "currentColor", className }: IconProps) => {
   const ImportedIcon = getDynamicIcon(name);
 
   // color가 ColorVariant면 CSS 변수로 변환
@@ -35,16 +35,16 @@ const Icon = ({ name, size = 20, color = "currentColor", className }: IconProps)
     <span
       style={{
         display: "inline-flex",
-        width: size,
-        height: size,
+        width: size.width,
+        height: size.height,
         color: fillColor,
       }}
       className={className}
     >
       {ImportedIcon &&
         React.createElement(ImportedIcon as any, {
-          width: size,
-          height: size,
+          width: size.width,
+          height: size.height,
           fill: fillColor,
         })}
     </span>

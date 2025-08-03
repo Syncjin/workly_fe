@@ -1,30 +1,59 @@
 "use client";
 
 import { Button } from "@/shared/ui/Button";
-import CheckBox from "@/shared/ui/CheckBox";
 import Icon from "@/shared/ui/Icon";
-import { Input } from "@/shared/ui/Input";
-import React, { useState } from "react";
-import { checkboxContainer, checkboxLabel, forgotPasswordContainer, forgotPasswordLink, form, inputGroup, label, loginButton, loginCard, loginContainer, logoContainer, logoIcon, title } from "./login.css";
+import InputField from "@/shared/ui/Input/InputField";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import CheckBoxField from "../../shared/ui/CheckBox/CheckBoxField";
+import { checkboxContainer, forgotPasswordLink, form, loginButton, loginCard, loginContainer, logoContainer } from "./login.css";
+
+// 폼 검증 스키마 정의
+const loginSchema = z.object({
+  id: z.email({ message: "올바른 ID 형식이 아닙니다" }).min(1, "ID를 입력해 주세요."),
+  password: z.string().min(1, "비밀번호를 입력해주세요").min(6, "비밀번호는 최소 6자 이상이어야 합니다"),
+  autoLogin: z.boolean().optional(),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [autoLogin, setAutoLogin] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+    setValue,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      id: "",
+      password: "",
+      autoLogin: false,
+    },
+  });
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // 로그인 로직 구현
-    console.log("로그인 시도:", { email, password, autoLogin });
+  const autoLogin = watch("autoLogin");
+
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      console.log("로그인 시도:", data);
+      // 실제 로그인 API 호출
+      // const response = await loginAPI(data);
+      // if (response.success) {
+      //   // 로그인 성공 처리
+      // }
+    } catch (error) {
+      console.error("로그인 실패:", error);
+    }
   };
 
   const handleFindId = () => {
-    // 아이디 찾기 로직
     console.log("아이디 찾기");
   };
 
   const handleFindPassword = () => {
-    // 비밀번호 찾기 로직
     console.log("비밀번호 찾기");
   };
 
@@ -32,48 +61,27 @@ export default function LoginPage() {
     <div className={loginContainer}>
       <div className={loginCard}>
         <div className={logoContainer}>
-          <Icon name="apps-line" className={logoIcon} />
+          <Icon name="logo-vertical" size={{ width: 128, height: 86 }} color="var(--color-brand-600)" />
         </div>
 
-        <h1 className={title}>로그인</h1>
+        <form className={form} onSubmit={handleSubmit(onSubmit)}>
+          <InputField id="id" type="text" placeholder="ID를 입력해주세요" {...register("id")} status={errors.id ? "error" : "default"} errorText={errors.id?.message} />
 
-        <form className={form} onSubmit={handleLogin}>
-          <div className={inputGroup}>
-            <label className={label} htmlFor="email">
-              이메일
-            </label>
-            <Input id="email" type="email" placeholder="이메일을 입력해주세요" value={email} onChange={(e) => setEmail(e.target.value)} iconLeft={<Icon name="user-line" size={20} color="var(--color-gray-400)" />} required />
-          </div>
-
-          <div className={inputGroup}>
-            <label className={label} htmlFor="password">
-              비밀번호
-            </label>
-            <Input id="password" type="password" placeholder="비밀번호를 입력해주세요" value={password} onChange={(e) => setPassword(e.target.value)} iconLeft={<Icon name="lock-line" size={20} color="var(--color-gray-400)" />} required />
-          </div>
+          <InputField id="password" type="password" placeholder="비밀번호를 입력해주세요" {...register("password")} status={errors.password ? "error" : "default"} errorText={errors.password?.message} />
 
           <div className={checkboxContainer}>
-            <CheckBox id="autoLogin" checked={autoLogin} onChange={(e) => setAutoLogin(e.target.checked)} />
-            <label className={checkboxLabel} htmlFor="autoLogin">
-              자동 로그인
-            </label>
+            <CheckBoxField label="자동 로그인" id="autoLogin" checked={autoLogin} onChange={(e) => setValue("autoLogin", e.target.checked)} />
+
+            <Button type="button" variant="link" color="gray-700" className={forgotPasswordLink} onClick={handleFindId}>
+              아이디/비밀번호 찾기
+            </Button>
           </div>
 
-          <div className={forgotPasswordContainer}>
-            <button type="button" className={forgotPasswordLink} onClick={handleFindId}>
-              아이디 찾기
-            </button>
-            <button type="button" className={forgotPasswordLink} onClick={handleFindPassword}>
-              비밀번호 찾기
-            </button>
-          </div>
-
-          <Button type="submit" className={loginButton} size="lg" variant="solid" color="brand-600">
-            로그인
+          <Button type="submit" className={loginButton} size="xl" variant="solid" color="brand-600" disabled={isSubmitting}>
+            {isSubmitting ? "로그인 중..." : "로그인"}
           </Button>
         </form>
       </div>
     </div>
   );
 }
-

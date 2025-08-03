@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useRef, useState } from "react";
-import * as styles from "./select.css";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import React, { createContext, useContext, useRef, useState } from "react";
 import Icon from "../Icon";
+import * as styles from "./select.css";
 
 export interface OptionShape {
   value: string;
@@ -105,7 +105,7 @@ const Trigger = ({ placeholder }: { placeholder?: string }) => {
       ) : (
         <span className={styles.placeholder}>{placeholder}</span>
       )}
-      <Icon name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"} size={20} color="gray-500" />
+      <Icon name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"} size={{ width: 20, height: 20 }} color="gray-500" />
     </div>
   );
 };
@@ -157,7 +157,7 @@ const Option = ({ value, text, subText, icon, avatar, dotColor, visualType = "ic
           {subText && <span className={styles.subText}>{subText}</span>}
         </div>
       </div>
-      {isSelected && <Icon name="check-line" size={20} color="brand-600" />}
+      {isSelected && <Icon name="check-line" size={{ width: 20, height: 20 }} color="brand-600" />}
     </div>
   );
 };

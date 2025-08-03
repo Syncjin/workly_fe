@@ -1,6 +1,6 @@
-import React from "react";
-import { checkboxBase, checkboxSize, checkboxChecked, checkboxContainer, checkboxIconWrapper } from "./checkbox.css";
 import Icon from "@/shared/ui/Icon";
+import React from "react";
+import { checkboxBase, checkboxChecked, checkboxContainer, checkboxIconWrapper, checkboxSize } from "./checkbox.css";
 
 interface CheckBoxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   size?: "sm" | "md" | "lg";
@@ -10,7 +10,7 @@ interface CheckBoxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
 
 const CheckBox: React.FC<CheckBoxProps> = ({ size = "md", checked, defaultChecked, className, style, ...rest }) => {
   const isControlled = checked !== undefined;
-  const iconSize = size === "sm" ? 12 : size === "lg" ? 20 : 16;
+  const iconSize = size === "sm" ? { widht: 12, height: 12 } : size === "lg" ? { widht: 20, height: 20 } : { widht: 16, height: 16 };
   const boxSize = size === "sm" ? 16 : size === "lg" ? 24 : 20;
   const isChecked = isControlled ? checked : defaultChecked;
   return (

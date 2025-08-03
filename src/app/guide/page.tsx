@@ -137,12 +137,12 @@ export default function GuidePage() {
                 </Badge>
               </td>
               <td style={{ padding: "8px 12px", textAlign: "center" }}>
-                <Badge size={size} color="brand-50" icon={<Icon name="arrow-right-line" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />}>
+                <Badge size={size} color="brand-50" icon={<Icon name="arrow-right-line" color="orange-500" size={size === "sm" ? { width: 14, height: 14 } : size === "md" ? { width: 16, height: 16 } : { width: 20, height: 20 }} />}>
                   Label
                 </Badge>
               </td>
               <td style={{ padding: "8px 12px", textAlign: "center" }}>
-                <Badge size={size} color="brand-50" icon={<Icon name="arrow-right-line" color="orange-500" size={size === "sm" ? 14 : size === "md" ? 16 : 20} />} iconPosition="right">
+                <Badge size={size} color="brand-50" icon={<Icon name="arrow-right-line" color="orange-500" size={size === "sm" ? { width: 14, height: 14 } : size === "md" ? { width: 16, height: 16 } : { width: 20, height: 20 }} />} iconPosition="right">
                   Label
                 </Badge>
               </td>
@@ -209,9 +209,9 @@ export default function GuidePage() {
         }}
       >
         <Input placeholder="기본 인풋" />
-        <Input placeholder="왼쪽 아이콘" iconLeft={<Icon name="search-line" size={18} color="#000" />} />
-        <Input placeholder="오른쪽 아이콘" iconRight={<Icon name="close-line" size={18} color="gray-500" />} />
-        <Input placeholder="양쪽 아이콘" iconLeft={<Icon name="search-line" size={18} color="#000" />} iconRight={<Icon name="close-line" size={18} color="gray-500" />} />
+        <Input placeholder="왼쪽 아이콘" iconLeft={<Icon name="search-line" size={{ width: 18, height: 18 }} color="#000" />} />
+        <Input placeholder="오른쪽 아이콘" iconRight={<Icon name="close-line" size={{ width: 18, height: 18 }} color="gray-500" />} />
+        <Input placeholder="양쪽 아이콘" iconLeft={<Icon name="search-line" size={{ width: 18, height: 18 }} color="#000" />} iconRight={<Icon name="close-line" size={{ width: 18, height: 18 }} color="gray-500" />} />
         <Input
           placeholder="focus"
           style={{
@@ -234,9 +234,9 @@ export default function GuidePage() {
       >
         <InputField label="이메일" placeholder="이메일을 입력하세요" helperText="기본 안내 메시지입니다." />
 
-        <InputField label="검색" successText="성공 메시지입니다." placeholder="검색어 입력" status="success" iconLeft={<Icon name="search-line" size={18} color="#000" />} />
+        <InputField label="검색" successText="성공 메시지입니다." placeholder="검색어 입력" status="success" iconLeft={<Icon name="search-line" size={{ width: 18, height: 18 }} color="#000" />} />
 
-        <InputField label="비밀번호" errorText="에러 메시지입니다." placeholder="비밀번호 입력" status="error" iconLeft={<Icon name="eye-line" size={18} color="#000" />} />
+        <InputField label="비밀번호" errorText="에러 메시지입니다." placeholder="비밀번호 입력" status="error" iconLeft={<Icon name="eye-line" size={{ width: 18, height: 18 }} color="#000" />} />
       </div>
       {/* Textarea Guide */}
       <h1>Textarea Guide</h1>
@@ -522,7 +522,7 @@ export default function GuidePage() {
               marginTop: 12,
             }}
           >
-            <Avatar icon={<Icon name="check-line" size={12} color="var(--color-success-600)" />} size="lg" />
+            <Avatar icon={<Icon name="check-line" size={{ width: 12, height: 12 }} color="var(--color-success-600)" />} size="lg" />
             <span>승인 상태 (체크 아이콘)</span>
           </div>
           <div
@@ -533,7 +533,7 @@ export default function GuidePage() {
               marginTop: 12,
             }}
           >
-            <Avatar icon={<Icon name="star-line" size={12} color="var(--color-warning-600)" />} size="lg" />
+            <Avatar icon={<Icon name="star-line" size={{ width: 12, height: 12 }} color="var(--color-warning-600)" />} size="lg" />
             <span>프리미엄 상태 (별 아이콘)</span>
           </div>
           <div
