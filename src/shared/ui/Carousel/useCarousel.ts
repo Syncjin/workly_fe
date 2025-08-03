@@ -4,9 +4,10 @@ interface UseCarouselProps {
   children: React.ReactNode[];
   autoSlide: boolean;
   autoSlideInterval: number;
+  onSlideChangeEnd?: () => void;
 }
 
-export const useCarousel = ({ children, autoSlide, autoSlideInterval }: UseCarouselProps) => {
+export const useCarousel = ({ children, autoSlide, autoSlideInterval, onSlideChangeEnd }: UseCarouselProps) => {
   const length = children.length;
   const extendedSlides = [children[length - 1], ...children, children[0]];
 
@@ -61,6 +62,7 @@ export const useCarousel = ({ children, autoSlide, autoSlideInterval }: UseCarou
       setTransition(false);
       setCurrent(extendedSlides.length - 2);
     }
+    onSlideChangeEnd?.();
   };
 
   useEffect(() => {
@@ -94,5 +96,6 @@ export const useCarousel = ({ children, autoSlide, autoSlideInterval }: UseCarou
     prev,
     goTo,
     handleTransitionEnd,
+    length,
   };
 };

@@ -69,6 +69,24 @@ export const arrowButton = recipe({
   ],
 });
 
+export const dotsWrapper = recipe({
+  base: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+  },
+  variants: {
+    size: {
+      md: {
+        gap: "12px",
+      },
+      lg: {
+        gap: "16px",
+      },
+    },
+  },
+});
+
 export const dotsContainer = recipe({
   base: {
     display: "flex",
@@ -78,6 +96,7 @@ export const dotsContainer = recipe({
     left: "50%",
     transform: "translateX(-50%)",
     borderRadius: 16,
+    overflow: "hidden",
   },
   variants: {
     size: {
@@ -118,6 +137,7 @@ export const dot = recipe({
     border: "none",
     cursor: "pointer",
     padding: 0,
+    transition: "opacity 0.3s ease",
   },
   variants: {
     size: {
@@ -130,8 +150,8 @@ export const dot = recipe({
       brand: {},
     },
     isActive: {
-      true: {},
-      false: {},
+      true: { opacity: 0 },
+      false: { opacity: 1 },
     },
   },
   compoundVariants: [
@@ -160,4 +180,43 @@ export const dot = recipe({
       style: { backgroundColor: "var(--color-brand-500)" },
     },
   ],
+});
+
+export const activeDotFadeOut = style({
+  opacity: 0,
+  transition: "opacity 0.3s ease-in-out",
+});
+
+export const activeDot = recipe({
+  base: {
+    position: "absolute",
+    top: "50%",
+    left: 0,
+    transform: "translateY(-50%) translateX(-50%)",
+    borderRadius: "50%",
+    pointerEvents: "none",
+    zIndex: 2,
+    transition: "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), width 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+  },
+  variants: {
+    size: {
+      md: {
+        height: "8px",
+      },
+      lg: {
+        height: "10px",
+      },
+    },
+    color: {
+      dark: {
+        backgroundColor: "#fff",
+      },
+      light: {
+        backgroundColor: "var(--color-gray-900)",
+      },
+      brand: {
+        backgroundColor: "#fff",
+      },
+    },
+  },
 });

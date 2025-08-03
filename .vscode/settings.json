@@ -15,6 +15,9 @@
     "typescriptreact"
   ],
   "eslint.workingDirectories": ["."],
+  "eslint.format.enable": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.run": "onSave",
   "files.associations": {
     "*.css.ts": "typescript"
   },
@@ -32,5 +35,17 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true
   },
-  "prettier.documentSelectors": ["**/*.css.ts"]
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "prettier.documentSelectors": ["**/*.css.ts"],
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": false
 } 
