@@ -86,6 +86,8 @@ export type IconName =
   | "lock-unlock-line"
   | "login-box-line"
   | "login-circle-line"
+  | "logo-horizontal"
+  | "logo-vertical"
   | "logout-box-line"
   | "logout-box-r-line"
   | "logout-circle-line"

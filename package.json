@@ -10,7 +10,7 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "gen:icons": "ts-node scripts/generate-icon-types.ts",
+    "gen:icons": "node scripts/generate-icon-types.js",
     "svgo": "npx svgo --config=svgo.config.js src/assets/images/icons/*.svg"
   },
   "dependencies": {
