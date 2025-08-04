@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/shared/ui/Button";
+import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
 import Icon from "@/shared/ui/Icon";
 import InputField from "@/shared/ui/Input/InputField";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import CheckBoxField from "../../shared/ui/CheckBox/CheckBoxField";
 import { checkboxContainer, forgotPasswordLink, form, loginButton, loginCard, loginContainer, logoContainer } from "./login.css";
 
 // 폼 검증 스키마 정의
@@ -39,22 +39,13 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       console.log("로그인 시도:", data);
-      // 실제 로그인 API 호출
-      // const response = await loginAPI(data);
-      // if (response.success) {
-      //   // 로그인 성공 처리
-      // }
     } catch (error) {
       console.error("로그인 실패:", error);
     }
   };
 
-  const handleFindId = () => {
-    console.log("아이디 찾기");
-  };
-
-  const handleFindPassword = () => {
-    console.log("비밀번호 찾기");
+  const handleFindIdpw = () => {
+    console.log("아이디/비번 찾기");
   };
 
   return (
@@ -72,7 +63,7 @@ export default function LoginPage() {
           <div className={checkboxContainer}>
             <CheckBoxField label="자동 로그인" id="autoLogin" checked={autoLogin} onChange={(e) => setValue("autoLogin", e.target.checked)} />
 
-            <Button type="button" variant="link" color="gray-700" className={forgotPasswordLink} onClick={handleFindId}>
+            <Button type="button" variant="link" color="gray-700" className={forgotPasswordLink} onClick={handleFindIdpw}>
               아이디/비밀번호 찾기
             </Button>
           </div>
