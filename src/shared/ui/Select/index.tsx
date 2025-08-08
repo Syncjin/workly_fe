@@ -1,4 +1,4 @@
-import { useClickOutside } from "@/hooks/useClickOutside";
+import { useClickOutside } from "@/shared/hooks/useClickOutside";
 import React, { createContext, useContext, useRef, useState } from "react";
 import Icon from "../Icon";
 import * as styles from "./select.css";

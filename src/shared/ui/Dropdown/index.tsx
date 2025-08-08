@@ -1,6 +1,6 @@
+import { useClickOutside } from "@/shared/hooks/useClickOutside";
 import React, { createContext, useContext, useRef, useState } from "react";
 import * as styles from "./dropdown.css";
-import { useClickOutside } from "@/hooks/useClickOutside";
 
 interface DropdownProps {
   children: React.ReactNode;
