@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { buttonRecipe, sizeVariants, ButtonVariant, ButtonColor } from "./button.css";
+import { ButtonColor, buttonRecipe, ButtonVariant, sizeVariants } from "./button.css";
 
 type ButtonSize = keyof typeof sizeVariants;
 
