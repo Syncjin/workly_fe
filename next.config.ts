@@ -1,9 +1,12 @@
-import type { NextConfig } from "next";
 import { createVanillaExtractPlugin } from "@vanilla-extract/next-plugin";
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
   webpack(config) {
-    const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.(".svg"));
+    const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.(".svg"));
 
     config.module.rules.push(
       {
