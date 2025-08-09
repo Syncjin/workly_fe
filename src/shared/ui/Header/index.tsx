@@ -17,7 +17,6 @@ interface HeaderProps {
 export const Header = ({ onLogoClick, onMenuClick, onSettingsClick, onNotificationsClick, onAvatarClick, avatarUrl }: HeaderProps) => {
   return (
     <header className={styles.header}>
-      {/* 왼쪽 메뉴 + 로고 */}
       <div className={styles.leftSection}>
         <div className={styles.iconButton} onClick={onMenuClick}>
           <Icon name="menu-line" size={{ width: 20, height: 20 }} color={"#fff"} />
@@ -27,7 +26,6 @@ export const Header = ({ onLogoClick, onMenuClick, onSettingsClick, onNotificati
         </div>
       </div>
 
-      {/* 오른쪽 아이콘들 */}
       <div className={styles.rightSection}>
         <div className={styles.iconButton} onClick={onNotificationsClick}>
           <Icon name="checkbox-line" size={{ width: 20, height: 20 }} color={"#fff"} />

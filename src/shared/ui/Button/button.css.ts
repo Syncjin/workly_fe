@@ -1,6 +1,6 @@
+import { colorGroups, colorLevels, ColorVariant } from "@/shared/styles/colorVariants";
 import { style, styleVariants } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
-import { colorGroups, colorLevels, ColorVariant } from "@/shared/styles/colorVariants";
 
 export const baseButton = {
   borderRadius: "8px",
@@ -14,10 +14,10 @@ export const baseButton = {
 };
 
 export const sizeVariants = styleVariants({
-  sm: { padding: "8px 14px", fontSize: "14px" },
-  md: { padding: "10px 16px", fontSize: "14px" },
-  lg: { padding: "10px 18px", fontSize: "16px" },
-  xl: { padding: "12px 20px", fontSize: "16px" },
+  sm: { padding: "8px 14px", fontSize: "14px", lineHeight: "20px" },
+  md: { padding: "10px 16px", fontSize: "14px", lineHeight: "20px" },
+  lg: { padding: "10px 18px", fontSize: "16px", lineHeight: "24px" },
+  xl: { padding: "12px 20px", fontSize: "16px", lineHeight: "24px" },
 });
 
 export type ButtonVariant = "solid" | "light" | "border" | "ghost" | "link";

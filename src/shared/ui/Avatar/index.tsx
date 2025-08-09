@@ -27,7 +27,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt = "Avatar", size = "md", showD
   // icon이 ReactElement이고 size prop이 없으면 dot의 최대 크기로 size를 지정
   let renderedIcon = icon;
   if (isValidElement(icon)) {
-    const iconElement = icon as ReactElement<{ size?: number }>;
+    const iconElement = icon as ReactElement<{ size?: { width: number; height: number } }>;
     if (iconElement.props.size === undefined) {
       renderedIcon = cloneElement(iconElement, { size: iconSizeMap[size] });
     }
