@@ -4,6 +4,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    USE_PROXY: process.env.USE_PROXY,
+  },
+  rewrites: async function () {
+    return [{ source: '/api/:path*', destination: 'http://3.39.234.241:8080/api/v1/:path*' }];
   },
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.(".svg"));
