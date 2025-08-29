@@ -28,7 +28,7 @@ export function LoginForm() {
         </div>
 
         <form className={form} onSubmit={handleSubmit(onSubmit)}>
-          <InputField id="username" type="text" placeholder="ID를 입력해주세요" {...register("username")} status={errors.username ? "error" : "default"} errorText={errors.username?.message} />
+          <InputField id="userId" type="text" placeholder="ID를 입력해주세요" {...register("userId")} status={errors.userId ? "error" : "default"} errorText={errors.userId?.message} />
 
           <InputField id="password" type="password" placeholder="비밀번호를 입력해주세요" {...register("password")} status={errors.password ? "error" : "default"} errorText={errors.password?.message} />
 

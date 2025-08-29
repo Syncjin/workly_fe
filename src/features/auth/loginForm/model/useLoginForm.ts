@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { LoginFormData, loginSchema } from "./schema";
 import { useLogin } from "./useLogin";
@@ -9,20 +10,21 @@ export function useLoginForm() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
+      userId: "",
       password: "",
       autoLogin: false,
     },
   });
-
+  const router = useRouter();
   const { mutateAsync, isPending, error } = useLogin();
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      console.log(" process.env.NEXT_PUBLIC_API_URL???", process.env.NEXT_PUBLIC_API_URL);
-      console.log("로그인 시도:", data);
-      const response = await mutateAsync(data);
+      const response = await mutateAsync({ userId: data.userId, password: data.password });
       console.log("로그인 시도:response", response);
+      if (response.status === 200) {
+        router.push("/board")
+      }
     } catch (error) {
       console.error("로그인 실패:", error);
     }
