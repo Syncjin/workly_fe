@@ -6,6 +6,9 @@ export interface EnvironmentConfig {
   // API 설정
   NEXT_PUBLIC_API_URL: string;
   NEXT_PUBLIC_API_VERSION: string;
+  
+  // 프록시 설정
+  USE_PROXY: boolean;
 }
 
 export const getEnvironmentConfig = (): EnvironmentConfig => {
@@ -19,6 +22,9 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     // API 설정
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
     NEXT_PUBLIC_API_VERSION: process.env.NEXT_PUBLIC_API_VERSION || "v1",
+    
+    // 프록시 설정
+    USE_PROXY: process.env.USE_PROXY === "true",
   };
 
   return config;
@@ -30,3 +36,6 @@ export const config = getEnvironmentConfig();
 export const isDevelopment = () => config.NEXT_PUBLIC_ENV === "development";
 export const isStaging = () => config.NEXT_PUBLIC_ENV === "staging";
 export const isProduction = () => config.NEXT_PUBLIC_ENV === "production";
+
+// 프록시 사용 여부 확인 함수
+export const useProxy = () => config.USE_PROXY;
