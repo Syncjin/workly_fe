@@ -16,14 +16,14 @@ export function useLoginForm() {
     },
   });
   const router = useRouter();
-  const { mutateAsync, isPending, error } = useLogin();
+  const { mutateAsync } = useLogin();
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       const response = await mutateAsync({ userId: data.userId, password: data.password });
       console.log("로그인 시도:response", response);
       if (response.status === 200) {
-        router.push("/board")
+        router.push("/posts");
       }
     } catch (error) {
       console.error("로그인 실패:", error);
