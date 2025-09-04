@@ -1,9 +1,9 @@
 // pages/api/[...proxy].ts
+import { log } from "@/lib/logger";
 import { NextApiRequest, NextApiResponse } from 'next';
-
 // 인증이 필요한 API 경로들
 const protectedPaths = [
-    '/board',
+    '/boards',
     '/admin',
     '/profile',
     '/dashboard',
@@ -12,9 +12,9 @@ const protectedPaths = [
 
 // 특별 처리가 필요한 경로들 (프록시하지 않음)
 const specialPaths = [
-    '/users/token',
+    '/auth/login',
     '/auth/refresh',
-    '/users/logout'
+    '/auth/logout'
 ];
 
 // 토큰 갱신 Promise를 저장할 변수 (동시 요청 처리용)
@@ -23,17 +23,22 @@ let refreshPromise: Promise<string | null> | null = null;
 // refreshToken으로 새 accessToken 가져오기
 async function refreshAccessToken(refreshToken: string): Promise<string | null> {
     try {
+        log.debug("refreshAccessToken 요청 시도", {
+            operation: "proxy-api",
+        });
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Cookie': `refreshToken=${refreshToken}`,
             },
+            body: JSON.stringify({
+                refreshToken: refreshToken
+            }),
         });
 
         if (response.ok) {
             const data = await response.json();
-            return data.data?.accessToken || null;
+            return data.accessToken || null;
         }
         return null;
     } catch (error) {
@@ -76,7 +81,10 @@ async function makeApiRequest(apiPath: string, req: NextApiRequest, authHeader?:
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    console.log("---------handler")
     const { proxy } = req.query;
+
+
     const apiPath = Array.isArray(proxy) ? `/${proxy.join('/')}` : `/${proxy}`;
 
     // 특별 처리 경로는 건너뛰기
@@ -96,7 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Authorization 헤더에서 토큰 확인
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
+        console.log("authHeader", authHeader);
+        console.log("token", token);
         if (!token) {
             return res.status(401).json({
                 status: 401,

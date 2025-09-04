@@ -3,33 +3,37 @@ import { NextRequest, NextResponse } from 'next/server';
 // import { log } from './lib/logger';
 
 // 보호된 페이지 경로들
-const protectedPaths = ['/board', '/profile', '/dashboard', '/admin'];
+const protectedPaths = ['/posts', '/profile', '/dashboard', '/admin'];
 const authPaths = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
-
+    console.log("middleware----------", pathname)
+    const refreshToken2 = request.cookies.get('refreshToken')?.value;
     // API 경로는 통합 프록시에서 처리하므로 미들웨어에서는 건너뛰기
     if (pathname.startsWith('/api/')) {
+        console.log("middleware----------2", pathname, refreshToken2)
         return NextResponse.next();
     }
 
-    // refreshToken 쿠키 확인
+    // refreshToken, csrfToken 쿠키 확인
     const refreshToken = request.cookies.get('refreshToken')?.value;
+    const csrfToken = request.cookies.get('csrfToken')?.value;
 
     const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
     const isAuthPath = authPaths.some(path => pathname.startsWith(path));
 
     // 보호된 경로에 refreshToken 없이 접근하는 경우
-    if (isProtectedPath && !refreshToken) {
+    if (isProtectedPath && (!refreshToken || !csrfToken)) {
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('redirect', pathname); // 로그인 후 돌아갈 경로 저장
         return NextResponse.redirect(loginUrl);
     }
 
     // 이미 로그인된 사용자가 로그인/회원가입 페이지에 접근하는 경우
-    if (isAuthPath && refreshToken) {
-        const redirectPath = request.nextUrl.searchParams.get('redirect') || '/board';
+    if (isAuthPath && refreshToken && csrfToken) {
+        console.log("이미 로그인된 사용자")
+        const redirectPath = request.nextUrl.searchParams.get('redirect') || '/posts';
         return NextResponse.redirect(new URL(redirectPath, request.url));
     }
 

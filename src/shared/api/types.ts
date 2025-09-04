@@ -2,7 +2,9 @@
 export interface ApiResponse<T = any> {
   data: T;
   status: number;
+  code: string;
   message?: string;
+  timestamp: string;
 }
 
 // API 에러 타입
