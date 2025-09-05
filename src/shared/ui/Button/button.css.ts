@@ -29,7 +29,7 @@ export const buttonContent = style({
 });
 
 export const iconSlot = style({
-  display: "inline-flex",
+  display: "flex",
   width: "2em", // 아이콘/스피너 교체 시 폭 유지
   height: "2em",
   alignItems: "center",

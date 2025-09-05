@@ -1,6 +1,6 @@
 "use client";
 
-import React, { cloneElement, isValidElement } from "react";
+import React from "react";
 import * as styles from "./button.css";
 
 type ButtonSize = keyof typeof styles.sizeVariants;
@@ -18,16 +18,12 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loadingPosition?: LoadingPosition;
 };
 
-export const Button: React.FC<ButtonProps> = ({ size = "md", variant = "solid", color = "brand-600", loading = false, loadingIcon, loadingPosition = "end", forceHover, forceFocus, forceDisabled, children, className, ...rest }) => {
+export const Button: React.FC<ButtonProps> = ({ size = "md", variant = "solid", color = "brand-600", loading = false, loadingIcon, loadingPosition = "end", children, className, ...rest }) => {
 
   const resolvedSpinner =
-    loading && loadingIcon
-      ? isValidElement(loadingIcon)
-        ? cloneElement(loadingIcon as React.ReactElement, {
-          "aria-hidden": true,
-        })
-        : loadingIcon
-      : null;
+    loading && loadingIcon ? (
+      <>{loadingIcon}</>
+    ) : null;
 
   const isDisabled = loading || rest.disabled;
 
