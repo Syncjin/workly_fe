@@ -1,5 +1,5 @@
 import { colorGroups, colorLevels, ColorVariant } from "@/shared/styles/colorVariants";
-import { style, styleVariants } from "@vanilla-extract/css";
+import { keyframes, style, styleVariants } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
 
 export const baseButton = {
@@ -11,6 +11,7 @@ export const baseButton = {
   alignItems: "center",
   justifyContent: "center",
   transition: "background-color 0.2s, color 0.2s, border-color 0.2s",
+  position: "relative" as const,
 };
 
 export const sizeVariants = styleVariants({
@@ -23,6 +24,52 @@ export const sizeVariants = styleVariants({
 export type ButtonVariant = "solid" | "light" | "border" | "ghost" | "link";
 export type ButtonColor = ColorVariant;
 
+export const buttonContent = style({
+  columnGap: "8px",
+});
+
+export const iconSlot = style({
+  display: "inline-flex",
+  width: "2em", // 아이콘/스피너 교체 시 폭 유지
+  height: "2em",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+});
+
+export const label = style({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+export const replaceWrap = style({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "6px",
+});
+
+export const overlay = style({
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  pointerEvents: "none",
+});
+
+
+const spin = keyframes({
+  "0%": { transform: "rotate(0deg)" },
+  "100%": { transform: "rotate(360deg)" },
+});
+
+export const spin1s = style({
+  display: "inline-block",
+  animation: `${spin} 1s linear infinite`,
+});
+
 function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
   const [group, level] = color.split("-");
   switch (variant) {
@@ -32,19 +79,22 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: "#fff",
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": {
+          "&:hover": {
             backgroundColor: `var(--color-${group}-700)`,
           },
-          "&:focus, &[data-focus='true']": {
+          "&:focus": {
             outline: "none",
           },
-          "&:focus-visible, &[data-focus-visible='true']": {
+          "&:focus-visible": {
             boxShadow: `
               0 0 0 4px #F4EBFF,
               0 1px 2px 0 rgba(10, 13, 18, 0.05)
             `,
           },
-          "&:disabled, &[data-disabled='true']": {
+          "&:disabled": {
+            backgroundColor: `var(--color-${group}-200)`,
+          },
+          "&[data-loading]": {
             backgroundColor: `var(--color-${group}-200)`,
           },
         },
@@ -55,19 +105,23 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": {
+          "&:hover": {
             backgroundColor: `var(--color-${group}-100)`,
           },
-          "&:focus, &[data-focus='true']": {
+          "&:focus": {
             outline: "none",
           },
-          "&:focus-visible, &[data-focus-visible='true']": {
+          "&:focus-visible": {
             boxShadow: `
               0 0 0 4px #E0EAFF,
               0 1px 2px 0 #0A0D120D
             `,
           },
-          "&:disabled, &[data-disabled='true']": {
+          "&:disabled": {
+            backgroundColor: `var(--color-${group}-25)`,
+            color: `var(--color-${group}-300)`,
+          },
+          "&[data-loading]": {
             backgroundColor: `var(--color-${group}-25)`,
             color: `var(--color-${group}-300)`,
           },
@@ -79,19 +133,23 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: `1px solid var(--color-${group}-300)`,
         selectors: {
-          "&:hover, &[data-hover='true']": {
+          "&:hover": {
             backgroundColor: `var(--color-${group}-50)`,
           },
-          "&:focus, &[data-focus='true']": {
+          "&:focus": {
             outline: "none",
           },
-          "&:focus-visible, &[data-focus-visible='true']": {
+          "&:focus-visible": {
             boxShadow: `
               0 0 0 4px #F5F5F5,
               0 1px 2px 0 rgba(10, 13, 18, 0.05)
             `,
           },
-          "&:disabled, &[data-disabled='true']": {
+          "&:disabled": {
+            backgroundColor: `var(--color-${group}-200)`,
+            color: `var(--color-${group}-300)`,
+          },
+          "&[data-loading]": {
             backgroundColor: `var(--color-${group}-200)`,
             color: `var(--color-${group}-300)`,
           },
@@ -103,13 +161,16 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": {
+          "&:hover": {
             backgroundColor: `var(--color-${group}-50)`,
           },
-          "&:focus, &[data-focus='true']": {
+          "&:focus": {
             outline: "none",
           },
-          "&:disabled, &[data-disabled='true']": {
+          "&:disabled": {
+            color: `var(--color-gray-300)`,
+          },
+          "&[data-loading]": {
             color: `var(--color-gray-300)`,
           },
         },
@@ -121,10 +182,13 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: "none",
         selectors: {
-          "&:hover, &[data-hover='true']": {
+          "&:hover": {
             color: `var(--color-${group}-700)`,
           },
-          "&:disabled, &[data-disabled='true']": {
+          "&:disabled": {
+            color: `var(--color-gray-300)`,
+          },
+          "&[data-loading]": {
             color: `var(--color-gray-300)`,
           },
         },

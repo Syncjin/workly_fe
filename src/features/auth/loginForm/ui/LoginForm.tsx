@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/shared/ui/Button";
+import { spin1s } from "@/shared/ui/Button/button.css";
 import CheckBoxField from "@/shared/ui/CheckBox/CheckBoxField";
 import Icon from "@/shared/ui/Icon";
 import InputField from "@/shared/ui/Input/InputField";
@@ -40,11 +41,11 @@ export function LoginForm() {
             </Button>
           </div>
 
-          <Button type="submit" className={loginButton} size="xl" variant="solid" color="brand-600" disabled={isSubmitting}>
-            {isSubmitting ? "로그인 중..." : "로그인"}
+          <Button type="submit" className={loginButton} size="xl" variant="solid" color="brand-600" loading={isSubmitting} loadingIcon={<Icon name="loader-2-line" color="#fff" className={spin1s} />}>
+            로그인
           </Button>
         </form>
       </div>
-    </div>
+    </div >
   );
 }
