@@ -1,5 +1,5 @@
 import { log } from "@/lib/logger";
-import { config, isDevelopment, useProxy } from "@/shared/config/environment";
+import { config, isDevelopment } from "@/shared/config/environment";
 import { getAccessToken, getCsrfTokenFromCookie, refreshAccessToken } from "../lib/auth";
 
 interface ApiResponse<T = any> {
@@ -16,6 +16,8 @@ interface ApiError {
   code?: string;
 }
 
+let inflightRefresh: Promise<string | null> | null = null;
+
 class ApiClient {
   private baseURL: string;
   private apiVersion: string;
@@ -25,44 +27,80 @@ class ApiClient {
     this.apiVersion = config.NEXT_PUBLIC_API_VERSION;
   }
 
-  private getBaseUrl(): string {
-    if (isDevelopment() && useProxy()) {
-      return '/api';  // 프록시 경로 사용
+  private routeOverrides = new Map<string, string>([
+    ["/auth/login", "/api/auth/login"],
+    ["/auth/refresh", "/api/auth/refresh"],
+    ["/auth/logout", "/api/auth/logout"],
+  ]);
+
+  private normalize(ep: string) {
+    const s = (ep || "").trim();
+    return s.startsWith("/") ? s : `/${s}`;
+  }
+
+  private shouldEnsure(endpoint: string) {
+    const key = this.normalize(endpoint);
+    return !this.routeOverrides.has(key);
+  }
+
+  private async ensureAccessTokenIfNeeded(endpoint: string) {
+
+    console.log("ensureAccessTokenIfNeeded", endpoint);
+    if (!this.shouldEnsure(endpoint)) return;       // 스킵 목록이면 건너뜀
+    console.log("ensureAccessTokenIfNeeded shouldEnsure");
+    if (getAccessToken()) return;                   // 이미 AT 있으면 OK
+    console.log("ensureAccessTokenIfNeeded getAccessToken", getAccessToken());
+    if (!inflightRefresh) {
+      inflightRefresh = (async () => {
+        try {
+          return await refreshAccessToken();        // RT 쿠키 + CSRF로 갱신
+        } finally {
+          inflightRefresh = null;
+        }
+      })();
     }
+    await inflightRefresh;
+  }
+
+  private getBaseUrl(): string {
+    // if (isDevelopment() && isProxy()) {
+    //   return "/api"; // 프록시 경로 사용
+    // }
     return `${this.baseURL}/api/${this.apiVersion}`;
   }
 
   private getFullUrl(endpoint: string): string {
-    const baseUrl = this.getBaseUrl();
+    console.log("getFullUrl", endpoint);
+    let clean = (endpoint || "").trim();
+    if (!clean) return this.getBaseUrl();
 
-    console.log("getFullUrl baseUrl", baseUrl, useProxy(), isDevelopment());
-    // 엔드포인트 경로 정규화
-    let cleanEndpoint = endpoint.trim();
+    // 2) 절대 URL은 그대로 사용 (우회)
+    if (/^https?:\/\//i.test(clean)) return clean;
 
-    // 빈 엔드포인트 처리
-    if (!cleanEndpoint) {
-      return baseUrl;
-    }
+    // 3) /api/ 로 시작하면 로컬 Next API로 보냄 (프록시/핸들러용)
+    if (clean.startsWith("/api/")) return clean;
 
-    // 앞의 슬래시 제거 (baseUrl과 결합할 때 중복 방지)
-    if (cleanEndpoint.startsWith("/")) {
-      cleanEndpoint = cleanEndpoint.slice(1);
-    }
+    // 4) 라우팅 예외 적용
+    const key = this.normalize(clean);
+    const override = this.routeOverrides.get(key);
+    if (override) return override;
 
-    // baseUrl 끝의 슬래시 정규화
-    const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+    // 5) 기본: 원격 API Prefix를 붙여서 보냄
+    const base = this.getBaseUrl().replace(/\/$/, "");
+    const ep = key.replace(/^\//, "");
+    return `${base}/${ep}`;
 
-    // 최종 URL 구성
-    return `${normalizedBaseUrl}/${cleanEndpoint}`;
   }
 
   private async request<T>(method: string, endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+    await this.ensureAccessTokenIfNeeded(endpoint);
     const url = this.getFullUrl(endpoint);
     const startTime = Date.now();
 
     const defaultHeaders: HeadersInit = {
       "Content-Type": "application/json",
       "X-Environment": config.NEXT_PUBLIC_ENV,
+      ...(isDevelopment() ? { "X-Debug-Mode": "true" } : {}),
     };
 
     // 인증 토큰이 있으면 Authorization 헤더 추가
@@ -73,70 +111,38 @@ class ApiClient {
 
     // CSRF 토큰을 항상 쿠키에서 직접 읽어서 헤더에 추가
     const csrfToken = getCsrfTokenFromCookie();
-    if (csrfToken) {
-      defaultHeaders["X-CSRF-TOKEN"] = csrfToken;
-      log.debug('API 요청에 CSRF 토큰 헤더 포함', {
-        tokenLength: csrfToken.length,
-        endpoint,
-        method,
-        operation: 'api-client'
-      });
-    } else {
-      log.debug('CSRF 토큰이 없어 헤더에 포함하지 않습니다', {
-        endpoint,
-        method,
-        operation: 'api-client'
-      });
-    }
+    if (csrfToken) defaultHeaders["X-CSRF-TOKEN"] = csrfToken;
 
-    // 디버깅: 토큰 상태 로깅
-    log.debug('API 요청 전 토큰 상태', {
-      hasAccessToken: !!accessToken,
-      hasCsrfToken: !!csrfToken,
-      accessTokenLength: accessToken?.length || 0,
-      csrfTokenLength: csrfToken?.length || 0,
-      accessTokenPreview: accessToken ? `${accessToken.substring(0, 10)}...` : null,
-      csrfTokenPreview: csrfToken ? `${csrfToken.substring(0, 10)}...` : null,
-      endpoint,
-      method,
-      operation: 'api-client-debug'
-    });
-    // 개발 환경에서만 추가 헤더
-    if (isDevelopment()) {
-      defaultHeaders["X-Debug-Mode"] = "true";
-    }
-
+    const isLocalApi = typeof url === "string" && url.startsWith("/api/");
     const requestOptions: RequestInit = {
       method,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
+      headers: { ...defaultHeaders, ...options.headers },
+      credentials: isLocalApi ? "include" : options.credentials,
       ...options,
     };
 
     try {
-      log.debug(`API Request: ${method} ${url}`, { options: requestOptions });
+      log.debug(`API Request: ${method} ${url} isAccess?${accessToken}`, { options: requestOptions });
 
       const response = await fetch(url, requestOptions);
       const duration = Date.now() - startTime;
-
+      log.debug(`API response: ${method} ${url}`, response);
       // API 호출 로깅
       log.apiCall(method, url, response.status, duration);
 
       if (!response.ok) {
         // 401 Unauthorized 에러인 경우 토큰 갱신 시도
         if (response.status === 401) {
-          log.debug('Received 401, attempting to refresh token');
+          log.debug("Received 401, attempting to refresh token");
 
           const newToken = await refreshAccessToken();
           if (newToken) {
             // 토큰 갱신 성공 시 원래 요청을 다시 시도
-            log.debug('Token refreshed successfully, retrying original request');
+            log.debug("Token refreshed successfully, retrying original request");
 
             const retryHeaders: any = {
               ...defaultHeaders,
-              "Authorization": `Bearer ${newToken}`,
+              Authorization: `Bearer ${newToken}`,
               ...options.headers,
             };
 
@@ -144,17 +150,17 @@ class ApiClient {
             const retryCsrfToken = getCsrfTokenFromCookie();
             if (retryCsrfToken) {
               retryHeaders["X-CSRF-TOKEN"] = retryCsrfToken;
-              log.debug('재시도 요청에 CSRF 토큰 헤더 포함', {
+              log.debug("재시도 요청에 CSRF 토큰 헤더 포함", {
                 tokenLength: retryCsrfToken.length,
                 endpoint,
                 method,
-                operation: 'api-client-retry'
+                operation: "api-client-retry",
               });
             } else {
-              log.debug('재시도 요청에 CSRF 토큰이 없습니다', {
+              log.debug("재시도 요청에 CSRF 토큰이 없습니다", {
                 endpoint,
                 method,
-                operation: 'api-client-retry'
+                operation: "api-client-retry",
               });
             }
 
@@ -263,33 +269,15 @@ class ApiClient {
 
     // CSRF 토큰을 쿠키에서 직접 읽어서 헤더에 추가
     const csrfToken = getCsrfTokenFromCookie();
-    if (csrfToken) {
-      defaultHeaders["X-CSRF-TOKEN"] = csrfToken;
-      log.debug('파일 업로드에 CSRF 토큰 헤더 포함', {
-        tokenLength: csrfToken.length,
-        endpoint,
-        fileName: file.name,
-        operation: 'api-client-upload'
-      });
-    } else {
-      log.debug('CSRF 토큰이 없어 파일 업로드 헤더에 포함하지 않습니다', {
-        endpoint,
-        fileName: file.name,
-        operation: 'api-client-upload'
-      });
-    }
+    if (csrfToken) defaultHeaders["X-CSRF-TOKEN"] = csrfToken;
 
-    if (isDevelopment()) {
-      defaultHeaders["X-Debug-Mode"] = "true";
-    }
-
+    if (isDevelopment()) defaultHeaders["X-Debug-Mode"] = "true";
+    const isLocalApi = url.startsWith("/api/");
     const requestOptions: RequestInit = {
       method: "POST",
-      headers: {
-        ...defaultHeaders,
-        ...options?.headers,
-      },
+      headers: { ...defaultHeaders, ...options?.headers },
       body: formData,
+      credentials: isLocalApi ? "include" : options?.credentials, // ★
       ...options,
     };
 
@@ -304,16 +292,16 @@ class ApiClient {
       if (!response.ok) {
         // 401 Unauthorized 에러인 경우 토큰 갱신 시도
         if (response.status === 401) {
-          log.debug('Upload received 401, attempting to refresh token');
+          log.debug("Upload received 401, attempting to refresh token");
 
           const newToken = await refreshAccessToken();
           if (newToken) {
             // 토큰 갱신 성공 시 원래 요청을 다시 시도
-            log.debug('Token refreshed successfully, retrying upload');
+            log.debug("Token refreshed successfully, retrying upload");
 
             const retryHeaders: any = {
               ...defaultHeaders,
-              "Authorization": `Bearer ${newToken}`,
+              Authorization: `Bearer ${newToken}`,
               ...options?.headers,
             };
 
@@ -321,17 +309,17 @@ class ApiClient {
             const retryCsrfToken = getCsrfTokenFromCookie();
             if (retryCsrfToken) {
               retryHeaders["X-CSRF-TOKEN"] = retryCsrfToken;
-              log.debug('파일 업로드 재시도에 CSRF 토큰 헤더 포함', {
+              log.debug("파일 업로드 재시도에 CSRF 토큰 헤더 포함", {
                 tokenLength: retryCsrfToken.length,
                 endpoint,
                 fileName: file.name,
-                operation: 'api-client-upload-retry'
+                operation: "api-client-upload-retry",
               });
             } else {
-              log.debug('파일 업로드 재시도에 CSRF 토큰이 없습니다', {
+              log.debug("파일 업로드 재시도에 CSRF 토큰이 없습니다", {
                 endpoint,
                 fileName: file.name,
-                operation: 'api-client-upload-retry'
+                operation: "api-client-upload-retry",
               });
             }
 

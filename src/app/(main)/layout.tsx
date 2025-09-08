@@ -1,15 +1,16 @@
 import { Header } from "@/shared/ui/Header";
 import { BoardSidebar } from "@/widgets/board-sidebar";
-import { Suspense } from "react";
+import { SidebarBoundary } from "@/widgets/board-sidebar/ui/BoardSidebarBoundary";
 import * as style from "./layout.css";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={style.mainLayout}>
       <Header className={style.headerArea} />
-      <Suspense fallback={<div className={style.sidebarArea} aria-busy="true" />}>
+      <SidebarBoundary>
         <BoardSidebar className={style.sidebarArea} />
-      </Suspense>
+      </SidebarBoundary>
+
       <main className={style.mainArea}>{children}</main>
     </div>
   );

@@ -3,7 +3,7 @@
 import { Button } from "@/shared/ui/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
-import { useSidebarBoards } from "../model/useSidebarBoard";
+import { useSidebarBoardsSuspense } from "../model/useSidebarBoard";
 import CollapsibleBoardTree from "./CollapsibleBoardTree";
 import * as styles from "./boardSidebar.css";
 interface BoardSidebarProps {
@@ -18,14 +18,10 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   // Get current board ID from URL
   const currentBoardId = searchParams?.get("boardId") || null;
   const [active, setActive] = useState<number | null>(0);
-  const { data = [], isLoading, isError, error, isFetching, refetch } = useSidebarBoards();
+  const { data = [], isFetching, refetch } = useSidebarBoardsSuspense();
   console.log("Data", data);
 
 
-
-  if (isLoading) {
-    return <div>로딩중</div>
-  }
 
   const onCreatePost = () => { }
 

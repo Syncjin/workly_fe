@@ -1,7 +1,7 @@
 import type { Board } from "@/entities/board/model/types";
-import { useApiQuery } from "@/shared/api/hooks";
+import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
-import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
+import type { UseQueryOptions, UseQueryResult, UseSuspenseQueryOptions } from "@tanstack/react-query";
 import { boardQueryKeys } from "../model";
 
 /**
@@ -27,4 +27,29 @@ export const useBoardList = <TSelected = ApiResponse<Board[]>>(
         enabled: true,
         ...options,
     });
+};
+
+export const useBoardListSuspense = <
+    TSelected = ApiResponse<Board[]>
+>(
+    options?: Omit<
+        UseSuspenseQueryOptions<ApiResponse<Board[]>, ApiError, TSelected>,
+        "queryKey" | "queryFn"
+    >
+) => {
+    const queryKey = boardQueryKeys.list();
+    return useApiSuspenseQuery<Board[], TSelected>(
+        queryKey,
+        "/boards",
+        {
+            staleTime: 5 * 60 * 1000,
+            gcTime: 10 * 60 * 1000,
+            retry: 3,
+            retryDelay: (i) => Math.min(1000 * 2 ** i, 30000),
+            refetchOnWindowFocus: false,
+            refetchOnMount: true,
+            refetchOnReconnect: true,
+            ...options,
+        }
+    );
 };
