@@ -1,5 +1,5 @@
 import Icon from "@/shared/ui/Icon";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { SidebarBoard, SidebarGroup } from "../model/useSidebarBoard";
 import * as styles from "./collapsibleBoardTree.css";
 
@@ -16,14 +16,25 @@ export const CollapsibleBoardTree = ({ data, activeBoardId, onSelectBoard, defau
     const autoExpandedFromActive = useMemo(() => {
         if (activeBoardId == null) return new Set<number>();
         const catId = data.find((g) => g.boards.some((b) => b.id === activeBoardId))?.category.id;
-        return catId ? new Set<number>([catId]) : new Set<number>();
+        const n = Number(catId);
+        return Number.isFinite(n) ? new Set<number>([n]) : new Set<number>();
     }, [activeBoardId, data]);
 
-    const [expanded, setExpanded] = useState<Set<number>>(
-        () => new Set<number>(defaultExpandedCategoryIds ?? Array.from(autoExpandedFromActive))
-    );
+    const initialExpanded = useMemo(() => {
+        const fromDefault = (defaultExpandedCategoryIds ?? []).map(Number);
+        if (fromDefault.length > 0) return new Set<number>(fromDefault);
+        return new Set<number>(Array.from(autoExpandedFromActive)); // fallback
+    }, [defaultExpandedCategoryIds, autoExpandedFromActive]);
 
-    const isExpanded = useCallback((categoryId: number) => expanded.has(categoryId), [expanded]);
+    const [expanded, setExpanded] = useState<Set<number>>(initialExpanded);
+
+    useEffect(() => {
+        setExpanded(new Set(initialExpanded));
+    }, [initialExpanded])
+
+    const isExpanded = useCallback((categoryId: number | string) => {
+        return expanded.has(Number(categoryId));
+    }, [expanded]);
 
     const toggle = useCallback((categoryId: number) => {
         setExpanded((prev) => {
