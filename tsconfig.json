@@ -20,7 +20,14 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/assets/*": ["./src/assetes/*"],
+      "@/entities/*": ["./src/entities/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/widgets/*": ["./src/widgets/*"],
+      "@/tests/*": ["./tests/*"],
     },
     "types": ["jest", "node"]
   },
