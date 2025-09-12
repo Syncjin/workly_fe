@@ -16,9 +16,27 @@ interface ApiError {
   code?: string;
 }
 
+type ServiceKey = "main" | "admin";
+type ApiRequestOptions = RequestInit & {
+  service?: ServiceKey;           // 이걸로 어느 API로 보낼지 결정
+  absolute?: boolean;             // endpoint가 절대 URL이면 true (기존 자동판별도 유지)
+};
+
 let inflightRefresh: Promise<string | null> | null = null;
 
 class ApiClient {
+
+  private services: Record<ServiceKey, { baseURL: string; apiVersion?: string }> = {
+    main:  { baseURL: config.NEXT_PUBLIC_API_URL,  apiVersion: config.NEXT_PUBLIC_API_VERSION },
+    admin: { baseURL: (config as any).NEXT_PUBLIC_API2_URL, apiVersion: (config as any).NEXT_PUBLIC_API2_VERSION },
+  };
+
+  private defaultService: ServiceKey = "main";
+
+  private serviceRouteRules: Array<{ pattern: RegExp; service: ServiceKey }> = [
+    { pattern: /^\/admin(\/|$)/i, service: "admin" },
+  ];
+
   private baseURL: string;
   private apiVersion: string;
 
@@ -44,12 +62,9 @@ class ApiClient {
   }
 
   private async ensureAccessTokenIfNeeded(endpoint: string) {
-
-    console.log("ensureAccessTokenIfNeeded", endpoint);
     if (!this.shouldEnsure(endpoint)) return;       // 스킵 목록이면 건너뜀
-    console.log("ensureAccessTokenIfNeeded shouldEnsure");
     if (getAccessToken()) return;                   // 이미 AT 있으면 OK
-    console.log("ensureAccessTokenIfNeeded getAccessToken", getAccessToken());
+
     if (!inflightRefresh) {
       inflightRefresh = (async () => {
         try {
@@ -62,39 +77,48 @@ class ApiClient {
     await inflightRefresh;
   }
 
-  private getBaseUrl(): string {
-    // if (isDevelopment() && isProxy()) {
-    //   return "/api"; // 프록시 경로 사용
-    // }
-    return `${this.baseURL}/api/${this.apiVersion}`;
+  private getBaseUrl(service: ServiceKey): string {
+    const { baseURL, apiVersion } = this.services[service] || this.services[this.defaultService];
+    const base = baseURL?.replace(/\/$/, "") || "";
+    const ver  = apiVersion ? `/api/${apiVersion}` : "";
+    return `${base}${ver}`;
   }
 
-  private getFullUrl(endpoint: string): string {
-    console.log("getFullUrl", endpoint);
+  private getFullUrl(endpoint: string, service: ServiceKey, absolute?: boolean): string {
     let clean = (endpoint || "").trim();
-    if (!clean) return this.getBaseUrl();
+    if (!clean) return this.getBaseUrl(service);
 
-    // 2) 절대 URL은 그대로 사용 (우회)
-    if (/^https?:\/\//i.test(clean)) return clean;
+    // 절대 URL 그대로 사용
+    if (absolute || /^https?:\/\//i.test(clean)) return clean;
 
-    // 3) /api/ 로 시작하면 로컬 Next API로 보냄 (프록시/핸들러용)
+    // Next 로컬 API 바로 호출
     if (clean.startsWith("/api/")) return clean;
 
-    // 4) 라우팅 예외 적용
+    // /auth/** 같은 override
     const key = this.normalize(clean);
     const override = this.routeOverrides.get(key);
     if (override) return override;
 
-    // 5) 기본: 원격 API Prefix를 붙여서 보냄
-    const base = this.getBaseUrl().replace(/\/$/, "");
+    // 기본: 서비스 base 붙이기
+    const base = this.getBaseUrl(service).replace(/\/$/, "");
     const ep = key.replace(/^\//, "");
     return `${base}/${ep}`;
-
   }
 
-  private async request<T>(method: string, endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  private resolveService(endpoint: string, explicit?: ServiceKey): ServiceKey {
+    if (explicit) return explicit;
+
+    const key = this.normalize(endpoint);
+    for (const rule of this.serviceRouteRules) {
+      if (rule.pattern.test(key)) return rule.service;
+    }
+    return this.defaultService;
+  }
+
+  private async request<T>(method: string, endpoint: string, options: ApiRequestOptions  = {}): Promise<ApiResponse<T>> {
     await this.ensureAccessTokenIfNeeded(endpoint);
-    const url = this.getFullUrl(endpoint);
+    const service = this.resolveService(endpoint, options.service);
+    const url = this.getFullUrl(endpoint, service, options.absolute);
     const startTime = Date.now();
 
     const defaultHeaders: HeadersInit = {
@@ -215,43 +239,22 @@ class ApiClient {
     }
   }
 
-  // GET 요청
-  async get<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>("GET", endpoint, options);
+  async get<T>(endpoint: string, options?: ApiRequestOptions)   { return this.request<T>("GET",    endpoint, options); }
+  async post<T>(endpoint: string, data?: any, options?: ApiRequestOptions)  {
+    return this.request<T>("POST", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
-
-  // POST 요청
-  async post<T>(endpoint: string, data?: any, options?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>("POST", endpoint, {
-      ...options,
-      body: data ? JSON.stringify(data) : undefined,
-    });
+  async put<T>(endpoint: string, data?: any, options?: ApiRequestOptions)   {
+    return this.request<T>("PUT",  endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
-
-  // PUT 요청
-  async put<T>(endpoint: string, data?: any, options?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>("PUT", endpoint, {
-      ...options,
-      body: data ? JSON.stringify(data) : undefined,
-    });
+  async patch<T>(endpoint: string, data?: any, options?: ApiRequestOptions) {
+    return this.request<T>("PATCH", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
-
-  // PATCH 요청
-  async patch<T>(endpoint: string, data?: any, options?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>("PATCH", endpoint, {
-      ...options,
-      body: data ? JSON.stringify(data) : undefined,
-    });
-  }
-
-  // DELETE 요청
-  async delete<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>("DELETE", endpoint, options);
-  }
+  async delete<T>(endpoint: string, options?: ApiRequestOptions) { return this.request<T>("DELETE", endpoint, options); }
 
   // 파일 업로드
-  async upload<T>(endpoint: string, file: File, options?: RequestInit): Promise<ApiResponse<T>> {
-    const url = this.getFullUrl(endpoint);
+  async upload<T>(endpoint: string, file: File, options: ApiRequestOptions = {}) {
+    const service = this.resolveService(endpoint, options.service);
+    const url = this.getFullUrl(endpoint, service, options.absolute);
     const startTime = Date.now();
 
     const formData = new FormData();
@@ -381,10 +384,10 @@ export const apiClient = new ApiClient();
 
 // 편의 함수들
 export const api = {
-  get: <T>(endpoint: string, options?: RequestInit) => apiClient.get<T>(endpoint, options),
-  post: <T>(endpoint: string, data?: any, options?: RequestInit) => apiClient.post<T>(endpoint, data, options),
-  put: <T>(endpoint: string, data?: any, options?: RequestInit) => apiClient.put<T>(endpoint, data, options),
-  patch: <T>(endpoint: string, data?: any, options?: RequestInit) => apiClient.patch<T>(endpoint, data, options),
-  delete: <T>(endpoint: string, options?: RequestInit) => apiClient.delete<T>(endpoint, options),
-  upload: <T>(endpoint: string, file: File, options?: RequestInit) => apiClient.upload<T>(endpoint, file, options),
+  get:   <T>(endpoint: string, options?: ApiRequestOptions) => apiClient.get<T>(endpoint, options),
+  post:  <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.post<T>(endpoint, data, options),
+  put:   <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.put<T>(endpoint, data, options),
+  patch: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.patch<T>(endpoint, data, options),
+  delete:<T>(endpoint: string, options?: ApiRequestOptions) => apiClient.delete<T>(endpoint, options),
+  upload:<T>(endpoint: string, file: File, options?: ApiRequestOptions) => apiClient.upload<T>(endpoint, file, options),
 };

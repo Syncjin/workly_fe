@@ -16,7 +16,7 @@ export const useBoardCategoryList = <TSelected = ApiResponse<BoardCategory[]>>(
 ): UseQueryResult<TSelected, ApiError> => {
     const queryKey = boardCategoryQueryKeys.list();
 
-    return useApiQuery<BoardCategory[], TSelected>(queryKey, "/board-category", {
+    return useApiQuery<BoardCategory[], TSelected>(queryKey, "/admin/board-categories", {
         refetchOnWindowFocus: false,
         refetchOnMount: true,
         refetchOnReconnect: true,
@@ -35,7 +35,7 @@ export const useBoardCategoryListSuspense = <
     const queryKey = boardCategoryQueryKeys.list();
     return useApiSuspenseQuery<BoardCategory[], TSelected>(
         queryKey,
-        "/board-category",
+        "/admin/board-categories",
         {
             refetchOnWindowFocus: false,
             refetchOnMount: true,

@@ -12,6 +12,6 @@ import type { ApiResponse } from "@/shared/api/types";
  */
 export const boardCategoryApi = {
     getBoardCategory: async (): Promise<ApiResponse<BoardCategory[]>> => {
-        return await api.get<BoardCategory[]>("/board-category");
+        return await api.get<BoardCategory[]>("/admin/board-categories");
     },
 };

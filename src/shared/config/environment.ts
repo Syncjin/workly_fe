@@ -7,6 +7,9 @@ export interface EnvironmentConfig {
   NEXT_PUBLIC_API_URL: string;
   NEXT_PUBLIC_API_VERSION: string;
 
+  NEXT_PUBLIC_API2_URL: string;
+  NEXT_PUBLIC_API2_VERSION: string;
+
   // 프록시 설정
   USE_PROXY: boolean;
 }
@@ -22,6 +25,9 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     // API 설정
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
     NEXT_PUBLIC_API_VERSION: process.env.NEXT_PUBLIC_API_VERSION || "v1",
+
+    NEXT_PUBLIC_API2_URL: process.env.NEXT_PUBLIC_API2_URL || "http://localhost:3000",
+    NEXT_PUBLIC_API2_VERSION: process.env.NEXT_PUBLIC_API2_VERSION || "v1",
 
     // 프록시 설정
     USE_PROXY: process.env.USE_PROXY === "true",

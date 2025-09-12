@@ -6,12 +6,12 @@ import * as style from "./layout.css";
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={style.mainLayout}>
-      <Header className={style.headerArea} />
+      <Header />
       <SidebarBoundary>
-        <BoardSidebar className={style.sidebarArea} />
+        <BoardSidebar />
       </SidebarBoundary>
 
-      <main className={style.mainArea}>{children}</main>
+      <main>{children}</main>
     </div>
   );
 }

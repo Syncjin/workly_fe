@@ -10,7 +10,7 @@ const ERR = (status: number, message = 'error', code = 'ERROR') =>
 
 export const boardSidebarHandlers = {
     success: [
-        http.get('/api/v1/board-category', async () => {
+        http.get('/api/v1/admin/board-categories', async () => {
             await delay(10);
             return OK([
                 { categoryId: 2, categoryName: '자유게시판', sortOrder: 1 },
@@ -26,11 +26,11 @@ export const boardSidebarHandlers = {
         }),
     ],
     empty: [
-        http.get('/api/v1/board-category', async () => OK([])),
+        http.get('/api/v1/admin/board-categories', async () => OK([])),
         http.get('/api/v1/boards', async () => OK([])),
     ],
     failed: [
-        http.get('/api/v1/board-category', async () => ERR(400, '요청 파라미터가 올바르지 않습니다.', 'INVALID_REQUEST')),
+        http.get('/api/v1/admin/board-categories', async () => ERR(400, '요청 파라미터가 올바르지 않습니다.', 'INVALID_REQUEST')),
         http.get('/api/v1/boards', async () => ERR(400, '요청 파라미터가 올바르지 않습니다.', 'INVALID_REQUEST')),
     ],
 };
