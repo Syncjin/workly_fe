@@ -17,14 +17,9 @@ export const useBoardCategoryList = <TSelected = ApiResponse<BoardCategory[]>>(
     const queryKey = boardCategoryQueryKeys.list();
 
     return useApiQuery<BoardCategory[], TSelected>(queryKey, "/board-category", {
-        staleTime: 5 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
-        retry: 3,
-        retryDelay: (i) => Math.min(1000 * 2 ** i, 30000),
         refetchOnWindowFocus: false,
         refetchOnMount: true,
         refetchOnReconnect: true,
-        enabled: true,
         ...options,
     });
 };
@@ -42,10 +37,6 @@ export const useBoardCategoryListSuspense = <
         queryKey,
         "/board-category",
         {
-            staleTime: 5 * 60 * 1000,
-            gcTime: 10 * 60 * 1000,
-            retry: 3,
-            retryDelay: (i) => Math.min(1000 * 2 ** i, 30000),
             refetchOnWindowFocus: false,
             refetchOnMount: true,
             refetchOnReconnect: true,

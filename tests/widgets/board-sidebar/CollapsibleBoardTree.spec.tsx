@@ -1,7 +1,7 @@
 import type { SidebarGroup } from '@/widgets/board-sidebar/model/useSidebarBoard';
 import CollapsibleBoardTree from '@/widgets/board-sidebar/ui/CollapsibleBoardTree';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Icon 컴포넌트는 UI에 영향 없으니 가볍게 목업
 vi.mock('@/shared/ui/Icon', () => ({
@@ -23,7 +23,7 @@ const data: SidebarGroup[] = [
 ];
 
 describe('CollapsibleBoardTree (presentational)', () => {
-    test('트리/카테고리/보드 라벨 렌더 및 기본은 모두 접힘', () => {
+    it('트리/카테고리/보드 라벨 렌더 및 기본은 모두 접힘', () => {
         render(<CollapsibleBoardTree data={data} />);
 
         // 트리 역할
@@ -46,7 +46,7 @@ describe('CollapsibleBoardTree (presentational)', () => {
         expect(header2).toHaveAttribute('aria-expanded', 'false');
     });
 
-    test('카테고리 헤더 클릭으로 토글(열림/닫힘) 동작', () => {
+    it('카테고리 헤더 클릭으로 토글(열림/닫힘) 동작', () => {
         render(<CollapsibleBoardTree data={data} />);
 
         const item = screen
@@ -69,7 +69,7 @@ describe('CollapsibleBoardTree (presentational)', () => {
         expect(panel1).toHaveAttribute('hidden');
     });
 
-    test('키보드(Enter/Space)로 토글 가능', () => {
+    it('키보드(Enter/Space)로 토글 가능', () => {
         render(<CollapsibleBoardTree data={data} />);
 
         const item = screen
@@ -90,7 +90,7 @@ describe('CollapsibleBoardTree (presentational)', () => {
         expect(panel2).toHaveAttribute('hidden');
     });
 
-    test('defaultExpandedCategoryIds가 있으면 해당 카테고리만 초기 확장', () => {
+    it('defaultExpandedCategoryIds가 있으면 해당 카테고리만 초기 확장', () => {
         const { container } = render(<CollapsibleBoardTree data={data} defaultExpandedCategoryIds={[1]} />);
 
         const buttons = within(container).getAllByRole('button');
@@ -128,7 +128,7 @@ describe('CollapsibleBoardTree (presentational)', () => {
         expect(item2).toHaveAttribute('aria-expanded', 'false');
     });
 
-    test('defaultExpandedCategoryIds가 없고 activeBoardId가 있으면 해당 카테고리 자동 확장', () => {
+    it('defaultExpandedCategoryIds가 없고 activeBoardId가 있으면 해당 카테고리 자동 확장', () => {
         // activeBoardId=3은 "자유게시판"에 속함 → 카테고리 2가 자동 확장
         const { container } = render(<CollapsibleBoardTree data={data} activeBoardId={3} />);
         const panel1 = container.querySelector('#panel-1');
@@ -144,7 +144,7 @@ describe('CollapsibleBoardTree (presentational)', () => {
         expect(header2).toHaveAttribute('aria-expanded', 'true');
     });
 
-    test('activeBoardId가 설정되면 해당 보드 버튼에 aria-current="true"', () => {
+    it('activeBoardId가 설정되면 해당 보드 버튼에 aria-current="true"', () => {
         const { container } = render(<CollapsibleBoardTree data={data} activeBoardId={3} defaultExpandedCategoryIds={[1, 2]} />);
 
         // 패널 2는 자동으로 열려 있으므로 보드 버튼을 찾을 수 있음

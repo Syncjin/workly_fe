@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/shared/ui/Button";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { useSidebarBoardsSuspense } from "../model/useSidebarBoard";
 import CollapsibleBoardTree from "./CollapsibleBoardTree";
@@ -12,7 +12,6 @@ interface BoardSidebarProps {
 }
 
 export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Get current board ID from URL

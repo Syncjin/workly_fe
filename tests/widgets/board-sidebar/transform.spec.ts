@@ -1,6 +1,7 @@
 import type { Board } from '@/entities/board/model';
 import type { BoardCategory } from '@/entities/boardCategory/model';
 import { buildCategoryMap, buildGroups, normalizeAndSortBoards } from '@/widgets/board-sidebar/model/transform';
+import { describe, expect, it } from "vitest";
 
 const cats: BoardCategory[] = [
     { categoryId: 2, categoryName: '자유게시판', sortOrder: 1 },
