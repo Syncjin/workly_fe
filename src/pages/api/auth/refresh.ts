@@ -18,8 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const refreshToken = req.cookies.refreshToken; // HttpOnly이지만 서버 측이므로 접근 가능
     const csrfToken = req.cookies.csrfToken; // 비-HttpOnly
 
-    if (!refreshToken) {
-      log.warn("Refresh API: 리프레시 토큰을 찾을 수 없습니다", { hasCsrf: !!csrfToken, operation: "refresh-api" });
+    if (!refreshToken || !csrfToken) {
+      log.warn("Refresh API: 리프레시 토큰, CSRF 토큰을 찾을 수 없습니다", { hasCsrf: !!csrfToken, refreshToken: !!refreshToken, operation: "refresh-api" });
 
       return res.status(401).json({ message: "Refresh token not found" });
     }
@@ -45,17 +45,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       headers,
     });
     const resultData = await backendRes.json();
-    console.log("resultData!! headers", headers);
-    console.log("resultData!!", resultData);
     const backendDuration = Date.now() - startTime;
 
     if (!backendRes.ok) {
       log.error("백엔드 API 응답 오류", {
-        status: backendRes.status,
-        statusText: backendRes.statusText,
-        duration: backendDuration,
+        resultData,
         operation: "refresh-api",
       });
+      return res.status(502).json(resultData);
     } else {
       log.debug("백엔드 API 응답 성공", {
         status: backendRes.status,
@@ -90,6 +87,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       duration,
       operation: "refresh-api",
     });
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 }

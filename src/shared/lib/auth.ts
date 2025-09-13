@@ -303,6 +303,7 @@ export const logout = async (): Promise<void> => {
             log.warn("서버 로그아웃 응답 오류", { status: res.status, dur, op: "logout" });
         } else {
             log.debug("서버 로그아웃 완료", { status: res.status, dur, op: "logout" });
+            window.location.href = "/login"
         }
     } catch (error) {
         const dur = Date.now() - start;
