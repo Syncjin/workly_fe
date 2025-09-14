@@ -13,6 +13,17 @@ export const headerArea = style({
   padding: "12px 12px 0px 12px",
 });
 
+export const allBoardArea = style({
+  padding: "0px 12px 0px 12px",
+});
+
+export const allBoardBtn = style({
+  fontWeight: 600,
+  color: "var(--color-gray-900)",
+  fontSize: 12,
+  width: "100%",
+});
+
 export const createBtn = style({
   width: "100%",
 });
@@ -28,3 +39,37 @@ export const divider = style({
   margin: "16px 12px",
 });
 
+export const boardManageText = style({
+  fontWeight: 400,
+  color: "var(--color-gray-900)",
+  fontSize: 14,
+});
+
+export const boardManageBtn = style({
+  fontWeight: 400,
+  color: "var(--color-gray-900)",
+  fontSize: 12,
+  width: 45,
+  height: 24,
+  boxSizing: "border-box",
+  display: "inline-block",
+  whiteSpace: "nowrap",
+  background: "#fff",
+  border: "1px solid var(--color-gray-200)",
+  borderRadius: 4,
+  cursor: "pointer",
+  selectors: {
+    "&:hover": { background: "var(--color-gray-200)" },
+  },
+});
+
+export const boardManageRow = style({
+  display: "flex",
+  alignItems: "center",
+  margin: "0px 12px 0px 12px",
+  borderRadius: 8,
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  userSelect: "none",
+});

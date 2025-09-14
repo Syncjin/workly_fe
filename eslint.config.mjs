@@ -17,7 +17,12 @@ const eslintConfig = [
       prettier: (await import("eslint-plugin-prettier")).default,
     },
     rules: {
-      "prettier/prettier": "error",
+      "prettier/prettier": [
+        "error",
+        {
+          endOfLine: "auto",
+        },
+      ],
       "arrow-body-style": "off",
       "prefer-arrow-callback": "off",
     },

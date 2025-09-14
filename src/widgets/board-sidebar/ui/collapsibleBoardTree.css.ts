@@ -8,7 +8,6 @@ export const nav = style({
 export const rootList = style({ listStyle: "none", margin: 0, padding: 0 });
 export const categoryItem = style({ marginBottom: 6 });
 
-
 export const headerButton = recipe({
   base: {
     width: "100%",
@@ -32,16 +31,23 @@ export const headerButton = recipe({
   },
 });
 
-
 export const headerText = style({
   fontWeight: 600,
   color: "var(--color-gray-900)",
   fontSize: 14,
 });
+
+export const headerRightBtn = style({});
+
+export const headerRightBtnText = style({
+  fontWeight: 400,
+  color: "var(--color-gray-900)",
+  fontSize: 14,
+});
+
 export const panel = style({ paddingTop: 6 });
 export const boardList = style({ listStyle: "none", margin: 0, padding: 0 });
 export const boardItem = style({ margin: 0 });
-
 
 export const boardButton = recipe({
   base: {
@@ -85,9 +91,10 @@ export const boardText = style({
   overflow: "hidden",
 });
 
-
 export const chevron = style({
   marginRight: 8,
+  top: 2,
+  position: "relative",
   transition: "transform 0.18s ease",
   selectors: {
     '&[data-open="true"]': { transform: "rotate(90deg)" },

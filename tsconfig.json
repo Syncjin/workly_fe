@@ -27,7 +27,7 @@
       "@/entities/*": ["./src/entities/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/widgets/*": ["./src/widgets/*"],
-      "@/tests/*": ["./tests/*"],
+      "@/tests/*": ["./tests/*"]
     },
     "types": ["jest", "vitest/globals", "node"]
   },

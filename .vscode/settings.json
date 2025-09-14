@@ -5,7 +5,7 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "explicit"
   },
-  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "eslint.validate": [
@@ -45,7 +45,6 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true
   },
-  "prettier.documentSelectors": ["**/*.css.ts"],
   "prettier.requireConfig": true,
   "prettier.useEditorConfig": false
 } 
