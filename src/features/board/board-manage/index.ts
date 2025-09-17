@@ -1,2 +1,2 @@
-export { useBoardManagePermission } from "./model/useBoardManagePermission";
-export { AdminBoardLink } from "./ui/AdminBoardLink";
+export * from "./model";
+export * from "./ui";

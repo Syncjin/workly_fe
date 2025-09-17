@@ -3,3 +3,4 @@
  */
 
 export { boardCategoryApi } from "./boardCategoryApi";
+export * from "./boardCategoryQueries";

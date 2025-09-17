@@ -1,5 +1,5 @@
 /**
- * Session entity exports
+ * Board Category entity exports
  *
  */
 

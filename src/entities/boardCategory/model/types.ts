@@ -5,11 +5,11 @@
  */
 
 export interface BoardCategory {
-    categoryId: number;
-    categoryName: string;
-    sortOrder: number;
+  categoryId: number;
+  categoryName: string;
+  sortOrder: number;
 }
 
 export interface BoardCategoryListResponse {
-    data: BoardCategory[];
+  data: BoardCategory[];
 }

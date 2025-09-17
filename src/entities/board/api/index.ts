@@ -3,3 +3,4 @@
  */
 
 export { boardApi } from "./boardApi";
+export * from "./boardQueries";

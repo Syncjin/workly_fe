@@ -3,3 +3,4 @@
  */
 
 export { usersApi } from "./usersApi";
+export * from "./usersQueries";
