@@ -1,4 +1,3 @@
-
 import { AuthProvider } from "@/lib/providers/AuthProvider";
 import { Header } from "@/shared/ui/Header";
 import { BoardSidebar } from "@/widgets/board-sidebar";
@@ -9,15 +8,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <AuthProvider fallback={null}>
       <div className={style.mainLayout}>
-        <Header />
+        <Header className={style.headerArea} />
         <SidebarBoundary>
-          <BoardSidebar />
+          <BoardSidebar className={style.sidebarArea} />
         </SidebarBoundary>
-
-        <main>{children}</main>
+        <main className={style.contentLayout}>{children}</main>
       </div>
     </AuthProvider>
   );
 }
-
-

@@ -1,4 +1,6 @@
+import { PostListWidget } from "@/widgets/post-list";
+
 export default function BoardPage() {
-  return null;
+  return <PostListWidget />;
   // return <Header />;
 }
