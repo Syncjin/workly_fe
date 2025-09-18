@@ -69,7 +69,7 @@ export const boardManageBtn = style({
 export const boardManageRow = style({
   display: "flex",
   alignItems: "center",
-  margin: "0px 12px 0px 12px",
+  margin: "0px 12px 0px 8px",
   borderRadius: 8,
   border: "none",
   background: "transparent",
