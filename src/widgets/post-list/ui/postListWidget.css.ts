@@ -1,46 +1,66 @@
 import { style } from "@vanilla-extract/css";
 
-export const postListWidgetStyles = {
-  container: style({
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-  }),
+export const header = style({
+  fontWeight: 600,
+  fontSize: "20px",
+  lineHeight: "30px",
+  color: "#000",
+});
 
-  controls: style({
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    marginBottom: "24px",
-    width: "100%",
+export const container = style({
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+});
 
-    "@media": {
-      "(max-width: 768px)": {
-        gap: "12px",
-        marginBottom: "16px",
-      },
-    },
-  }),
+export const listView = style({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  gap: "8px",
+});
 
-  searchControl: style({
-    width: "100%",
-    maxWidth: "400px",
+// export const postListWidgetStyles = {
+//   container: style({
+//     width: "100%",
+//     display: "flex",
+//     flexDirection: "column",
+//   }),
 
-    "@media": {
-      "(max-width: 768px)": {
-        maxWidth: "100%",
-      },
-    },
-  }),
+//   controls: style({
+//     display: "flex",
+//     flexDirection: "column",
+//     gap: "16px",
+//     marginBottom: "24px",
+//     width: "100%",
 
-  filtersControl: style({
-    width: "100%",
-  }),
+//     "@media": {
+//       "(max-width: 768px)": {
+//         gap: "12px",
+//         marginBottom: "16px",
+//       },
+//     },
+//   }),
 
-  listView: style({
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    gap: "8px",
-  }),
-};
+//   searchControl: style({
+//     width: "100%",
+//     maxWidth: "400px",
+
+//     "@media": {
+//       "(max-width: 768px)": {
+//         maxWidth: "100%",
+//       },
+//     },
+//   }),
+
+//   filtersControl: style({
+//     width: "100%",
+//   }),
+
+//   listView: style({
+//     display: "flex",
+//     flexDirection: "column",
+//     width: "100%",
+//     gap: "8px",
+//   }),
+// };

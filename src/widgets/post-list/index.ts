@@ -5,5 +5,6 @@
  * Handles loading, error, empty, and populated states according to FSD architecture.
  */
 
+export { PostListToolbar } from "./ui/PostListToolbar";
 export { PostListWidget } from "./ui/PostListWidget";
 export type { PostListWidgetProps } from "./ui/PostListWidget";

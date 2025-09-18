@@ -1,12 +1,13 @@
 "use client";
 
 import type { Post, PostListParams } from "@/entities/post";
-import { PostListItem, PostListSkeleton, usePostListSuspense } from "@/entities/post";
-import { PostSearch, usePostFilters, usePostSearch } from "@/features/post";
+import { PostListItem, usePostListSuspense } from "@/entities/post";
+import { usePostFilters, usePostSearch } from "@/features/post";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import Icon from "@/shared/ui/Icon";
+import { PostListToolbar } from "@/widgets/post-list/ui/PostListToolbar";
 import React, { useCallback, useMemo, useState } from "react";
-import { postListWidgetStyles } from "./postListWidget.css";
+import * as styles from "./postListWidget.css";
 
 export interface PostListWidgetProps {
   initialKeyword?: string;
@@ -66,23 +67,23 @@ export const PostListWidget: React.FC<PostListWidgetProps> = ({ initialKeyword, 
   // const clearAll = useCallback(() => setSelected(new Set()), []);
 
   // Render controls section
-  const renderControls = () => (
-    <div className={postListWidgetStyles.controls}>
-      {showSearch && <PostSearch search={search} placeholder="게시글 검색..." className={postListWidgetStyles.searchControl} />}
+  // const renderControls = () => (
+  //   <div className={postListWidgetStyles.controls}>
+  //     {showSearch && <PostSearch search={search} placeholder="게시글 검색..." className={postListWidgetStyles.searchControl} />}
 
-      {/* {showFilters && <PostFilters filters={filters} boardOptions={boardOptions} categoryOptions={categoryOptions} className={postListWidgetStyles.filtersControl} />} */}
-    </div>
-  );
+  //     {showFilters && <PostFilters filters={filters} boardOptions={boardOptions} categoryOptions={categoryOptions} className={postListWidgetStyles.filtersControl} />}
+  //   </div>
+  // );
 
   // Loading state - show controls and skeleton
-  if (isLoading) {
-    return (
-      <div className={[postListWidgetStyles.container, className].filter(Boolean).join(" ")}>
-        {(showSearch || showFilters) && renderControls()}
-        <PostListSkeleton rows={10} />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className={[styles.container, className].filter(Boolean).join(" ")}>
+  //       {(showSearch || showFilters) && renderControls()}
+  //       <PostListSkeleton rows={10} />
+  //     </div>
+  //   );
+  // }
 
   // const posts = Array.isArray(data?.data?.items) ? data.data.items : [];
   const posts: Post[] = [
@@ -139,7 +140,7 @@ export const PostListWidget: React.FC<PostListWidgetProps> = ({ initialKeyword, 
   // Empty state - no posts available
   if (posts.length === 0) {
     return (
-      <div className={[postListWidgetStyles.container, className].filter(Boolean).join(" ")}>
+      <div className={[styles.container, className].filter(Boolean).join(" ")}>
         {/* {(showSearch || showFilters) && renderControls()} */}
         <EmptyState title="등록된 게시글이 없습니다." description={"게시판에 공유할 글을 남겨보세요."} icon={<Icon name="file-text-fill" size={{ width: 60, height: 60 }} color="gray-300" />} action={{ label: "글쓰기", onClick: () => {} }} />
       </div>
@@ -148,12 +149,10 @@ export const PostListWidget: React.FC<PostListWidgetProps> = ({ initialKeyword, 
 
   // Success state - render controls and post cards
   return (
-    <div className={[postListWidgetStyles.container, className].filter(Boolean).join(" ")}>
-      {/* Filters and Search Controls */}
-      {/* {(showSearch || showFilters) && renderControls()} */}
-
-      {/* Post Grid */}
-      <div className={postListWidgetStyles.listView}>
+    <div className={[styles.container, className].filter(Boolean).join(" ")}>
+      {posts?.[0]?.board?.boardName && <h1 className={styles.header}>{posts?.[0]?.board?.boardName ?? "게시판"}</h1>}
+      <PostListToolbar />
+      <div className={styles.listView}>
         {posts.map((post) => (
           <PostListItem.Root key={post.postId} post={post} onClick={handlePostClick} onCheckedChange={(next) => handlePostCheck(post.postId, next)} checked={isChecked(post.postId)} />
         ))}
