@@ -1,6 +1,10 @@
 import { PostListWidget } from "@/widgets/post-list";
+import { PostListBoundary } from "@/widgets/post-list/ui/PostListBoundary";
 
 export default function BoardPage() {
-  return <PostListWidget />;
-  // return <Header />;
+  return (
+    <PostListBoundary>
+      <PostListWidget />
+    </PostListBoundary>
+  );
 }

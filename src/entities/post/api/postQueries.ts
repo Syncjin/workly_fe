@@ -6,7 +6,7 @@
  */
 
 import { type PostListParams, type PostListResponse } from "@/entities/post/model";
-import { useApiQuery } from "@/shared/api/hooks";
+import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
 import type { UseQueryOptions } from "@tanstack/react-query";
 
@@ -46,6 +46,38 @@ export const usePostList = <TSelected = PostListResponse>(params?: PostListParam
   const queryKey = ["posts", params] as const;
 
   return useApiQuery<PostListResponse, TSelected>(queryKey, endpoint, {
+    ...options,
+  });
+};
+
+export const usePostListSuspense = <TSelected = PostListResponse>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<PostListResponse>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryParams = new URLSearchParams();
+
+  if (params?.keyword) {
+    queryParams.append("keyword", params.keyword);
+  }
+
+  if (params?.boardId !== undefined) {
+    queryParams.append("boardId", params.boardId.toString());
+  }
+
+  if (params?.categoryId !== undefined) {
+    queryParams.append("categoryId", params.categoryId.toString());
+  }
+
+  if (params?.page !== undefined) {
+    queryParams.append("page", params.page.toString());
+  }
+
+  if (params?.size !== undefined) {
+    queryParams.append("size", params.size.toString());
+  }
+
+  const endpoint = queryParams.toString() ? `/posts?${queryParams.toString()}` : "/posts";
+
+  const queryKey = ["posts", params] as const;
+
+  return useApiSuspenseQuery<PostListResponse, TSelected>(queryKey, endpoint, {
     ...options,
   });
 };
