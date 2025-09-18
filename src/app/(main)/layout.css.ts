@@ -28,5 +28,5 @@ export const contentLayout = style({
   gridArea: "content",
   overflow: "auto", // 내부 콘텐츠 스크롤 허용
   background: "#fff",
-  padding: "16px",
+  padding: "24px 24px 80px 24px",
 });

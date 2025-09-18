@@ -9,9 +9,7 @@ export const header = style({
   backgroundColor: "var(--color-brand-600)",
   boxSizing: "border-box",
   borderBottom: "1px solid #eee",
-  position: "sticky",
-  top: 0,
-  zIndex: 100,
+  width: "100%",
 });
 
 export const leftSection = style({

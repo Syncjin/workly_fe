@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `${accessToken}`,
+          Authorization: `${accessToken}`,
         },
       }).catch(console.error);
     }
@@ -38,8 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }),
     ]);
 
-    return res.status(200).json({ message: "logout"});
-
+    return res.status(200).json({ message: "logout" });
   } catch (error) {
     console.error("Logout API error:", error);
     res.status(500).json({ message: "Internal server error" });

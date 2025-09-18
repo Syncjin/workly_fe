@@ -23,7 +23,7 @@ export function useLoginForm() {
       const response = await mutateAsync({ userId: data.userId, password: data.password });
       console.log("로그인 시도:response", response);
       if (response.status === 200) {
-        router.push("/posts");
+        router.push("/board");
       }
     } catch (error) {
       console.error("로그인 실패:", error);

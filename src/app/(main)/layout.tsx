@@ -7,13 +7,13 @@ import * as style from "./layout.css";
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider fallback={null}>
-      <div className={style.mainLayout}>
+      <main className={style.mainLayout}>
         <Header className={style.headerArea} />
         <SidebarBoundary>
           <BoardSidebar className={style.sidebarArea} />
         </SidebarBoundary>
-        <main className={style.contentLayout}>{children}</main>
-      </div>
+        <div className={style.contentLayout}>{children}</div>
+      </main>
     </AuthProvider>
   );
 }

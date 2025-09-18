@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // import { log } from './lib/logger';
 
 // 보호된 페이지 경로들
-const protectedPaths = ["/board", "/posts", "/profile", "/dashboard", "/admin"];
+const protectedPaths = ["/board", "/profile", "/dashboard", "/admin"];
 const authPaths = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {
@@ -37,7 +37,7 @@ export function middleware(request: NextRequest) {
 
   // 이미 로그인된 사용자가 로그인/회원가입 페이지에 접근하는 경우
   if (isAuthPath && refreshToken && csrfToken) {
-    const redirectPath = request.nextUrl.searchParams.get("redirect") || "/posts";
+    const redirectPath = request.nextUrl.searchParams.get("redirect") || "/board";
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
   return NextResponse.next();

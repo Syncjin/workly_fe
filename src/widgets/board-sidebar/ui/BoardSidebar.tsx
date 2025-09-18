@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminBoardLink } from "@/features/board/board-manage";
 import { Button } from "@/shared/ui/Button";
 import Icon from "@/shared/ui/Icon";
 import React, { useCallback, useState } from "react";
@@ -19,7 +20,6 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const { data = [], isFetching, refetch } = useSidebarBoardsSuspense();
-
   const onCreatePost = () => {};
 
   const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
@@ -58,9 +58,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
           <span className={styles.boardManageText}>전체 게시판</span>
         </button>
 
-        <Button unstyled className={styles.boardManageBtn} type="button">
-          관리
-        </Button>
+        <AdminBoardLink className={styles.boardManageBtn}>관리</AdminBoardLink>
       </div>
       <div
         id={panelId}

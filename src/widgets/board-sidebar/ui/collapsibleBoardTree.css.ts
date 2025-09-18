@@ -19,9 +19,6 @@ export const headerButton = recipe({
     background: "transparent",
     cursor: "pointer",
     userSelect: "none",
-    selectors: {
-      "&:hover": { background: "var(--color-gray-200)" },
-    },
   },
   variants: {
     open: {

@@ -12,11 +12,12 @@ interface HeaderProps {
   onNotificationsClick?: () => void;
   onAvatarClick?: () => void;
   avatarUrl?: string;
+  className?: string;
 }
 
-export const Header = ({ onLogoClick, onMenuClick, onSettingsClick, onNotificationsClick, onAvatarClick, avatarUrl }: HeaderProps) => {
+export const Header = ({ onLogoClick, onMenuClick, onSettingsClick, onNotificationsClick, onAvatarClick, avatarUrl, className }: HeaderProps) => {
   return (
-    <header className={styles.header}>
+    <header className={[styles.header, className].filter(Boolean).join(" ")}>
       <div className={styles.leftSection}>
         <div className={styles.iconButton} onClick={onMenuClick}>
           <Icon name="menu-line" size={{ width: 20, height: 20 }} color={"#fff"} />

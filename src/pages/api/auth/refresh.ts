@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 클라이언트에서 body로 받은 refreshToken 또는 쿠키에서 가져오기
     const refreshToken = req.cookies.refreshToken; // HttpOnly이지만 서버 측이므로 접근 가능
     const csrfToken = req.cookies.csrfToken; // 비-HttpOnly
-
+    log.debug("Refresh API 요청 refreshToken, csrfToken", { refreshToken, csrfToken, operation: "refresh-api" });
     if (!refreshToken || !csrfToken) {
       log.warn("Refresh API: 리프레시 토큰, CSRF 토큰을 찾을 수 없습니다", { hasCsrf: !!csrfToken, refreshToken: !!refreshToken, operation: "refresh-api" });
 
@@ -45,7 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       headers,
     });
     const resultData = await backendRes.json();
-    const backendDuration = Date.now() - startTime;
 
     if (!backendRes.ok) {
       log.error("백엔드 API 응답 오류", {
@@ -56,27 +55,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else {
       log.debug("백엔드 API 응답 성공", {
         status: backendRes.status,
-        duration: backendDuration,
+        resultData: resultData,
         operation: "refresh-api",
       });
     }
 
     const newRefreshToken: string | undefined = resultData?.data?.refreshToken;
+    const newCsrfToken: string | undefined = resultData?.data?.csrfToken;
     const expiresIn: number | undefined = resultData?.data?.expiresIn;
-    if (!newRefreshToken || !expiresIn) {
-      log.warn("응답에 refreshToken, expiresIn 누락", { operation: "refresh-api" });
+    if (!newRefreshToken || !expiresIn || !newCsrfToken) {
+      log.warn("응답에 refreshToken, expiresIn, newCsrfToken 누락", { operation: "refresh-api" });
       return res.status(502).json({ message: "Upstream payload missing refreshToken" });
     }
     const isProd = process.env.NODE_ENV === "production";
     const maxAge = Math.max(0, Math.floor(expiresIn));
-    const cookie = serialize("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: "lax",
-      path: "/",
-      maxAge,
-      expires: new Date(Date.now() + maxAge * 1000),
-    });
+    const cookie = [
+      serialize("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "lax",
+        path: "/",
+        maxAge,
+        expires: new Date(Date.now() + maxAge * 1000),
+      }),
+      serialize("csrfToken", newCsrfToken, {
+        secure: isProd,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60,
+      }),
+    ];
 
     res.setHeader("Set-Cookie", cookie);
     return res.status(backendRes.status).json(resultData);

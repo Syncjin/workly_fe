@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css";
 
 export const container = style({
-  width: 240,
+  width: "100%",
   height: "100%",
   overflowY: "auto",
   display: "flex",
@@ -52,11 +52,14 @@ export const boardManageBtn = style({
   width: 45,
   height: 24,
   boxSizing: "border-box",
-  display: "inline-block",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
   whiteSpace: "nowrap",
   background: "#fff",
   border: "1px solid var(--color-gray-200)",
   borderRadius: 4,
+  textDecoration: "none",
   cursor: "pointer",
   selectors: {
     "&:hover": { background: "var(--color-gray-200)" },

@@ -29,7 +29,7 @@
       "@/widgets/*": ["./src/widgets/*"],
       "@/tests/*": ["./tests/*"]
     },
-    "types": ["jest", "vitest/globals", "node"]
+    "types": ["vitest/globals", "node"]
   },
   "include": ["svg.d.ts", "next-env.d.ts", "**/*.ts", "**/*.d.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
