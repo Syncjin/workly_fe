@@ -3,7 +3,7 @@
 import { Button } from "@/shared/ui/Button";
 import CheckBox from "@/shared/ui/CheckBox";
 import { useCallback, useState } from "react";
-import { toolbar } from "./postListWidget.css";
+import { toolbar } from "./postList.css";
 
 export const PostListToolbar = () => {
   const [checked, setChecked] = useState(false);

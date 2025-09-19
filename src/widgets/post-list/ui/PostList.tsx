@@ -6,10 +6,11 @@ import { usePostFilters, usePostSearch } from "@/features/post";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import Icon from "@/shared/ui/Icon";
 import { PostListToolbar } from "@/widgets/post-list/ui/PostListToolbar";
+import { useSearchParams } from "next/navigation";
 import React, { useCallback, useMemo, useState } from "react";
-import * as styles from "./postListWidget.css";
+import * as styles from "./postList.css";
 
-export interface PostListWidgetProps {
+export interface PostListProps {
   initialKeyword?: string;
   initialBoardId?: number;
   initialCategoryId?: number;
@@ -22,10 +23,13 @@ export interface PostListWidgetProps {
   className?: string;
 }
 
-export const PostListWidget: React.FC<PostListWidgetProps> = ({ initialKeyword, initialBoardId, initialCategoryId, initialPage = 1, size, showFilters = true, showSearch = true, categoryOptions = [], onPostClick, className }) => {
+export const PostList: React.FC<PostListProps> = ({ initialKeyword, initialBoardId, initialCategoryId, initialPage = 1, size, showFilters = true, showSearch = true, categoryOptions = [], onPostClick, className }) => {
   const [selected, setSelected] = useState<Set<number>>(() => new Set());
   const isChecked = useCallback((id: number) => selected.has(id), [selected]);
 
+  const queryParams = useSearchParams();
+
+  console.log("queryParams", queryParams?.get("size"));
   // Initialize filters and search state
   const filters = usePostFilters({
     boardId: initialBoardId,
@@ -37,17 +41,19 @@ export const PostListWidget: React.FC<PostListWidgetProps> = ({ initialKeyword, 
   // Combine filters and search into API parameters
   const params: PostListParams = useMemo(() => {
     const searchKeyword = search.keyword.trim();
+    const boardId = queryParams?.get("boardId");
+    const categoryId = queryParams?.get("categoryId");
     return {
       ...(searchKeyword && { keyword: searchKeyword }),
-      ...(filters.boardId && { boardId: filters.boardId }),
-      ...(filters.categoryId && { categoryId: filters.categoryId }),
+      ...(boardId && { boardId: Number(boardId) }),
+      ...(categoryId && { categoryId: Number(categoryId) }),
       ...(initialPage !== 1 && { page: initialPage }),
       ...(size && { size }),
     };
-  }, [search.keyword, filters.boardId, filters.categoryId, initialPage, size]);
+  }, [search.keyword, queryParams, initialPage, size]);
 
   // Fetch post data using the React Query hook
-  const { data, isLoading, refetch } = usePostListSuspense(params);
+  const { data, isLoading, refetch } = usePostListSuspense(params, { select: (resp) => resp.data });
 
   // Handle post card click
   const handlePostClick = (post: Post) => {
@@ -85,57 +91,57 @@ export const PostListWidget: React.FC<PostListWidgetProps> = ({ initialKeyword, 
   //   );
   // }
 
-  // const posts = Array.isArray(data?.data?.items) ? data.data.items : [];
-  const posts: Post[] = [
-    {
-      postId: 0,
-      title: "string",
-      content: "string",
-      board: {
-        boardId: 0,
-        boardName: "string",
-      },
-      fileInfos: [
-        {
-          fileId: "string",
-          fileUrl: "string",
-          objectKey: "string",
-          originalFilename: "string",
-          size: 0,
-          contentType: "string",
-          uploadedAt: "2025-09-16T11:10:45.782Z",
-        },
-      ],
-      commentsCount: 0,
-      likesCount: 0,
-      createdDateTime: "2025-09-16T11:10:45.782Z",
-      updatedDateTime: "2025-09-16T11:10:45.782Z",
-      deletedDateTime: "2025-09-16T11:10:45.782Z",
-      trashedDateTime: "2025-09-16T11:10:45.782Z",
-      user: {
-        id: 0,
-        userId: "string",
-        name: "string",
-        birthDate: "2025-09-16",
-        email: "string",
-        profile: "string",
-        description: "string",
-        positionId: 0,
-        positionName: "string",
-        teamId: 0,
-        teamName: "string",
-        status: "ACTIVE",
-        role: "ROLE_ADMIN",
-        createdDateTime: "2025-09-16T11:10:45.782Z",
-        updatedDateTime: "2025-09-16T11:10:45.782Z",
-      },
-      isLiked: true,
-      isBookmarked: true,
-      mustRead: true,
-      isRead: true,
-      readCount: 0,
-    },
-  ];
+  const posts = Array.isArray(data?.items) ? data.items : [];
+  // const posts: Post[] = [
+  //   {
+  //     postId: 0,
+  //     title: "string",
+  //     content: "string",
+  //     board: {
+  //       boardId: 0,
+  //       boardName: "string",
+  //     },
+  //     fileInfos: [
+  //       {
+  //         fileId: "string",
+  //         fileUrl: "string",
+  //         objectKey: "string",
+  //         originalFilename: "string",
+  //         size: 0,
+  //         contentType: "string",
+  //         uploadedAt: "2025-09-16T11:10:45.782Z",
+  //       },
+  //     ],
+  //     commentsCount: 0,
+  //     likesCount: 0,
+  //     createdDateTime: "2025-09-16T11:10:45.782Z",
+  //     updatedDateTime: "2025-09-16T11:10:45.782Z",
+  //     deletedDateTime: "2025-09-16T11:10:45.782Z",
+  //     trashedDateTime: "2025-09-16T11:10:45.782Z",
+  //     user: {
+  //       id: 0,
+  //       userId: "string",
+  //       name: "string",
+  //       birthDate: "2025-09-16",
+  //       email: "string",
+  //       profile: "string",
+  //       description: "string",
+  //       positionId: 0,
+  //       positionName: "string",
+  //       teamId: 0,
+  //       teamName: "string",
+  //       status: "ACTIVE",
+  //       role: "ROLE_ADMIN",
+  //       createdDateTime: "2025-09-16T11:10:45.782Z",
+  //       updatedDateTime: "2025-09-16T11:10:45.782Z",
+  //     },
+  //     isLiked: true,
+  //     isBookmarked: true,
+  //     mustRead: true,
+  //     isRead: true,
+  //     readCount: 0,
+  //   },
+  // ];
 
   // Empty state - no posts available
   if (posts.length === 0) {
