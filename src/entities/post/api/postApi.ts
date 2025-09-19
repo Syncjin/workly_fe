@@ -3,7 +3,7 @@
  *
  */
 
-import type { PostListParams, PostListResponse } from "@/entities/post/model";
+import type { Pagination, Post, PostListParams } from "@/entities/post/model";
 import { api } from "@/shared/api/client";
 import type { ApiResponse } from "@/shared/api/types";
 
@@ -11,7 +11,7 @@ import type { ApiResponse } from "@/shared/api/types";
  * Post API functions
  */
 export const postApi = {
-  getPosts: async (params?: PostListParams): Promise<ApiResponse<PostListResponse>> => {
+  getPosts: async (params?: PostListParams): Promise<ApiResponse<Pagination<Post>>> => {
     const queryParams = new URLSearchParams();
 
     if (params?.keyword) {
@@ -36,6 +36,6 @@ export const postApi = {
 
     const endpoint = queryParams.toString() ? `/posts?${queryParams.toString()}` : "/posts";
 
-    return await api.get<PostListResponse>(endpoint);
+    return await api.get<Pagination<Post>>(endpoint);
   },
 };

@@ -17,10 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 클라이언트에서 body로 받은 refreshToken 또는 쿠키에서 가져오기
     const refreshToken = req.cookies.refreshToken; // HttpOnly이지만 서버 측이므로 접근 가능
     const csrfToken = req.cookies.csrfToken; // 비-HttpOnly
-    log.debug("Refresh API 요청 refreshToken, csrfToken", { refreshToken, csrfToken, operation: "refresh-api" });
     if (!refreshToken || !csrfToken) {
       log.warn("Refresh API: 리프레시 토큰, CSRF 토큰을 찾을 수 없습니다", { hasCsrf: !!csrfToken, refreshToken: !!refreshToken, operation: "refresh-api" });
-
       return res.status(401).json({ message: "Refresh token not found" });
     }
 
@@ -38,8 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (csrfToken) headers["X-CSRF-TOKEN"] = csrfToken;
 
     const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`;
-    log.debug("백엔드 API 호출 시작", { url: backendUrl, hasCsrfToken: !!csrfToken, operation: "refresh-api" });
-
     const backendRes = await fetch(backendUrl, {
       method: "POST",
       headers,
@@ -52,12 +48,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         operation: "refresh-api",
       });
       return res.status(502).json(resultData);
-    } else {
-      log.debug("백엔드 API 응답 성공", {
-        status: backendRes.status,
-        resultData: resultData,
-        operation: "refresh-api",
-      });
     }
 
     const newRefreshToken: string | undefined = resultData?.data?.refreshToken;

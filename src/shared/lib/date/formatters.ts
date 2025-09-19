@@ -2,7 +2,6 @@ import { dayjs, DEFAULT_TZ } from "@/shared/lib/dayjs";
 
 /** 오늘이면 HH:mm, 같은 해면 MM.DD, 아니면 YYYY.MM.DD */
 export function formatDayOrTime(iso: string, tz: string = DEFAULT_TZ) {
-  console.log("formatDayOrTime", iso);
   return formatDateCustom(iso, { tz, today: "HH:mm", sameYear: "MM.DD", other: "YYYY.MM.DD" });
 }
 

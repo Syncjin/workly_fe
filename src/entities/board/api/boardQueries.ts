@@ -1,3 +1,4 @@
+import { boardApi } from "@/entities/board/api/boardApi";
 import type { Board } from "@/entities/board/model/types";
 import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
@@ -11,14 +12,14 @@ import { boardQueryKeys } from "../model";
 export const useBoardList = <TSelected = ApiResponse<Board[]>>(options?: Omit<UseQueryOptions<ApiResponse<Board[]>, ApiError, TSelected>, "queryKey" | "queryFn">): UseQueryResult<TSelected, ApiError> => {
   const queryKey = boardQueryKeys.list();
 
-  return useApiQuery<Board[], TSelected>(queryKey, "/boards", {
+  return useApiQuery<Board[], TSelected>(queryKey, () => boardApi.getBoards(), {
     ...options,
   });
 };
 
 export const useBoardListSuspense = <TSelected = ApiResponse<Board[]>>(options?: Omit<UseSuspenseQueryOptions<ApiResponse<Board[]>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = boardQueryKeys.list();
-  return useApiSuspenseQuery<Board[], TSelected>(queryKey, "/boards", {
+  return useApiSuspenseQuery<Board[], TSelected>(queryKey, () => boardApi.getBoards(), {
     ...options,
   });
 };

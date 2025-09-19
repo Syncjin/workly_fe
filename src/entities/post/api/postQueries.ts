@@ -5,7 +5,8 @@
  * 적절한 캐싱 전략과 함께 공유 useApiQuery 훅을 사용합니다.
  */
 
-import { type PostListParams, type PostListResponse } from "@/entities/post/model";
+import type { Pagination, Post, PostListParams } from "@/entities/post/model";
+import { postApi } from "@/features/post";
 import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
 import type { UseQueryOptions } from "@tanstack/react-query";
@@ -18,66 +19,18 @@ import type { UseQueryOptions } from "@tanstack/react-query";
  *
  */
 
-export const usePostList = <TSelected = PostListResponse>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<PostListResponse>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
-  const queryParams = new URLSearchParams();
-
-  if (params?.keyword) {
-    queryParams.append("keyword", params.keyword);
-  }
-
-  if (params?.boardId !== undefined) {
-    queryParams.append("boardId", params.boardId.toString());
-  }
-
-  if (params?.categoryId !== undefined) {
-    queryParams.append("categoryId", params.categoryId.toString());
-  }
-
-  if (params?.page !== undefined) {
-    queryParams.append("page", params.page.toString());
-  }
-
-  if (params?.size !== undefined) {
-    queryParams.append("size", params.size.toString());
-  }
-
-  const endpoint = queryParams.toString() ? `/posts?${queryParams.toString()}` : "/posts";
-
+export const usePostList = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = ["posts", params] as const;
 
-  return useApiQuery<PostListResponse, TSelected>(queryKey, endpoint, {
+  return useApiQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPosts(params), {
     ...options,
   });
 };
 
-export const usePostListSuspense = <TSelected = PostListResponse>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<PostListResponse>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
-  const queryParams = new URLSearchParams();
-
-  if (params?.keyword) {
-    queryParams.append("keyword", params.keyword);
-  }
-
-  if (params?.boardId !== undefined) {
-    queryParams.append("boardId", params.boardId.toString());
-  }
-
-  if (params?.categoryId !== undefined) {
-    queryParams.append("categoryId", params.categoryId.toString());
-  }
-
-  if (params?.page !== undefined) {
-    queryParams.append("page", params.page.toString());
-  }
-
-  if (params?.size !== undefined) {
-    queryParams.append("size", params.size.toString());
-  }
-
-  const endpoint = queryParams.toString() ? `/posts?${queryParams.toString()}` : "/posts";
-
+export const usePostListSuspense = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = ["posts", params] as const;
 
-  return useApiSuspenseQuery<PostListResponse, TSelected>(queryKey, endpoint, {
+  return useApiSuspenseQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPosts(params), {
     ...options,
   });
 };

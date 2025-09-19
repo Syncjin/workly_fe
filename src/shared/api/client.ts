@@ -18,24 +18,21 @@ interface ApiError {
 
 type ServiceKey = "main" | "admin";
 type ApiRequestOptions = RequestInit & {
-  service?: ServiceKey;           // 이걸로 어느 API로 보낼지 결정
-  absolute?: boolean;             // endpoint가 절대 URL이면 true (기존 자동판별도 유지)
+  service?: ServiceKey; // 이걸로 어느 API로 보낼지 결정
+  absolute?: boolean; // endpoint가 절대 URL이면 true (기존 자동판별도 유지)
 };
 
 let inflightRefresh: Promise<string | null> | null = null;
 
 class ApiClient {
-
   private services: Record<ServiceKey, { baseURL: string; apiVersion?: string }> = {
-    main:  { baseURL: config.NEXT_PUBLIC_API_URL,  apiVersion: config.NEXT_PUBLIC_API_VERSION },
+    main: { baseURL: config.NEXT_PUBLIC_API_URL, apiVersion: config.NEXT_PUBLIC_API_VERSION },
     admin: { baseURL: (config as any).NEXT_PUBLIC_API2_URL, apiVersion: (config as any).NEXT_PUBLIC_API2_VERSION },
   };
 
   private defaultService: ServiceKey = "main";
 
-  private serviceRouteRules: Array<{ pattern: RegExp; service: ServiceKey }> = [
-    { pattern: /^\/admin(\/|$)/i, service: "admin" },
-  ];
+  private serviceRouteRules: Array<{ pattern: RegExp; service: ServiceKey }> = [{ pattern: /^\/admin(\/|$)/i, service: "admin" }];
 
   private baseURL: string;
   private apiVersion: string;
@@ -62,13 +59,13 @@ class ApiClient {
   }
 
   private async ensureAccessTokenIfNeeded(endpoint: string) {
-    if (!this.shouldEnsure(endpoint)) return;       // 스킵 목록이면 건너뜀
-    if (getAccessToken()) return;                   // 이미 AT 있으면 OK
+    if (!this.shouldEnsure(endpoint)) return; // 스킵 목록이면 건너뜀
+    if (getAccessToken()) return; // 이미 AT 있으면 OK
 
     if (!inflightRefresh) {
       inflightRefresh = (async () => {
         try {
-          return await refreshAccessToken();        // RT 쿠키 + CSRF로 갱신
+          return await refreshAccessToken(); // RT 쿠키 + CSRF로 갱신
         } finally {
           inflightRefresh = null;
         }
@@ -80,12 +77,12 @@ class ApiClient {
   private getBaseUrl(service: ServiceKey): string {
     const { baseURL, apiVersion } = this.services[service] || this.services[this.defaultService];
     const base = baseURL?.replace(/\/$/, "") || "";
-    const ver  = apiVersion ? `/api/${apiVersion}` : "";
+    const ver = apiVersion ? `/api/${apiVersion}` : "";
     return `${base}${ver}`;
   }
 
   private getFullUrl(endpoint: string, service: ServiceKey, absolute?: boolean): string {
-    let clean = (endpoint || "").trim();
+    const clean = (endpoint || "").trim();
     if (!clean) return this.getBaseUrl(service);
 
     // 절대 URL 그대로 사용
@@ -115,7 +112,7 @@ class ApiClient {
     return this.defaultService;
   }
 
-  private async request<T>(method: string, endpoint: string, options: ApiRequestOptions  = {}): Promise<ApiResponse<T>> {
+  private async request<T>(method: string, endpoint: string, options: ApiRequestOptions = {}): Promise<ApiResponse<T>> {
     await this.ensureAccessTokenIfNeeded(endpoint);
     const service = this.resolveService(endpoint, options.service);
     const url = this.getFullUrl(endpoint, service, options.absolute);
@@ -239,17 +236,21 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, options?: ApiRequestOptions)   { return this.request<T>("GET",    endpoint, options); }
-  async post<T>(endpoint: string, data?: any, options?: ApiRequestOptions)  {
+  async get<T>(endpoint: string, options?: ApiRequestOptions) {
+    return this.request<T>("GET", endpoint, options);
+  }
+  async post<T>(endpoint: string, data?: any, options?: ApiRequestOptions) {
     return this.request<T>("POST", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
-  async put<T>(endpoint: string, data?: any, options?: ApiRequestOptions)   {
-    return this.request<T>("PUT",  endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
+  async put<T>(endpoint: string, data?: any, options?: ApiRequestOptions) {
+    return this.request<T>("PUT", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
   async patch<T>(endpoint: string, data?: any, options?: ApiRequestOptions) {
     return this.request<T>("PATCH", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
-  async delete<T>(endpoint: string, options?: ApiRequestOptions) { return this.request<T>("DELETE", endpoint, options); }
+  async delete<T>(endpoint: string, options?: ApiRequestOptions) {
+    return this.request<T>("DELETE", endpoint, options);
+  }
 
   // 파일 업로드
   async upload<T>(endpoint: string, file: File, options: ApiRequestOptions = {}) {
@@ -384,10 +385,10 @@ export const apiClient = new ApiClient();
 
 // 편의 함수들
 export const api = {
-  get:   <T>(endpoint: string, options?: ApiRequestOptions) => apiClient.get<T>(endpoint, options),
-  post:  <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.post<T>(endpoint, data, options),
-  put:   <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.put<T>(endpoint, data, options),
+  get: <T>(endpoint: string, options?: ApiRequestOptions) => apiClient.get<T>(endpoint, options),
+  post: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.post<T>(endpoint, data, options),
+  put: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.put<T>(endpoint, data, options),
   patch: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.patch<T>(endpoint, data, options),
-  delete:<T>(endpoint: string, options?: ApiRequestOptions) => apiClient.delete<T>(endpoint, options),
-  upload:<T>(endpoint: string, file: File, options?: ApiRequestOptions) => apiClient.upload<T>(endpoint, file, options),
+  delete: <T>(endpoint: string, options?: ApiRequestOptions) => apiClient.delete<T>(endpoint, options),
+  upload: <T>(endpoint: string, file: File, options?: ApiRequestOptions) => apiClient.upload<T>(endpoint, file, options),
 };

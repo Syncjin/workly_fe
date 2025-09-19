@@ -43,10 +43,6 @@ export interface Pagination<T> {
   nextPage: number;
 }
 
-export interface PostListResponse {
-  data: Pagination<Post>;
-}
-
 export interface PostListParams {
   keyword?: string;
   boardId?: number;

@@ -1,28 +1,21 @@
 import { log } from "@/lib/logger";
-import { useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions, useSuspenseQuery, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import { QueryFunctionContext, useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions, useSuspenseQuery, UseSuspenseQueryOptions } from "@tanstack/react-query";
 import { api } from "./client";
 import { ApiError, ApiResponse, createQueryKey } from "./types";
 
 // GET 요청 훅
-export function useApiQuery<T, TSelected = ApiResponse<T>>(queryKey: readonly unknown[], endpoint: string, options?: Omit<UseQueryOptions<ApiResponse<T>, ApiError, TSelected>, "queryKey" | "queryFn">) {
+export function useApiQuery<T, TSelected = ApiResponse<T>>(queryKey: readonly unknown[], queryFn: (ctx: QueryFunctionContext) => Promise<ApiResponse<T>>, options?: Omit<UseQueryOptions<ApiResponse<T>, ApiError, TSelected>, "queryKey" | "queryFn">) {
   return useQuery<ApiResponse<T>, ApiError, TSelected>({
     queryKey,
-    queryFn: async () => {
-      log.debug(`Fetching data from: ${endpoint}`);
-      return api.get<T>(endpoint);
-    },
+    queryFn,
     ...options,
   });
 }
 
-export function useApiSuspenseQuery<T, TSelected = ApiResponse<T>>(
-  queryKey: readonly unknown[],
-  endpoint: string,
-  options?: Omit<UseSuspenseQueryOptions<ApiResponse<T>, ApiError, TSelected>, "queryKey" | "queryFn">
-) {
+export function useApiSuspenseQuery<T, TSelected = ApiResponse<T>>(queryKey: readonly unknown[], queryFn: (ctx: QueryFunctionContext) => Promise<ApiResponse<T>>, options?: Omit<UseSuspenseQueryOptions<ApiResponse<T>, ApiError, TSelected>, "queryKey" | "queryFn">) {
   return useSuspenseQuery<ApiResponse<T>, ApiError, TSelected>({
     queryKey,
-    queryFn: async () => api.get<T>(endpoint),
+    queryFn,
     ...options,
   });
 }
