@@ -3,8 +3,9 @@
 import { AdminBoardLink } from "@/features/board/board-manage";
 import { Button } from "@/shared/ui/Button";
 import Icon from "@/shared/ui/Icon";
-import React, { useCallback, useState } from "react";
-import { useSidebarBoardsSuspense } from "../model/useSidebarBoard";
+import { usePathname, useRouter } from "next/navigation";
+import React, { startTransition, useCallback, useState } from "react";
+import { SidebarBoard, useSidebarBoardsSuspense } from "../model/useSidebarBoard";
 import CollapsibleBoardTree from "./CollapsibleBoardTree";
 import * as styles from "./boardSidebar.css";
 import * as treeStyles from "./collapsibleBoardTree.css";
@@ -18,7 +19,8 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   const panelId = "all-boards-panel";
   const [active, setActive] = useState<number | null>(0);
   const [isExpanded, setIsExpanded] = useState(true);
-
+  const router = useRouter();
+  const pathname = usePathname();
   const { data = [], isFetching, refetch } = useSidebarBoardsSuspense();
   const onCreatePost = () => {};
 
@@ -42,6 +44,21 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
     [toggle]
   );
 
+  const onSelectBoard = useCallback(
+    (b: SidebarBoard) => {
+      setActive(b.id);
+      const searchParams = new URLSearchParams();
+      searchParams.set("boardId", String(b.id));
+      searchParams.set("categoryId", String(b.categoryId));
+      searchParams.set("page", String(1));
+      searchParams.set("size", String(10));
+      startTransition(() => {
+        router?.push(`${pathname}?${searchParams.toString()}`, { scroll: false });
+      });
+    },
+    [pathname, router]
+  );
+
   return (
     <aside className={[styles.container, className].filter(Boolean).join(" ")} style={style} aria-label="Sidebar Navigation">
       <div className={styles.headerArea}>
@@ -60,17 +77,9 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
 
         <AdminBoardLink className={styles.boardManageBtn}>관리</AdminBoardLink>
       </div>
-      <div
-        id={panelId}
-        role="region"
-        aria-labelledby={headerId}
-        hidden={!isExpanded} // or style={{display: isExpanded ? undefined : 'none'}}
-        // className={styles.panelWrap}
-      >
-        <CollapsibleBoardTree data={data} activeBoardId={active ?? undefined} onSelectBoard={(b) => setActive(b.id)} defaultExpandedCategoryIds={[1]} />
+      <div id={panelId} role="region" aria-labelledby={headerId} hidden={!isExpanded}>
+        <CollapsibleBoardTree data={data} activeBoardId={active ?? undefined} onSelectBoard={onSelectBoard} defaultExpandedCategoryIds={[1]} />
       </div>
-
-      {/* <CollapsibleBoardTree data={data} activeBoardId={active ?? undefined} onSelectBoard={(b) => setActive(b.id)} defaultExpandedCategoryIds={[1]} /> */}
     </aside>
   );
 };
