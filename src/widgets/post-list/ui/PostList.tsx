@@ -29,7 +29,6 @@ export const PostList: React.FC<PostListProps> = ({ initialKeyword, initialBoard
 
   const queryParams = useSearchParams();
 
-  console.log("queryParams", queryParams?.get("size"));
   // Initialize filters and search state
   const filters = usePostFilters({
     boardId: initialBoardId,
@@ -92,56 +91,6 @@ export const PostList: React.FC<PostListProps> = ({ initialKeyword, initialBoard
   // }
 
   const posts = Array.isArray(data?.items) ? data.items : [];
-  // const posts: Post[] = [
-  //   {
-  //     postId: 0,
-  //     title: "string",
-  //     content: "string",
-  //     board: {
-  //       boardId: 0,
-  //       boardName: "string",
-  //     },
-  //     fileInfos: [
-  //       {
-  //         fileId: "string",
-  //         fileUrl: "string",
-  //         objectKey: "string",
-  //         originalFilename: "string",
-  //         size: 0,
-  //         contentType: "string",
-  //         uploadedAt: "2025-09-16T11:10:45.782Z",
-  //       },
-  //     ],
-  //     commentsCount: 0,
-  //     likesCount: 0,
-  //     createdDateTime: "2025-09-16T11:10:45.782Z",
-  //     updatedDateTime: "2025-09-16T11:10:45.782Z",
-  //     deletedDateTime: "2025-09-16T11:10:45.782Z",
-  //     trashedDateTime: "2025-09-16T11:10:45.782Z",
-  //     user: {
-  //       id: 0,
-  //       userId: "string",
-  //       name: "string",
-  //       birthDate: "2025-09-16",
-  //       email: "string",
-  //       profile: "string",
-  //       description: "string",
-  //       positionId: 0,
-  //       positionName: "string",
-  //       teamId: 0,
-  //       teamName: "string",
-  //       status: "ACTIVE",
-  //       role: "ROLE_ADMIN",
-  //       createdDateTime: "2025-09-16T11:10:45.782Z",
-  //       updatedDateTime: "2025-09-16T11:10:45.782Z",
-  //     },
-  //     isLiked: true,
-  //     isBookmarked: true,
-  //     mustRead: true,
-  //     isRead: true,
-  //     readCount: 0,
-  //   },
-  // ];
 
   // Empty state - no posts available
   if (posts.length === 0) {

@@ -15,7 +15,7 @@ type PostListSkeletonProps = {
 
 const titleWidths = ["72%", "84%", "63%", "78%", "90%", "68%", "80%", "74%"];
 
-export function PostListSkeleton({ rows = 8, dense = false, showBottomMeta = true, showLeftCheck = true, showRightDate = true, variant = "pulse", className }: PostListSkeletonProps) {
+export function PostListSkeleton({ rows = 16, dense = false, showBottomMeta = true, showLeftCheck = true, showRightDate = true, variant = "pulse", className }: PostListSkeletonProps) {
   return (
     <ul className={[styles.list, className].filter(Boolean).join(" ")} aria-hidden aria-busy="true" role="status">
       {Array.from({ length: rows }).map((_, i) => (
