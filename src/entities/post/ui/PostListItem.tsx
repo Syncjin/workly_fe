@@ -119,7 +119,7 @@ function Root({ as = "li", className, children, hideLeft, hideRight, hideBottomM
 
   return (
     <Ctx.Provider value={ctx}>
-      <Comp role={as === "li" ? "listitem" : undefined} data-active={ctx.active ? "true" : "false"} className={[postListItemStyles.container, className].filter(Boolean).join(" ")}>
+      <Comp role={as === "li" ? "listitem" : undefined} data-active={ctx.active ? "true" : "false"} data-checked={ctx.checked ? "true" : "false"} aria-selected={ctx.checked ?? false} className={[postListItemStyles.container, className].filter(Boolean).join(" ")}>
         {children ?? (
           <>
             {!hideLeft && <LeftSlot />}

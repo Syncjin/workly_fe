@@ -7,13 +7,23 @@ export const postListItemStyles = {
     cursor: "pointer",
     display: "flex",
     flexDirection: "row",
-    transition: "all 0.2s ease",
+    transition: "background-color 0.18s ease, box-shadow 0.18s ease",
     ":hover": { background: "var(--color-gray-100)" },
     ":focus": {
       outline: "2px solid var(--color-brand-500)",
       outlineOffset: "2px",
     },
-    ":active": {},
+    selectors: {
+      '&[data-checked="true"]': {
+        backgroundColor: "var(--color-brand-50)", // ← 체크시 배경
+      },
+      '&[data-checked="true"]:hover': {
+        backgroundColor: "var(--color-brand-100)", // ← 체크+호버
+      },
+      '&[data-checked="true"][data-active="true"]': {
+        boxShadow: "inset 0 0 0 1px var(--color-brand-300)", // 선택+활성 강조
+      },
+    },
   }),
   checkView: style({
     width: 16,
