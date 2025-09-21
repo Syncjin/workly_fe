@@ -6,7 +6,7 @@
  */
 
 import type { Pagination, Post, PostListParams } from "@/entities/post/model";
-import { postApi } from "@/features/post";
+import { postApi, postQueryKeys } from "@/features/post";
 import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
 import type { UseQueryOptions } from "@tanstack/react-query";
@@ -20,7 +20,7 @@ import type { UseQueryOptions } from "@tanstack/react-query";
  */
 
 export const usePostList = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
-  const queryKey = ["posts", params] as const;
+  const queryKey = postQueryKeys.list(params);
 
   return useApiQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPosts(params), {
     ...options,
@@ -28,7 +28,7 @@ export const usePostList = <TSelected = ApiResponse<Pagination<Post>>>(params?: 
 };
 
 export const usePostListSuspense = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
-  const queryKey = ["posts", params] as const;
+  const queryKey = postQueryKeys.list(params);
 
   return useApiSuspenseQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPosts(params), {
     ...options,

@@ -43,10 +43,16 @@ export interface Pagination<T> {
   nextPage: number;
 }
 
-export interface PostListParams {
-  keyword?: string;
+export interface StableUrlParams {
   boardId?: number;
   categoryId?: number;
+}
+
+export interface DynamicUrlParams {
+  keyword?: string;
   page?: number;
   size?: number;
 }
+export interface PostListParams extends StableUrlParams, DynamicUrlParams {}
+
+export type PostListContainerProps = StableUrlParams;

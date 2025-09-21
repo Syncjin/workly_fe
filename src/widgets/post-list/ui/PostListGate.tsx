@@ -1,21 +1,36 @@
 "use client";
-import { PostList } from "@/widgets/post-list/ui/PostList";
+import { PostListContainer } from "@/widgets/post-list/ui/PostListContainer";
 import { PostMain } from "@/widgets/post-list/ui/PostMain";
 import { useSearchParams } from "next/navigation";
+import { memo, useMemo } from "react";
 
-export const PostListGate = () => {
+interface StableParams {
+  boardId?: number;
+  categoryId?: number;
+}
+
+export const PostListGate = memo(() => {
   const searchParams = useSearchParams();
-  const boardId = searchParams?.get("boardId") ? Number(searchParams?.get("boardId")) : undefined;
-  const categoryId = searchParams?.get("categoryId") ? Number(searchParams?.get("categoryId")) : undefined;
-  const keyword: string | undefined = searchParams?.get("keyword")?.trim() || undefined;
-  const size = searchParams?.get("size") ? Number(searchParams?.get("size")) : 10;
-  const page = searchParams?.get("page") ? Number(searchParams?.get("page")) : 1;
 
-  const isFetch = boardId && categoryId;
+  const boardIdParam = searchParams?.get("boardId");
+  const categoryIdParam = searchParams?.get("categoryId");
+
+  const stableParams = useMemo((): StableParams => {
+    return {
+      boardId: boardIdParam ? Number(boardIdParam) : undefined,
+      categoryId: categoryIdParam ? Number(categoryIdParam) : undefined,
+    };
+  }, [boardIdParam, categoryIdParam]);
+
+  const isFetch = useMemo(() => {
+    return stableParams.boardId && stableParams.categoryId;
+  }, [stableParams.boardId, stableParams.categoryId]);
 
   if (!isFetch) {
     return <PostMain />;
   }
 
-  return <PostList initialKeyword={keyword} initialBoardId={boardId} initialCategoryId={categoryId} initialPage={page} size={size} />;
-};
+  return <PostListContainer {...stableParams} />;
+});
+
+PostListGate.displayName = "PostListGate";
