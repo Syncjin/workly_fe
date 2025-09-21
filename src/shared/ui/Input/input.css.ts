@@ -1,11 +1,9 @@
+import { colorGroups, colorLevels, ColorVariant, createColorVariantStyles } from "@/shared/styles/colorVariants";
 import { styleVariants } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
-import { colorGroups, colorLevels, ColorVariant, createColorVariantStyles } from "@/shared/styles/colorVariants";
 
 export const baseInput = {
-  fontSize: "16px",
   lineHeight: "24px",
-  padding: "10px 14px",
   borderRadius: "8px",
   border: "1px solid var(--color-gray-300)",
   background: "#fff",
@@ -28,7 +26,7 @@ export const baseInput = {
 
 export const sizeVariants = styleVariants({
   sm: {
-    padding: "6px 12px",
+    padding: "10px 14px",
     fontSize: "14px",
   },
   md: {

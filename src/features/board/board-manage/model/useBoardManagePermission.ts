@@ -1,8 +1,8 @@
-import { useMyInfo } from "@/entities/users/api/usersQueries";
+import { useMyInfoSuspense } from "@/entities/users/api/usersQueries";
 import { useMemo } from "react";
 
 export function useBoardManagePermission() {
-  const { data, isLoading, isError } = useMyInfo();
+  const { data, isLoading, isError } = useMyInfoSuspense();
 
   const isPermitted = useMemo(() => {
     if (!data?.data) return false;
