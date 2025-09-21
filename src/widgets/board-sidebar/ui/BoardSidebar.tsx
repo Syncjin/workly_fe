@@ -3,8 +3,8 @@
 import { AdminBoardLink } from "@/features/board/board-manage";
 import { Button } from "@/shared/ui/Button";
 import Icon from "@/shared/ui/Icon";
-import { usePathname, useRouter } from "next/navigation";
-import React, { startTransition, useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { startTransition, useCallback, useMemo, useState } from "react";
 import { SidebarBoard, useSidebarBoardsSuspense } from "../model/useSidebarBoard";
 import CollapsibleBoardTree from "./CollapsibleBoardTree";
 import * as styles from "./boardSidebar.css";
@@ -17,12 +17,25 @@ interface BoardSidebarProps {
 export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   const headerId = "all-boards-header";
   const panelId = "all-boards-panel";
-  const [active, setActive] = useState<number | null>(0);
   const [isExpanded, setIsExpanded] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { data = [], isFetching, refetch } = useSidebarBoardsSuspense();
+  const searchParams = useSearchParams();
+
+  const { data = [] } = useSidebarBoardsSuspense();
   const onCreatePost = () => {};
+
+  const activeBoardId = useMemo(() => {
+    const v = searchParams?.get("boardId");
+    const n = v ? Number(v) : NaN;
+    return Number.isFinite(n) ? n : undefined;
+  }, [searchParams]);
+
+  const defaultExpandedCategoryIds = useMemo(() => {
+    if (!activeBoardId) return [1]; // 기존 기본값 유지
+    const found = data.find((cat) => cat.boards?.some((b) => b.id === activeBoardId));
+    return found ? [found?.category.id] : [1];
+  }, [data, activeBoardId]);
 
   const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
     <span className={treeStyles.chevron} data-open={open ? "true" : "false"} aria-hidden>
@@ -46,17 +59,17 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
 
   const onSelectBoard = useCallback(
     (b: SidebarBoard) => {
-      setActive(b.id);
-      const searchParams = new URLSearchParams();
-      searchParams.set("boardId", String(b.id));
-      searchParams.set("categoryId", String(b.categoryId));
-      searchParams.set("page", String(1));
-      searchParams.set("size", String(10));
+      const sp = new URLSearchParams(searchParams?.toString() ?? "");
+      sp.set("boardId", String(b.id));
+      sp.set("categoryId", String(b.categoryId));
+      sp.delete("page");
+      sp.delete("size");
+
       startTransition(() => {
-        router?.push(`${pathname}?${searchParams.toString()}`, { scroll: false });
+        router.push(`${pathname}?${sp.toString()}`, { scroll: false });
       });
     },
-    [pathname, router]
+    [pathname, router, searchParams]
   );
 
   return (
@@ -78,7 +91,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
         <AdminBoardLink className={styles.boardManageBtn}>관리</AdminBoardLink>
       </div>
       <div id={panelId} role="region" aria-labelledby={headerId} hidden={!isExpanded}>
-        <CollapsibleBoardTree data={data} activeBoardId={active ?? undefined} onSelectBoard={onSelectBoard} defaultExpandedCategoryIds={[1]} />
+        <CollapsibleBoardTree data={data} activeBoardId={activeBoardId} onSelectBoard={onSelectBoard} defaultExpandedCategoryIds={defaultExpandedCategoryIds} />
       </div>
     </aside>
   );
