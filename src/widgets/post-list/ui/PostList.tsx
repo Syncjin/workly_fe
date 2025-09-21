@@ -1,40 +1,19 @@
 "use client";
 
-import type { Post, PostListParams } from "@/entities/post";
-import { PostListItem, PostListSkeleton, usePostListSuspense } from "@/entities/post";
+import type { Post } from "@/entities/post";
+import { PostListItem } from "@/entities/post";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import Icon from "@/shared/ui/Icon";
-import { keepPreviousData } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
-import React, { useCallback, useMemo, useState } from "react";
+import { usePostListParamsFromURL } from "@/widgets/post-list/model";
+import { PostListSkeleton } from "@/widgets/post-list/ui/loading/PostListSkeleton";
+import React, { useCallback, useState } from "react";
 import * as styles from "./postList.css";
 
 export const PostList = React.memo(() => {
   const [selected, setSelected] = useState<Set<number>>(() => new Set());
   const isChecked = useCallback((id: number) => selected.has(id), [selected]);
 
-  const searchParams = useSearchParams();
-
-  const params = useMemo((): PostListParams => {
-    const keyword = searchParams?.get("keyword")?.trim() || undefined;
-    const boardId = searchParams?.get("boardId") ? Number(searchParams.get("boardId")) : undefined;
-    const categoryId = searchParams?.get("categoryId") ? Number(searchParams.get("categoryId")) : undefined;
-    const page = searchParams?.get("page") ? Number(searchParams.get("page")) : 1;
-    const size = searchParams?.get("size") ? Number(searchParams.get("size")) : 10;
-
-    return {
-      keyword,
-      boardId,
-      categoryId,
-      page,
-      size,
-    };
-  }, [searchParams]);
-
-  const { data, isLoading } = usePostListSuspense(params, {
-    select: (resp) => resp.data,
-    placeholderData: keepPreviousData,
-  });
+  const { data, isLoading } = usePostListParamsFromURL();
 
   // Handle post card click
   const handlePostClick = (post: Post) => {};

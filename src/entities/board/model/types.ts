@@ -16,8 +16,8 @@ export interface Board {
   updatedDateTime: string;
 }
 
-export interface BoardListResponse {
-  data: Board[];
+export interface BoardParams {
+  boardId: number;
 }
 
 // Type for board visibility options

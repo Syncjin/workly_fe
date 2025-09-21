@@ -3,7 +3,7 @@
  * 게시판 CRUD API
  */
 
-import type { Board } from "@/entities/board/model/types";
+import type { Board, BoardParams } from "@/entities/board/model/types";
 import { api } from "@/shared/api/client";
 import type { ApiResponse } from "@/shared/api/types";
 
@@ -13,5 +13,8 @@ import type { ApiResponse } from "@/shared/api/types";
 export const boardApi = {
   getBoards: async (): Promise<ApiResponse<Board[]>> => {
     return await api.get<Board[]>("/boards");
+  },
+  getBoardById: async (params?: BoardParams): Promise<ApiResponse<Board>> => {
+    return await api.get<Board>(`/boards/${params?.boardId.toString()}`);
   },
 };

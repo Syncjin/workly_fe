@@ -1,15 +1,15 @@
 import { boardApi } from "@/entities/board/api/boardApi";
-import type { Board } from "@/entities/board/model/types";
+import type { Board, BoardParams } from "@/entities/board/model";
 import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
-import type { UseQueryOptions, UseQueryResult, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import type { UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
 import { boardQueryKeys } from "../model";
 
 /**
  * 게시판 목록을 가져오는 React Query 훅
  */
 
-export const useBoardList = <TSelected = ApiResponse<Board[]>>(options?: Omit<UseQueryOptions<ApiResponse<Board[]>, ApiError, TSelected>, "queryKey" | "queryFn">): UseQueryResult<TSelected, ApiError> => {
+export const useBoardList = <TSelected = ApiResponse<Board[]>>(options?: Omit<UseQueryOptions<ApiResponse<Board[]>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = boardQueryKeys.list();
 
   return useApiQuery<Board[], TSelected>(queryKey, () => boardApi.getBoards(), {
@@ -20,6 +20,22 @@ export const useBoardList = <TSelected = ApiResponse<Board[]>>(options?: Omit<Us
 export const useBoardListSuspense = <TSelected = ApiResponse<Board[]>>(options?: Omit<UseSuspenseQueryOptions<ApiResponse<Board[]>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = boardQueryKeys.list();
   return useApiSuspenseQuery<Board[], TSelected>(queryKey, () => boardApi.getBoards(), {
+    ...options,
+  });
+};
+
+export const useBoardDetail = <TSelected = ApiResponse<Board>>(params: BoardParams, options?: Omit<UseQueryOptions<ApiResponse<Board>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = boardQueryKeys.detail(params?.boardId);
+
+  return useApiQuery<Board, TSelected>(queryKey, () => boardApi.getBoardById(params), {
+    ...options,
+  });
+};
+
+export const useBoardDetailSuspense = <TSelected = ApiResponse<Board>>(params: BoardParams, options?: Omit<UseSuspenseQueryOptions<ApiResponse<Board>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = boardQueryKeys.detail(params?.boardId);
+
+  return useApiSuspenseQuery<Board, TSelected>(queryKey, () => boardApi.getBoardById(params), {
     ...options,
   });
 };

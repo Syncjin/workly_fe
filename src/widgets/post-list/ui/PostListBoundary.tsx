@@ -1,7 +1,7 @@
 "use client";
 
-import { PostListSkeleton } from "@/entities/post";
 import { PostListError } from "@/widgets/post-list/ui/errors/PostListError";
+import { PostListSkeleton } from "@/widgets/post-list/ui/loading/PostListSkeleton";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
