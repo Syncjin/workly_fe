@@ -4,20 +4,29 @@ import { PostSearch, usePostSearch } from "@/features/post";
 import { useSearchParamsManager } from "@/features/post/post-search";
 import { Button } from "@/shared/ui/Button";
 import CheckBox from "@/shared/ui/CheckBox";
+import { usePageSelectionMeta, useSelectionActions } from "@/widgets/post-list/model/SelectionStore";
 import { useSearchParams } from "next/navigation";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { toolbar } from "./postList.css";
 
 export const PostListToolbar = React.memo(() => {
-  const [checked, setChecked] = useState(false);
   const searchParams = useSearchParams();
-
   const search = usePostSearch(searchParams?.get("keyword") || undefined);
   const { updateSearchParams } = useSearchParamsManager();
 
-  const allCheckedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("e.target.checke", e.target.checked);
-  }, []);
+  const { isAllCheck, isIndeterminateOnPage, totalSelected } = usePageSelectionMeta();
+
+  const { selectAllVisible, clearVisible } = useSelectionActions();
+
+  const onAllCheckChange = useCallback(() => {
+    if (isAllCheck) {
+      clearVisible();
+    } else {
+      selectAllVisible();
+    }
+  }, [isAllCheck, selectAllVisible, clearVisible]);
+
+  const hasSelectedItems = totalSelected > 0;
 
   const onSearch = useCallback(
     async (keyword: string) => {
@@ -29,14 +38,14 @@ export const PostListToolbar = React.memo(() => {
   return (
     <div className={toolbar.container}>
       <div className={toolbar.leftArea}>
-        <CheckBox aria-label="select all post" checked={!!checked} onChange={allCheckedChange} />
-        <Button variant="border" size="md" color="gray-300">
+        <CheckBox aria-label="select all post" checked={isAllCheck} indeterminate={isIndeterminateOnPage} onChange={onAllCheckChange} />
+        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems}>
           읽음
         </Button>
-        <Button variant="border" size="md" color="gray-300">
+        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems}>
           삭제
         </Button>
-        <Button variant="border" size="md" color="gray-300">
+        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems}>
           이동
         </Button>
         <PostSearch search={search} onSearch={onSearch} />

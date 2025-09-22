@@ -11,6 +11,7 @@ export const baseButton = {
   alignItems: "center",
   justifyContent: "center",
   transition: "background-color 0.2s, color 0.2s, border-color 0.2s",
+  whiteSpace: "nowrap",
   position: "relative" as const,
 };
 
@@ -58,7 +59,6 @@ export const overlay = style({
   justifyContent: "center",
   pointerEvents: "none",
 });
-
 
 const spin = keyframes({
   "0%": { transform: "rotate(0deg)" },
@@ -133,7 +133,7 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
         color: `var(--color-${group}-700)`,
         border: `1px solid var(--color-${group}-300)`,
         selectors: {
-          "&:hover": {
+          "&:not(:disabled):hover": {
             backgroundColor: `var(--color-${group}-50)`,
           },
           "&:focus": {
@@ -146,11 +146,11 @@ function getButtonVariantStyle(variant: ButtonVariant, color: ButtonColor) {
             `,
           },
           "&:disabled": {
-            backgroundColor: `var(--color-${group}-200)`,
+            border: `1px solid var(--color-${group}-200)`,
             color: `var(--color-${group}-300)`,
           },
           "&[data-loading]": {
-            backgroundColor: `var(--color-${group}-200)`,
+            border: `1px solid var(--color-${group}-200)`,
             color: `var(--color-${group}-300)`,
           },
         },

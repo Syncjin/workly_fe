@@ -2,7 +2,7 @@
 import { useBoardDetailSuspense } from "@/entities/board";
 import * as styles from "./postList.css";
 
-export function BoardHeader({ boardId }: { boardId?: number }) {
+export function BoardHeader({ boardId }: { boardId?: number | null }) {
   if (!Number.isFinite(boardId) || (boardId as number) <= 0) {
     return <h1 className={styles.header}>게시판</h1>;
   }

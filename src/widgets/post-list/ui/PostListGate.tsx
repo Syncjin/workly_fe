@@ -30,7 +30,7 @@ export const PostListGate = memo(() => {
     return <PostMain />;
   }
 
-  return <PostListContainer {...stableParams} />;
+  return <PostListContainer />;
 });
 
 PostListGate.displayName = "PostListGate";
