@@ -56,3 +56,7 @@ export interface DynamicUrlParams {
 export interface PostListParams extends StableUrlParams, DynamicUrlParams {}
 
 export type PostListContainerProps = StableUrlParams;
+
+export interface PostByIdReadRequest {
+  postId: number;
+}

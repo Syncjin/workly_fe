@@ -5,8 +5,8 @@ import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 type SelectionState = {
-  visibleIds: number[]; // 체크된 postlistItem postId
-  selected: Set<number>;
+  visibleIds: number[]; // 보이는 ㅌpostlistItem postId
+  selected: Set<number>; // 체크된 postlistItem postId
   scopeKey: string | null;
 
   setVisible: (ids: number[]) => void;
@@ -131,6 +131,7 @@ export function useSyncVisibleIds(ids: number[]) {
     setVisible(ids);
   }, [setVisible, idsString]); // 문자열 비교로 불필요한 리렌더링 방지
 }
+
 /** 개별 액션 훅들 - 안정적인 참조 보장 */
 export function useToggleSelection() {
   return useSelectionStore((s) => s.toggle);
@@ -150,6 +151,11 @@ export function useClearVisible() {
 
 export function useSetVisible() {
   return useSelectionStore((s) => s.setVisible);
+}
+
+export function useSelectedPostIdsOnPage() {
+  const { visibleIds, selected } = useSelectionStore((s) => s);
+  return visibleIds.filter((id) => selected.has(id));
 }
 
 export function useSelectionActions() {

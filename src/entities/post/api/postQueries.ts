@@ -5,9 +5,9 @@
  * 적절한 캐싱 전략과 함께 공유 useApiQuery 훅을 사용합니다.
  */
 
-import type { Pagination, Post, PostListParams } from "@/entities/post/model";
+import type { Pagination, Post, PostByIdReadRequest, PostListParams } from "@/entities/post/model";
 import { postApi, postQueryKeys } from "@/features/post";
-import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
+import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { ApiError, ApiResponse } from "@/shared/api/types";
 import type { UseQueryOptions } from "@tanstack/react-query";
 
@@ -33,4 +33,8 @@ export const usePostListSuspense = <TSelected = ApiResponse<Pagination<Post>>>(p
   return useApiSuspenseQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPosts(params), {
     ...options,
   });
+};
+
+export const usePostByIdRead = () => {
+  return useApiMutation<void, PostByIdReadRequest>((params) => postApi.postPostsByIdRead(params), {});
 };

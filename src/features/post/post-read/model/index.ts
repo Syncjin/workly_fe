@@ -1,0 +1,1 @@
+export { usePostRead } from "./usePostRead";

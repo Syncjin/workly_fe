@@ -24,6 +24,37 @@ type ApiRequestOptions = RequestInit & {
 
 let inflightRefresh: Promise<string | null> | null = null;
 
+function nowIso() {
+  return new Date().toISOString();
+}
+
+/** 성공 응답 바디를 안전하게 파싱 (204/빈 바디/비JSON 대응) */
+async function parseApiJsonSafe<T>(res: Response): Promise<ApiResponse<T>> {
+  const contentType = res.headers.get("content-type") ?? "";
+  const contentLen = res.headers.get("content-length");
+
+  const isNoBody = res.status === 204 || res.status === 205 || res.status === 304 || contentLen === "0";
+
+  // 원래 바디가 없는 성공
+  if (isNoBody) {
+    return { data: undefined as unknown as T, status: res.status, code: "NO_CONTENT", timestamp: nowIso() };
+  }
+
+  // 텍스트로 받아서 비어 있으면 NO_CONTENT 취급
+  const raw = await res.text();
+  if (!raw) {
+    return { data: undefined as unknown as T, status: res.status, code: "NO_CONTENT", timestamp: nowIso() };
+  }
+
+  // JSON이면 파싱해서 그대로 반환(서버가 ApiResponse 형태를 줌)
+  if (contentType.includes("application/json")) {
+    return JSON.parse(raw) as ApiResponse<T>;
+  }
+
+  // 그 외: 원시 텍스트를 data로 감싸서 반환
+  return { data: raw as unknown as T, status: res.status, code: "OK", timestamp: nowIso() };
+}
+
 class ApiClient {
   private services: Record<ServiceKey, { baseURL: string; apiVersion?: string }> = {
     main: { baseURL: config.NEXT_PUBLIC_API_URL, apiVersion: config.NEXT_PUBLIC_API_VERSION },
@@ -196,7 +227,7 @@ class ApiClient {
             log.apiCall(`${method} (retry)`, url, retryResponse.status, retryDuration);
 
             if (retryResponse.ok) {
-              const retryData = await retryResponse.json();
+              const retryData = await parseApiJsonSafe<T>(retryResponse);
               log.debug(`API Response (retry): ${method} ${url}`, { data: retryData, duration: retryDuration });
               return retryData;
             }
@@ -214,18 +245,24 @@ class ApiClient {
           }
         }
 
-        const errorData = await response.json().catch(() => ({}));
+        const errorText = await response.text().catch(() => "");
+        let errorJson: any = {};
+        try {
+          errorJson = errorText ? JSON.parse(errorText) : {};
+        } catch {
+          errorJson = {};
+        }
         const error: ApiError = {
-          message: errorData.message || `HTTP ${response.status}`,
+          message: errorJson.message || `HTTP ${response.status}`,
           status: response.status,
-          code: errorData.code,
+          code: errorJson.code,
         };
 
         log.error(`API Error: ${method} ${url}`, error);
         throw error;
       }
 
-      const data = await response.json();
+      const data = await parseApiJsonSafe<T>(response);
 
       log.debug(`API Response: ${method} ${url}`, { data, duration });
       return data;
@@ -338,7 +375,7 @@ class ApiClient {
             log.apiCall(`POST (retry)`, url, retryResponse.status, retryDuration);
 
             if (retryResponse.ok) {
-              const retryData = await retryResponse.json();
+              const retryData = await parseApiJsonSafe<T>(retryResponse);
               log.debug(`Upload Success (retry): POST ${url}`, { data: retryData, duration: retryDuration });
 
               return retryData;
@@ -357,18 +394,23 @@ class ApiClient {
           }
         }
 
-        const errorData = await response.json().catch(() => ({}));
+        const errorText = await response.text().catch(() => "");
+        let errorJson: any = {};
+        try {
+          errorJson = errorText ? JSON.parse(errorText) : {};
+        } catch {
+          errorJson = {};
+        }
         const error: ApiError = {
-          message: errorData.message || `Upload failed: HTTP ${response.status}`,
+          message: errorJson.message || `Upload failed: HTTP ${response.status}`,
           status: response.status,
-          code: errorData.code,
+          code: errorJson.code,
         };
-
         log.error(`Upload Error: POST ${url}`, error);
         throw error;
       }
 
-      const data = await response.json();
+      const data = await parseApiJsonSafe<T>(response);
 
       log.debug(`Upload Success: POST ${url}`, { data, duration });
 

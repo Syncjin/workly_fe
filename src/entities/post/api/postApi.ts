@@ -3,7 +3,7 @@
  *
  */
 
-import type { Pagination, Post, PostListParams } from "@/entities/post/model";
+import type { Pagination, Post, PostByIdReadRequest, PostListParams } from "@/entities/post/model";
 import { api } from "@/shared/api/client";
 import type { ApiResponse } from "@/shared/api/types";
 
@@ -37,5 +37,8 @@ export const postApi = {
     const endpoint = queryParams.toString() ? `/posts?${queryParams.toString()}` : "/posts";
 
     return await api.get<Pagination<Post>>(endpoint);
+  },
+  postPostsByIdRead: async (params?: PostByIdReadRequest): Promise<ApiResponse<void>> => {
+    return await api.post<void>(`/posts/${params?.postId}/reads`);
   },
 };
