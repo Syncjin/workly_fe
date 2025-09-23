@@ -1,0 +1,1 @@
+export { usePostDeleteAction } from "./usePostDeleteAction";

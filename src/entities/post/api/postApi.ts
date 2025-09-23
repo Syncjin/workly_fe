@@ -3,42 +3,45 @@
  *
  */
 
-import type { Pagination, Post, PostByIdReadRequest, PostListParams } from "@/entities/post/model";
+import type { Post, PostByIdReadRequest, PostDeleteRequest, PostListParams } from "@/entities/post/model";
 import { api } from "@/shared/api/client";
-import type { ApiResponse } from "@/shared/api/types";
+import type { ApiResponse, Pagination } from "@/shared/api/types";
 
 /**
  * Post API functions
  */
+
+function toQueryString(params?: Record<string, any>) {
+  const q = new URLSearchParams();
+  if (!params) return "";
+
+  Object.entries(params).forEach(([k, v]) => {
+    if (v === undefined || v === null) return;
+    q.append(k, String(v));
+  });
+
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
 export const postApi = {
+  /** 게시글 목록 */
   getPosts: async (params?: PostListParams): Promise<ApiResponse<Pagination<Post>>> => {
-    const queryParams = new URLSearchParams();
-
-    if (params?.keyword) {
-      queryParams.append("keyword", params.keyword);
-    }
-
-    if (params?.boardId !== undefined) {
-      queryParams.append("boardId", params.boardId.toString());
-    }
-
-    if (params?.categoryId !== undefined) {
-      queryParams.append("categoryId", params.categoryId.toString());
-    }
-
-    if (params?.page !== undefined) {
-      queryParams.append("page", params.page.toString());
-    }
-
-    if (params?.size !== undefined) {
-      queryParams.append("size", params.size.toString());
-    }
-
-    const endpoint = queryParams.toString() ? `/posts?${queryParams.toString()}` : "/posts";
-
-    return await api.get<Pagination<Post>>(endpoint);
+    const query = toQueryString({
+      keyword: params?.keyword,
+      boardId: params?.boardId,
+      categoryId: params?.categoryId,
+      page: params?.page,
+      size: params?.size,
+    });
+    return api.get<Pagination<Post>>(`/posts${query}`);
   },
-  postPostsByIdRead: async (params?: PostByIdReadRequest): Promise<ApiResponse<void>> => {
-    return await api.post<void>(`/posts/${params?.postId}/reads`);
+  /** 게시글 읽음 마킹 (단건) */
+  postPostsByIdRead: async (params: PostByIdReadRequest): Promise<ApiResponse<void>> => {
+    return api.post<void>(`/posts/${params.postId}/reads`);
+  },
+  /** 게시글 삭제 (휴지통 이동) */
+  deletePosts: async (params: PostDeleteRequest): Promise<ApiResponse<void>> => {
+    return api.delete<void>(`/posts`, params);
   },
 };

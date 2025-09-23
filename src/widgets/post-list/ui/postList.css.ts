@@ -17,7 +17,6 @@ export const listView = style({
   display: "flex",
   flexDirection: "column",
   width: "100%",
-  gap: 8,
   marginTop: 24,
   borderTopWidth: "1px",
   borderTopColor: "var(--color-gray-300)",

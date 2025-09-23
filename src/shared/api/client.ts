@@ -285,8 +285,8 @@ class ApiClient {
   async patch<T>(endpoint: string, data?: any, options?: ApiRequestOptions) {
     return this.request<T>("PATCH", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
-  async delete<T>(endpoint: string, options?: ApiRequestOptions) {
-    return this.request<T>("DELETE", endpoint, options);
+  async delete<T>(endpoint: string, data?: any, options?: ApiRequestOptions) {
+    return this.request<T>("DELETE", endpoint, { ...options, body: data ? JSON.stringify(data) : undefined });
   }
 
   // 파일 업로드
@@ -431,6 +431,6 @@ export const api = {
   post: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.post<T>(endpoint, data, options),
   put: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.put<T>(endpoint, data, options),
   patch: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.patch<T>(endpoint, data, options),
-  delete: <T>(endpoint: string, options?: ApiRequestOptions) => apiClient.delete<T>(endpoint, options),
+  delete: <T>(endpoint: string, data?: any, options?: ApiRequestOptions) => apiClient.delete<T>(endpoint, data, options),
   upload: <T>(endpoint: string, file: File, options?: ApiRequestOptions) => apiClient.upload<T>(endpoint, file, options),
 };
