@@ -2,14 +2,18 @@
 
 import type { Post } from "@/entities/post";
 import { PostListItem } from "@/entities/post";
+import Pagination from "@/shared/ui/Pagination";
 import { usePostListParamsFromURL } from "@/widgets/post-list/model";
 import { useIsSelected, useSelectionActions, useSyncVisibleIds } from "@/widgets/post-list/model/SelectionStore";
 import { PostListSkeleton } from "@/widgets/post-list/ui/loading/PostListSkeleton";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { memo, useCallback, useMemo } from "react";
 import * as styles from "./postList.css";
 
 export const PostList = React.memo(() => {
   const { data, isLoading } = usePostListParamsFromURL();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const posts: Post[] = useMemo(() => (Array.isArray(data?.items) ? (data.items as Post[]) : []), [data.items]);
   const visibleIds = useMemo(() => posts.map((p) => p.postId), [posts]);
@@ -18,15 +22,26 @@ export const PostList = React.memo(() => {
 
   const { toggle } = useSelectionActions();
 
+  const handlePageChange = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams(searchParams || "");
+      params.set("page", page.toString());
+      router.push(`?${params.toString()}`);
+    },
+    [searchParams, router]
+  );
+
   if (isLoading) {
     return <PostListSkeleton rows={10} />;
   }
-  // Success state - render controls and post cards
+
   return (
     <div className={styles.listView}>
       {posts.map((post) => {
         return <PostRow key={post.postId} post={post} onToggle={toggle} />;
       })}
+
+      {posts && <Pagination pagination={data} onPageChange={handlePageChange} />}
     </div>
   );
 });
@@ -34,7 +49,7 @@ export const PostList = React.memo(() => {
 PostList.displayName = "PostList";
 
 const PostRow = memo(({ post, onToggle }: { post: Post; onToggle: (id: number, next?: boolean) => void }) => {
-  const checked = useIsSelected(post.postId); // boolean만 반환 → 안전
+  const checked = useIsSelected(post.postId);
 
   const handleCheckedChange = useCallback((next: boolean) => onToggle(post.postId, next), [onToggle, post.postId]);
 
