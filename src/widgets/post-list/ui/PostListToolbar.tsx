@@ -2,7 +2,7 @@
 
 import { PostSearch, usePostSearch } from "@/features/post";
 import { usePostDeleteAction } from "@/features/post/post-delete";
-import { usePostRead } from "@/features/post/post-read";
+import { usePostReadAction } from "@/features/post/post-read";
 import { useSearchParamsManager } from "@/features/post/post-search";
 import { log } from "@/lib/logger";
 import { Button } from "@/shared/ui/Button";
@@ -20,7 +20,7 @@ export const PostListToolbar = React.memo(() => {
   const { isAllCheck, isIndeterminateOnPage, totalSelected } = usePageSelectionMeta();
   const { selectAllVisible, clearVisible } = useSelectionActions();
   const postIds = useSelectedPostIdsOnPage();
-  const { run: postSelectRead } = usePostRead();
+  const { run: postSelectRead } = usePostReadAction();
   const { run: postSelectDelete } = usePostDeleteAction();
 
   const onAllCheckChange = useCallback(() => {

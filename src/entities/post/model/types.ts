@@ -36,8 +36,8 @@ export interface PostListParams extends PageParams {
   keyword?: string;
 }
 
-export interface PostByIdReadRequest {
-  postId: number;
+export interface PostReadRequest {
+  postIds: number[];
 }
 
 export interface PostDeleteRequest {

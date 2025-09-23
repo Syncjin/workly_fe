@@ -1,1 +1,1 @@
-export { usePostRead } from "./usePostRead";
+export { usePostReadAction } from "./usePostReadAction";

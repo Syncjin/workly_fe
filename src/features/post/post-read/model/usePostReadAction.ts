@@ -1,5 +1,5 @@
-import { Pagination, Post, usePostByIdRead } from "@/entities/post";
-import { ApiResponse } from "@/shared/api/types";
+import { Post, usePostRead } from "@/entities/post";
+import { ApiResponse, Pagination } from "@/shared/api/types";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -30,7 +30,7 @@ function isPostListKey(qk: unknown): boolean {
   return Array.isArray(qk) && qk[0] === "posts" && qk[1] === "list";
 }
 
-function patchListData(oldData: unknown, ids: Set<number>): unknown {
+function patchListData(oldData: unknown, idSet: Set<number>): unknown {
   if (!oldData) return oldData;
 
   console.log("patchListData", oldData);
@@ -39,7 +39,7 @@ function patchListData(oldData: unknown, ids: Set<number>): unknown {
       ...oldData,
       data: {
         ...oldData.data,
-        items: oldData.data.items.map((p) => markRead(p, ids)),
+        items: oldData.data.items.map((p) => markRead(p, idSet)),
       },
     } as ApiResponse<Pagination<Post>>;
   }
@@ -47,7 +47,7 @@ function patchListData(oldData: unknown, ids: Set<number>): unknown {
   if (isApiRespArray<Post>(oldData)) {
     return {
       ...oldData,
-      data: oldData.data.map((p) => markRead(p, ids)),
+      data: oldData.data.map((p) => markRead(p, idSet)),
     } as ApiResponse<Post[]>;
   }
 
@@ -61,10 +61,10 @@ function patchListData(oldData: unknown, ids: Set<number>): unknown {
   return oldData;
 }
 
-export function usePostRead() {
+export function usePostReadAction() {
   const qc = useQueryClient();
 
-  const { mutateAsync } = usePostByIdRead();
+  const { mutateAsync } = usePostRead();
 
   const run = useCallback(
     async (postIds: number[]) => {
@@ -81,10 +81,7 @@ export function usePostRead() {
       }
 
       try {
-        // 서버 반영 (단건 API 있으면 순차 호출 => 곧 다중건으로 변경 예정)
-        for (const id of ids) {
-          await mutateAsync({ postId: id });
-        }
+        await mutateAsync({ postIds: ids });
       } catch (e) {
         // 롤백
         for (const [key, snap] of snapshots) qc.setQueryData(key, snap);

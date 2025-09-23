@@ -3,7 +3,7 @@
  *
  */
 
-import type { Post, PostByIdReadRequest, PostDeleteRequest, PostListParams } from "@/entities/post/model";
+import type { Post, PostDeleteRequest, PostListParams, PostReadRequest } from "@/entities/post/model";
 import { api } from "@/shared/api/client";
 import type { ApiResponse, Pagination } from "@/shared/api/types";
 
@@ -36,9 +36,9 @@ export const postApi = {
     });
     return api.get<Pagination<Post>>(`/posts${query}`);
   },
-  /** 게시글 읽음 마킹 (단건) */
-  postPostsByIdRead: async (params: PostByIdReadRequest): Promise<ApiResponse<void>> => {
-    return api.post<void>(`/posts/${params.postId}/reads`);
+  /** 게시글 읽음 마킹 */
+  postPostsRead: async (params: PostReadRequest): Promise<ApiResponse<void>> => {
+    return api.post<void>(`/posts/reads`, params);
   },
   /** 게시글 삭제 (휴지통 이동) */
   deletePosts: async (params: PostDeleteRequest): Promise<ApiResponse<void>> => {
