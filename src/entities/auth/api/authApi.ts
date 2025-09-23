@@ -7,9 +7,9 @@ import type { ApiResponse } from "@/shared/api/types";
 import { UserLoginRequest, UserLoginResponse } from "../model/types";
 
 /**
- * Sesseion API functions
+ * Auth API functions
  */
-export const sessionApi = {
+export const authApi = {
   postLogin: async (data: UserLoginRequest): Promise<ApiResponse<UserLoginResponse>> => {
     return await api.post<UserLoginResponse>("/auth/login", data);
   },

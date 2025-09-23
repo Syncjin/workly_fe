@@ -1,5 +1,5 @@
 /**
- * Session entity exports
+ * Auth entity exports
  *
  */
 

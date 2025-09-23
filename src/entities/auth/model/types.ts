@@ -1,5 +1,5 @@
 /**
- * Session entity types
+ * Auth entity types
  *
  * Auth 인증 관련
  */

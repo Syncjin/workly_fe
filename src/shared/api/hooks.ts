@@ -21,22 +21,18 @@ export function useApiSuspenseQuery<T, TSelected = ApiResponse<T>>(queryKey: rea
 }
 
 // POST 요청 훅
-export function useApiMutation<T, TVariables = any>(endpoint: string, options?: Omit<UseMutationOptions<ApiResponse<T>, ApiError, TVariables>, "mutationFn">) {
-  const queryClient = useQueryClient();
-
-  return useMutation<ApiResponse<T>, ApiError, TVariables>({
+export function useApiMutation<TData, TVariables = unknown, TContext = unknown>(mutationFn: (variables: TVariables) => Promise<ApiResponse<TData>>, options?: Omit<UseMutationOptions<ApiResponse<TData>, ApiError, TVariables, TContext>, "mutationFn">) {
+  return useMutation<ApiResponse<TData>, ApiError, TVariables, TContext>({
     mutationFn: async (variables: TVariables) => {
-      log.debug(`Creating data at: ${endpoint}`, variables);
-      return api.post<T>(endpoint, variables);
+      log.debug("API mutation start", variables);
+      return mutationFn(variables);
     },
     onSuccess: (data, variables, context) => {
-      log.info(`Successfully created data at: ${endpoint}`, data);
-      // 성공 시 관련 쿼리 무효화
-      queryClient.invalidateQueries();
+      log.info("API mutation success", data);
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
-      log.error(`Failed to create data at: ${endpoint}`, error);
+      log.error("API mutation failed", error);
       options?.onError?.(error, variables, context);
     },
     ...options,

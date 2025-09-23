@@ -2,4 +2,4 @@
  * Post model exports
  */
 export { postQueryKeys } from "./keys";
-export type { Pagination, Post, PostByIdReadRequest, PostListParams } from "./types";
+export type { Post, PostByIdReadRequest, PostDeleteRequest, PostListParams } from "./types";

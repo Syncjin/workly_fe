@@ -1,5 +1,5 @@
 /**
- * Session model exports
+ * Auth model exports
  */
 
 export type { UserLoginRequest, UserLoginResponse } from "./types";

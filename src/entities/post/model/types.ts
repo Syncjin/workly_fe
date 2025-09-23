@@ -6,6 +6,7 @@
 import { Board } from "@/entities/board";
 import { FileInfo } from "@/entities/file/model";
 import { User } from "@/entities/users/model";
+import { PageParams } from "@/shared/api/types";
 
 type BoardSummary = Pick<Board, "boardId" | "boardName">;
 
@@ -29,34 +30,16 @@ export interface Post {
   readCount: number;
 }
 
-export interface Pagination<T> {
-  items: T[];
-  page: number;
-  size: number;
-  totalItems: number;
-  totalPages: number;
-  first: boolean;
-  last: boolean;
-  hasPrev: boolean;
-  hasNext: boolean;
-  prevPage: number;
-  nextPage: number;
-}
-
-export interface StableUrlParams {
+export interface PostListParams extends PageParams {
   boardId?: number;
   categoryId?: number;
-}
-
-export interface DynamicUrlParams {
   keyword?: string;
-  page?: number;
-  size?: number;
 }
-export interface PostListParams extends StableUrlParams, DynamicUrlParams {}
-
-export type PostListContainerProps = StableUrlParams;
 
 export interface PostByIdReadRequest {
   postId: number;
+}
+
+export interface PostDeleteRequest {
+  postIds: number[];
 }
