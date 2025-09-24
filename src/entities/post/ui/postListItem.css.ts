@@ -45,6 +45,11 @@ export const postListItemStyles = {
     fontSize: "12px",
     color: "var(--color-gray-500)",
   }),
+  like: style({
+    display: "flex",
+    flexDirection: "row",
+    gap: 2,
+  }),
   rightView: style({
     display: "flex",
     flexDirection: "row",

@@ -4,6 +4,7 @@ import { Post } from "@/entities/post/model";
 import { postListItemStyles } from "@/entities/post/ui/postListItem.css";
 import { formatDayOrTime } from "@/shared/lib/date/formatters";
 import CheckBox from "@/shared/ui/CheckBox";
+import Icon from "@/shared/ui/Icon";
 import React, { createContext, useContext } from "react";
 
 /** Context */
@@ -84,13 +85,12 @@ function BottomContent() {
           <span aria-hidden>·</span>
         </>
       )}
-      {typeof post.commentsCount === "number" && (
-        <>
-          <span aria-label="댓글 수">댓글 {post.commentsCount.toLocaleString()}</span>
-          <span aria-hidden>·</span>
-        </>
+      {typeof post.likesCount === "number" && (
+        <div className={postListItemStyles.like}>
+          <Icon name="thumb-up-line" color="var(--color-gray-500)" size={{ width: 14, height: 14 }} />
+          <span aria-label="좋아요 수">{post.likesCount.toLocaleString()}</span>
+        </div>
       )}
-      {typeof post.likesCount === "number" && <span aria-label="좋아요 수">좋아요 {post.likesCount.toLocaleString()}</span>}
     </div>
   );
 }
