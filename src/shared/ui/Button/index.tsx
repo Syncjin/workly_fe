@@ -29,7 +29,7 @@ export const Button: React.FC<ButtonProps> = ({ size = "md", variant = "solid", 
   const cls = unstyled ? className : [styles.buttonRecipe({ variant, size, color }), className].filter(Boolean).join(" ");
 
   return (
-    <button className={cls} disabled={isDisabled} aria-busy={loading || undefined} aria-disabled={isDisabled || undefined} {...rest}>
+    <button className={cls} disabled={isDisabled} aria-busy={loading || undefined} aria-disabled={isDisabled || undefined} data-loading={loading || undefined} {...rest}>
       {loading && loadingPosition === "overlay" && spinner && <span className={styles.overlay}>{spinner}</span>}
 
       {showLeft && (
