@@ -1,6 +1,7 @@
 "use client";
 
 import { DecoratorNode, type DOMConversionMap, type DOMExportOutput, type EditorConfig, type LexicalEditor, type NodeKey, type SerializedLexicalNode, type Spread } from "lexical";
+import { JSX } from "react";
 
 export type ImagePayload = {
   src: string;

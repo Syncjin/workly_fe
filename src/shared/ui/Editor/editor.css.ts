@@ -132,17 +132,67 @@ export const code = style({
 });
 
 export const quote = style({
-  borderLeft: "4px solid #e5e7eb",
-  paddingLeft: 12,
-  color: "#4b5563",
+  borderLeft: "4px solid #dddddd",
+  padding: "4px 16px",
+  margin: "16px 0",
 });
-export const listItem = style({ marginLeft: 20 });
-export const ul = style({ listStyle: "disc", marginLeft: 20 });
-export const ol = style({ listStyle: "decimal", marginLeft: 20 });
+
+const listItemBase = style({
+  listStyle: "none",
+  position: "relative",
+  marginLeft: "8px",
+  paddingLeft: "24px",
+  selectors: {
+    "&:focus-visible": {
+      boxShadow: "none",
+    },
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: "4px",
+      left: "4px",
+      display: "inline-block",
+      width: "16px",
+      height: "16px",
+      border: "1px solid #c5c5c5",
+      borderRadius: "2px",
+    },
+  },
+});
+
+export const list = {
+  ul: style({ listStyle: "disc", marginLeft: 16, listStylePosition: "inside" }),
+  ol: style({ listStyle: "decimal", marginLeft: 16, listStylePosition: "inside" }),
+  listItem: style({ margin: "4px 32px" }),
+  nestedListItem: style({ listStyle: "none" }),
+  listItemChecked: style([
+    listItemBase,
+    {
+      selectors: {
+        "&::before": {
+          backgroundColor: "#3b72e9",
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          top: "8px",
+          left: "7px",
+          display: "inline-block",
+          width: "10px",
+          height: "5px",
+          borderBottom: "2px solid white",
+          borderLeft: "2px solid white",
+          transform: "rotate(-40deg)",
+        },
+      },
+    },
+  ]),
+  listItemUnchecked: style([listItemBase]),
+};
 
 export const heading = {
-  h1: style({ fontSize: 24, fontWeight: 700 }),
-  h2: style({ fontSize: 20, fontWeight: 700 }),
+  h1: style({ fontSize: 32, fontWeight: 700 }),
+  h2: style({ fontSize: 24, fontWeight: 700 }),
   h3: style({ fontSize: 18, fontWeight: 600 }),
 };
 

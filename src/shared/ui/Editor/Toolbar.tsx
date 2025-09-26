@@ -1,15 +1,16 @@
 "use client";
 
-import { CLEAR_FORMAT_COMMAND } from "@/shared/ui/Editor/plugins/command";
+import { CLEAR_FORMAT_COMMAND, CODE_LANGUAGE_COMMAND, INSERT_YOUTUBE_COMMAND } from "@/shared/ui/Editor/plugins/command";
 import Icon from "@/shared/ui/Icon";
 import Select, { OptionShape } from "@/shared/ui/Select";
-import { $createCodeNode, $isCodeNode } from "@lexical/code";
+import { $createCodeNode, $isCodeNode, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from "@lexical/code";
 import { TOGGLE_LINK_COMMAND } from "@lexical/link";
-import { $isListNode, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListNode, REMOVE_LIST_COMMAND } from "@lexical/list";
+import { $isListNode, INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListNode, REMOVE_LIST_COMMAND } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $createHeadingNode, $isHeadingNode } from "@lexical/rich-text";
+import { $createHeadingNode, $createQuoteNode, $isHeadingNode, $isQuoteNode } from "@lexical/rich-text";
 import { $getSelectionStyleValueForProperty, $patchStyleText, $setBlocksType } from "@lexical/selection";
-import { $createParagraphNode, $getRoot, $getSelection, $isRangeSelection, $isRootNode, COMMAND_PRIORITY_LOW, ElementNode, FORMAT_TEXT_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND } from "lexical";
+import { $getNearestNodeOfType } from "@lexical/utils";
+import { $createParagraphNode, $getSelection, $isRangeSelection, COMMAND_PRIORITY_LOW, FORMAT_TEXT_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND } from "lexical";
 import React from "react";
 import * as s from "./editor.css";
 
@@ -18,8 +19,10 @@ const BLOCK_OPTION: OptionShape[] = [
   { text: "", value: "h1", icon: <Icon name="h-1" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
   { text: "", value: "h2", icon: <Icon name="h-2" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
   { text: "", value: "h3", icon: <Icon name="h-3" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
-  { text: "ul", value: "ul" },
-  { text: "ol", value: "ol" },
+  { text: "", value: "quote", icon: <Icon name="double-quotes-r" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
+  { text: "", value: "bullet", icon: <Icon name="list-unordered" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
+  { text: "", value: "number", icon: <Icon name="list-ordered" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
+  { text: "", value: "check", icon: <Icon name="check-line" size={{ width: 16, height: 16 }} color="var(--color-gray-900)" /> },
   { text: "code", value: "code" },
 ];
 
@@ -44,6 +47,11 @@ const EFFECTS: OptionShape[] = [
   { text: "Clear formatting", value: "clear" },
 ];
 
+const CODE_LANGUAGE_OPTION: OptionShape[] = Object.entries(CODE_LANGUAGE_FRIENDLY_NAME_MAP).map(([value, lable]) => ({
+  value,
+  text: lable,
+}));
+
 export function Toolbar() {
   const [editor] = useLexicalComposerContext();
 
@@ -51,12 +59,12 @@ export function Toolbar() {
   const [isItalic, setItalic] = React.useState(false);
   const [isUnderline, setUnderline] = React.useState(false);
   const [isInlineCode, setInlineCode] = React.useState(false);
-  const [isCodeBlock, setIsCodeBlock] = React.useState(false);
 
   const [currentBlock, setCurrentBlock] = React.useState<string>("paragraph");
   const [fontFamily, setFontFamily] = React.useState<string>("");
   const [fontSize, setFontSize] = React.useState<string>("15px");
   const [fontColor, setFontColor] = React.useState<string>("#000000");
+  const [codeLanguage, setCodeLanguage] = React.useState<string>("js");
   const [effect, setEffect] = React.useState<string>("");
 
   const updateUIFromSelection = React.useCallback(() => {
@@ -71,28 +79,27 @@ export function Toolbar() {
 
       // 블록 타입 추론
       const anchor = selection.anchor.getNode();
-      let top: ElementNode | null = anchor.getTopLevelElement();
-      if (!top) {
-        if ($isRootNode(anchor)) top = $getRoot().getFirstChild() as ElementNode | null;
-        else top = anchor.getParent() as ElementNode | null;
-      }
-      if (!top) {
+      const target = anchor.getKey() === "root" ? anchor : anchor.getTopLevelElementOrThrow();
+
+      if (!target) {
         setCurrentBlock("paragraph");
-        setIsCodeBlock(false);
         return;
       }
 
-      if ($isHeadingNode(top)) {
-        setCurrentBlock(top.getTag() as "h1" | "h2" | "h3");
-      } else if ($isListNode(top)) {
-        const list = top as ListNode;
-        setCurrentBlock(list.getListType() === "number" ? "ol" : "ul");
-      } else if ($isCodeNode(top)) {
+      if ($isHeadingNode(target)) {
+        setCurrentBlock(target.getTag() as "h1" | "h2" | "h3");
+      } else if ($isListNode(target)) {
+        const parentList = $getNearestNodeOfType(anchor, ListNode);
+        const listType = parentList ? parentList.getListType() : target.getListType();
+        setCurrentBlock(listType);
+      } else if ($isCodeNode(target)) {
         setCurrentBlock("code");
+        setCodeLanguage(target.getLanguage() || "");
+      } else if ($isQuoteNode(target)) {
+        setCurrentBlock("quote");
       } else {
         setCurrentBlock("paragraph");
       }
-      setIsCodeBlock($isCodeNode(top));
 
       // 인라인 스타일 값
       const ff = $getSelectionStyleValueForProperty(selection, "font-family", "");
@@ -136,11 +143,18 @@ export function Toolbar() {
           editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
           $setBlocksType(selection, () => $createHeadingNode(opt));
           break;
-        case "ul":
+        case "quote":
+          editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+          $setBlocksType(selection, () => $createQuoteNode());
+          break;
+        case "bullet":
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
           break;
-        case "ol":
+        case "number":
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+          break;
+        case "check":
+          editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
           break;
         case "code":
           editor.update(() => {
@@ -199,7 +213,7 @@ export function Toolbar() {
           $patchStyleText(selection, { "background-color": "yellow" });
           break;
         case "clear": {
-          editor.dispatchCommand(CLEAR_FORMAT_COMMAND, null);
+          editor.dispatchCommand(CLEAR_FORMAT_COMMAND, "");
           break;
         }
       }
@@ -296,6 +310,16 @@ export function Toolbar() {
       <div className={s.divider} />
 
       <Select
+        value={codeLanguage}
+        onChange={(e) => {
+          const v = e.value;
+          setCodeLanguage(v);
+          editor.dispatchCommand(CODE_LANGUAGE_COMMAND, v);
+        }}
+        options={CODE_LANGUAGE_OPTION}
+        classes={{ root: s.selectRoot }}
+      />
+      <Select
         value={effect}
         placeholder="Effect"
         onChange={(e) => {
@@ -310,6 +334,10 @@ export function Toolbar() {
       {/* Image */}
       <button className={s.btn} title="Insert Image" onClick={() => (editor as any).__insertImage?.()}>
         <Icon name="image-add-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
+      </button>
+
+      <button className={s.btn} title="Insert Youtube" onClick={() => editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, "-cX9Tj8RZJE")}>
+        <Icon name="youtube-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
     </div>
   );

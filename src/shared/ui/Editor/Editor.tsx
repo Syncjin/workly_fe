@@ -17,6 +17,8 @@ import { useCallback } from "react";
 
 import CodeHighlightPlugin from "@/shared/ui/Editor/plugins/CodeHighlightPlugin";
 import FormatClearPlugin from "@/shared/ui/Editor/plugins/FormatClearPlugin";
+import YouTubePlugin from "@/shared/ui/Editor/plugins/YoutubePlugin";
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import * as s from "./editor.css";
 import { defaultNodes } from "./nodes";
 import { HTMLIOPlugin } from "./plugins/HTMLIOPlugin";
@@ -76,6 +78,7 @@ export function Editor({ namespace, initialJSON, initialHTML, onChangeJSON, onCh
 
           <HistoryPlugin />
           <ListPlugin />
+          <CheckListPlugin />
           <LinkPlugin />
           <TablePlugin />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
@@ -86,6 +89,7 @@ export function Editor({ namespace, initialJSON, initialHTML, onChangeJSON, onCh
           <CodeHighlightPlugin />
           <HTMLIOPlugin initialHTML={initialHTML} onExportHTML={onChangeHTML} />
           <ImagePlugin onPickFile={onPickImageFile} />
+          <YouTubePlugin />
         </div>
       </div>
     </LexicalComposer>

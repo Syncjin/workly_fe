@@ -39,10 +39,12 @@ export const lexicalTheme: EditorThemeClasses = {
   },
   link: s.link,
   list: {
-    listitem: s.listItem,
-    nested: { listitem: s.listItem },
-    ul: s.ul,
-    ol: s.ol,
+    listitem: s.list.listItem,
+    nested: { listitem: s.list.nestedListItem },
+    ul: s.list.ul,
+    ol: s.list.ol,
+    listitemChecked: s.list.listItemChecked,
+    listitemUnchecked: s.list.listItemUnchecked,
   },
   heading: {
     h1: s.heading.h1,

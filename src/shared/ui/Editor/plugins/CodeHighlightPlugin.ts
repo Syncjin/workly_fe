@@ -1,7 +1,7 @@
 "use client";
 
 import { CODE_LANGUAGE_COMMAND } from "@/shared/ui/Editor/plugins/command";
-import { $isCodeNode, registerCodeHighlighting } from "@lexical/code";
+import { $isCodeNode, CodeNode, registerCodeHighlighting } from "@lexical/code";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getNearestNodeOfType, mergeRegister } from "@lexical/utils";
 import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor } from "lexical";
@@ -32,7 +32,7 @@ function registerCodeLanguageSelecting(editor: LexicalEditor): () => void {
         targetNode.setLanguage(language);
       });
 
-      return true;
+      return true; // 업데이트한 경우 true / false
     },
     COMMAND_PRIORITY_CRITICAL
   );
