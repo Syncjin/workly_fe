@@ -1,4 +1,4 @@
-import { YouTubeNode } from "@/shared/ui/Editor/nodes/youtubeNode";
+import { YouTubeNode } from "@/shared/ui/Editor/nodes/YoutubeNode";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";

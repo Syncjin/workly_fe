@@ -64,7 +64,6 @@ export const option = style({
 });
 
 export const editorSurface = style({
-  minHeight: 360,
   padding: 16,
   position: "relative",
 });
@@ -73,6 +72,8 @@ export const contentEditable = style({
   outline: "none",
   lineHeight: 1.7,
   fontSize: 15,
+  resize: "none",
+  minHeight: 360,
 });
 
 export const placeholder = style({

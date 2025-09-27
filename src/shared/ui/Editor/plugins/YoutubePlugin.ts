@@ -1,4 +1,4 @@
-import { $createYouTubeNode, YouTubeNode } from "@/shared/ui/Editor/nodes/youtubeNode";
+import { $createYouTubeNode, YouTubeNode } from "@/shared/ui/Editor/nodes/YoutubeNode";
 import { INSERT_YOUTUBE_COMMAND } from "@/shared/ui/Editor/plugins/command";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $insertNodeToNearestRoot } from "@lexical/utils";

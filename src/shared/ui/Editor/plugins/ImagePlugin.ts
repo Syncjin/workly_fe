@@ -1,35 +1,38 @@
-"use client";
-
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $insertNodes } from "lexical";
-import { useCallback } from "react";
-import { $createImageNode } from "../nodes/ImageNode";
+import { $wrapNodeInElement, mergeRegister } from "@lexical/utils";
+import { $createParagraphNode, $insertNodes, $isRootOrShadowRoot, COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand } from "lexical";
+import { JSX, useEffect } from "react";
 
-type Props = {
-  onPickFile?: () => Promise<{ url: string; width?: number; height?: number; alt?: string } | null>;
-};
+import { $createImageNode, ImageNode, ImagePayload } from "../nodes/ImageNode";
 
-export function ImagePlugin({ onPickFile }: Props) {
+export type InsertImagePayload = Readonly<ImagePayload>;
+
+export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCommand("INSERT_IMAGE_COMMAND");
+
+export default function ImagesPlugin({ captionsEnabled }: { captionsEnabled?: boolean }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
-  const insert = useCallback(async () => {
-    if (!onPickFile) return;
-    const file = await onPickFile();
-    if (!file) return;
-    editor.update(() => {
-      $insertNodes([
-        $createImageNode({
-          src: file.url,
-          width: file.width,
-          height: file.height,
-          alt: file.alt,
-        }),
-      ]);
-    });
-  }, [editor, onPickFile]);
+  useEffect(() => {
+    if (!editor.hasNodes([ImageNode])) {
+      throw new Error("ImagesPlugin: ImageNode not registered on editor");
+    }
 
-  // 툴바에서 호출할 수 있게 임시로 editor에 등록
-  (editor as any).__insertImage = insert;
+    return mergeRegister(
+      editor.registerCommand<InsertImagePayload>(
+        INSERT_IMAGE_COMMAND,
+        (payload) => {
+          const imageNode = $createImageNode(payload);
+          $insertNodes([imageNode]);
+          if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
+            $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
+          }
+
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR
+      )
+    );
+  }, [captionsEnabled, editor]);
 
   return null;
 }

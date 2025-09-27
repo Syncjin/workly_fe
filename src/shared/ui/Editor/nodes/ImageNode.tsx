@@ -1,130 +1,176 @@
-"use client";
+import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedEditor, SerializedLexicalNode, Spread } from "lexical";
 
-import { DecoratorNode, type DOMConversionMap, type DOMExportOutput, type EditorConfig, type LexicalEditor, type NodeKey, type SerializedLexicalNode, type Spread } from "lexical";
-import { JSX } from "react";
+import { createEditor, DecoratorNode } from "lexical";
+import { JSX, lazy, Suspense } from "react";
 
-export type ImagePayload = {
-  src: string;
-  alt?: string;
-  width?: number;
+const ImageComponent = lazy(
+  // @ts-ignore
+  () => import("./ImageComponent")
+);
+
+export interface ImagePayload {
+  altText: string;
+  caption?: LexicalEditor;
   height?: number;
-  caption?: string;
-};
+  key?: NodeKey;
+  maxWidth?: number;
+  showCaption?: boolean;
+  src: string;
+  width?: number;
+  captionsEnabled?: boolean;
+}
 
-type SerializedImageNode = Spread<
+function convertImageElement(domNode: Node): null | DOMConversionOutput {
+  if (domNode instanceof HTMLImageElement) {
+    const { alt: altText, src } = domNode;
+    const node = $createImageNode({ altText, src });
+    return { node };
+  }
+  return null;
+}
+
+export type SerializedImageNode = Spread<
   {
+    altText: string;
+    caption: SerializedEditor;
+    height?: number;
+    maxWidth: number;
+    showCaption: boolean;
+    src: string;
+    width?: number;
     type: "image";
     version: 1;
-    src: string;
-    alt?: string;
-    width?: number;
-    height?: number;
-    caption?: string;
   },
   SerializedLexicalNode
 >;
 
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
-  __alt?: string;
-  __width?: number;
-  __height?: number;
-  __caption?: string;
+  __altText: string;
+  __width: "inherit" | number;
+  __height: "inherit" | number;
+  __maxWidth: number;
+  __showCaption: boolean;
+  __caption: LexicalEditor;
+  // Captions cannot yet be used within editor cells
+  __captionsEnabled: boolean;
 
   static getType(): string {
     return "image";
   }
 
-  static clone(node: ImageNode) {
-    return new ImageNode(
-      {
-        src: node.__src,
-        alt: node.__alt,
-        width: node.__width,
-        height: node.__height,
-        caption: node.__caption,
-      },
-      node.__key
-    );
+  static clone(node: ImageNode): ImageNode {
+    return new ImageNode(node.__src, node.__altText, node.__maxWidth, node.__width, node.__height, node.__showCaption, node.__caption, node.__captionsEnabled, node.__key);
   }
 
-  constructor(payload: ImagePayload, key?: NodeKey) {
-    super(key);
-    this.__src = payload.src;
-    this.__alt = payload.alt;
-    this.__width = payload.width;
-    this.__height = payload.height;
-    this.__caption = payload.caption;
+  static importJSON(serializedNode: SerializedImageNode): ImageNode {
+    const { altText, height, width, maxWidth, caption, src, showCaption } = serializedNode;
+    const node = $createImageNode({
+      altText,
+      height,
+      maxWidth,
+      showCaption,
+      src,
+      width,
+    });
+    const nestedEditor = node.__caption;
+    const editorState = nestedEditor.parseEditorState(caption.editorState);
+    if (!editorState.isEmpty()) {
+      nestedEditor.setEditorState(editorState);
+    }
+    return node;
   }
 
-  static importJSON(serialized: SerializedImageNode): ImageNode {
-    const { src, alt, width, height, caption } = serialized;
-    return new ImageNode({ src, alt, width, height, caption });
-  }
-
-  exportJSON(): SerializedImageNode {
-    return {
-      type: "image",
-      version: 1,
-      src: this.__src,
-      alt: this.__alt,
-      width: this.__width,
-      height: this.__height,
-      caption: this.__caption,
-    };
-  }
-
-  exportDOM(_editor: LexicalEditor): DOMExportOutput {
-    const img = document.createElement("img");
-    img.src = this.__src;
-    if (this.__alt) img.alt = this.__alt;
-    if (this.__width) img.width = this.__width;
-    if (this.__height) img.height = this.__height;
-    return { element: img };
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement("img");
+    element.setAttribute("src", this.__src);
+    element.setAttribute("alt", this.__altText);
+    return { element };
   }
 
   static importDOM(): DOMConversionMap | null {
     return {
-      img: (domNode: Node) => {
-        if (domNode instanceof HTMLImageElement) {
-          return {
-            conversion: () => ({
-              node: new ImageNode({
-                src: domNode.src,
-                alt: domNode.alt,
-                width: domNode.width || undefined,
-                height: domNode.height || undefined,
-              }),
-            }),
-            priority: 1,
-          };
-        }
-        return null;
-      },
+      img: (node: Node) => ({
+        conversion: convertImageElement,
+        priority: 0,
+      }),
     };
   }
 
-  createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
-    return document.createElement("span");
+  constructor(src: string, altText: string, maxWidth: number, width?: "inherit" | number, height?: "inherit" | number, showCaption?: boolean, caption?: LexicalEditor, captionsEnabled?: boolean, key?: NodeKey) {
+    super(key);
+    this.__src = src;
+    this.__altText = altText;
+    this.__maxWidth = maxWidth;
+    this.__width = width || "inherit";
+    this.__height = height || "inherit";
+    this.__showCaption = showCaption || false;
+    this.__caption = caption || createEditor();
+    this.__captionsEnabled = captionsEnabled || captionsEnabled === undefined;
   }
-  updateDOM(): boolean {
+
+  exportJSON(): SerializedImageNode {
+    return {
+      altText: this.getAltText(),
+      caption: this.__caption.toJSON(),
+      height: this.__height === "inherit" ? 0 : this.__height,
+      maxWidth: this.__maxWidth,
+      showCaption: this.__showCaption,
+      src: this.getSrc(),
+      type: "image",
+      version: 1,
+      width: this.__width === "inherit" ? 0 : this.__width,
+    };
+  }
+
+  setWidthAndHeight(width: "inherit" | number, height: "inherit" | number): void {
+    const writable = this.getWritable();
+    writable.__width = width;
+    writable.__height = height;
+  }
+
+  setShowCaption(showCaption: boolean): void {
+    const writable = this.getWritable();
+    writable.__showCaption = showCaption;
+  }
+
+  // View
+
+  createDOM(config: EditorConfig): HTMLElement {
+    const span = document.createElement("span");
+    const theme = config.theme;
+    const className = theme.image;
+    if (className !== undefined) {
+      span.className = className;
+    }
+    return span;
+  }
+
+  updateDOM(): false {
     return false;
   }
 
-  decorate(_editor: LexicalEditor, _config: EditorConfig): JSX.Element {
-    const { __src: src, __alt: alt, __width: width, __height: height } = this;
+  getSrc(): string {
+    return this.__src;
+  }
+
+  getAltText(): string {
+    return this.__altText;
+  }
+
+  decorate(): React.JSX.Element {
     return (
-      <span contentEditable={false} style={{ display: "inline-block", maxWidth: "100%" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt ?? ""} width={width} height={height} style={{ maxWidth: "100%", height: "auto", borderRadius: 8 }} />
-      </span>
+      <Suspense fallback={null}>
+        <ImageComponent src={this.__src} altText={this.__altText} width={this.__width} height={this.__height} maxWidth={this.__maxWidth} nodeKey={this.getKey()} showCaption={this.__showCaption} caption={this.__caption} captionsEnabled={this.__captionsEnabled} resizable={true} />
+      </Suspense>
     );
   }
 }
 
-export function $createImageNode(payload: ImagePayload) {
-  return new ImageNode(payload);
+export function $createImageNode({ altText, height, maxWidth = 500, captionsEnabled, src, width, showCaption, caption, key }: ImagePayload): ImageNode {
+  return new ImageNode(src, altText, maxWidth, width, height, showCaption, caption, captionsEnabled, key);
 }
-export function $isImageNode(x: unknown): x is ImageNode {
-  return x instanceof ImageNode;
+
+export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {
+  return node instanceof ImageNode;
 }

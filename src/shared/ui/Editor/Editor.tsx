@@ -17,12 +17,12 @@ import { useCallback } from "react";
 
 import CodeHighlightPlugin from "@/shared/ui/Editor/plugins/CodeHighlightPlugin";
 import FormatClearPlugin from "@/shared/ui/Editor/plugins/FormatClearPlugin";
+import ImagesPlugin from "@/shared/ui/Editor/plugins/ImagePlugin";
 import YouTubePlugin from "@/shared/ui/Editor/plugins/YoutubePlugin";
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import * as s from "./editor.css";
 import { defaultNodes } from "./nodes";
 import { HTMLIOPlugin } from "./plugins/HTMLIOPlugin";
-import { ImagePlugin } from "./plugins/ImagePlugin";
 import { IMESafeHotkeyPlugin } from "./plugins/IMESafeHotkeyPlugin";
 import { lexicalTheme as defaultTheme } from "./theme.css";
 import { Toolbar } from "./Toolbar";
@@ -88,7 +88,7 @@ export function Editor({ namespace, initialJSON, initialHTML, onChangeJSON, onCh
           <FormatClearPlugin />
           <CodeHighlightPlugin />
           <HTMLIOPlugin initialHTML={initialHTML} onExportHTML={onChangeHTML} />
-          <ImagePlugin onPickFile={onPickImageFile} />
+          <ImagesPlugin />
           <YouTubePlugin />
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { CLEAR_FORMAT_COMMAND, CODE_LANGUAGE_COMMAND, INSERT_YOUTUBE_COMMAND } from "@/shared/ui/Editor/plugins/command";
+import { INSERT_IMAGE_COMMAND, InsertImagePayload } from "@/shared/ui/Editor/plugins/ImagePlugin";
 import Icon from "@/shared/ui/Icon";
 import Select, { OptionShape } from "@/shared/ui/Select";
 import { $createCodeNode, $isCodeNode, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from "@lexical/code";
@@ -58,7 +59,6 @@ export function Toolbar() {
   const [isBold, setBold] = React.useState(false);
   const [isItalic, setItalic] = React.useState(false);
   const [isUnderline, setUnderline] = React.useState(false);
-  const [isInlineCode, setInlineCode] = React.useState(false);
 
   const [currentBlock, setCurrentBlock] = React.useState<string>("paragraph");
   const [fontFamily, setFontFamily] = React.useState<string>("");
@@ -75,7 +75,6 @@ export function Toolbar() {
       setBold(selection.hasFormat("bold"));
       setItalic(selection.hasFormat("italic"));
       setUnderline(selection.hasFormat("underline"));
-      setInlineCode(selection.hasFormat("code"));
 
       // 블록 타입 추론
       const anchor = selection.anchor.getNode();
@@ -94,7 +93,8 @@ export function Toolbar() {
         setCurrentBlock(listType);
       } else if ($isCodeNode(target)) {
         setCurrentBlock("code");
-        setCodeLanguage(target.getLanguage() || "");
+        const lagnuage = target.getLanguage()?.replace("javascript", "js");
+        setCodeLanguage(lagnuage || "js");
       } else if ($isQuoteNode(target)) {
         setCurrentBlock("quote");
       } else {
@@ -220,6 +220,11 @@ export function Toolbar() {
     });
   };
 
+  const addImage = (payload: InsertImagePayload) => {
+    console.log("payload", payload);
+    editor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
+  };
+
   return (
     <div className={s.toolbar}>
       {/* Undo / Redo */}
@@ -283,9 +288,6 @@ export function Toolbar() {
       <button className={s.btn} aria-pressed={isUnderline} title="Underline" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline")}>
         <Icon name="underline" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
-      <button className={s.btn} aria-pressed={isInlineCode} title="Inline Code" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code")}>
-        <Icon name="code-s-slash-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
-      </button>
 
       {/* 링크 */}
       <button className={s.btn} title="Insert Link" onClick={insertOrToggleLink}>
@@ -332,7 +334,16 @@ export function Toolbar() {
       />
 
       {/* Image */}
-      <button className={s.btn} title="Insert Image" onClick={() => (editor as any).__insertImage?.()}>
+      <button
+        className={s.btn}
+        title="Insert Image"
+        onClick={() =>
+          addImage({
+            altText: "Pink flowers",
+            src: "https://images.pexels.com/photos/5656637/pexels-photo-5656637.jpeg?auto=compress&cs=tinysrgb&w=200",
+          })
+        }
+      >
         <Icon name="image-add-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
 
