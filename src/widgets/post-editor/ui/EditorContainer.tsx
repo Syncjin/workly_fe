@@ -1,5 +1,6 @@
 // import { Editor } from "@/widgets/post-editor/ui/Editor";
 "use client";
+import EditorToolbar from "@/widgets/post-editor/ui/EditorToolbar";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import * as styles from "./postEditor.css";
@@ -11,7 +12,7 @@ export const EditorContainer = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.toolbar.container}></div>
+      <EditorToolbar />
       <div className={styles.editor.container}>
         <Editor
           namespace="post-editor"
