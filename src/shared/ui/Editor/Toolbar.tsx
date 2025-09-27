@@ -2,6 +2,7 @@
 
 import { CLEAR_FORMAT_COMMAND, CODE_LANGUAGE_COMMAND, INSERT_YOUTUBE_COMMAND } from "@/shared/ui/Editor/plugins/command";
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from "@/shared/ui/Editor/plugins/ImagePlugin";
+import { DropdownColorPicker } from "@/shared/ui/Editor/ui/DropdownColorPicker";
 import Icon from "@/shared/ui/Icon";
 import Select, { OptionShape } from "@/shared/ui/Select";
 import { $createCodeNode, $isCodeNode, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from "@lexical/code";
@@ -12,7 +13,7 @@ import { $createHeadingNode, $createQuoteNode, $isHeadingNode, $isQuoteNode } fr
 import { $getSelectionStyleValueForProperty, $patchStyleText, $setBlocksType } from "@lexical/selection";
 import { $getNearestNodeOfType } from "@lexical/utils";
 import { $createParagraphNode, $getSelection, $isRangeSelection, COMMAND_PRIORITY_LOW, FORMAT_TEXT_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND } from "lexical";
-import React from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as s from "./editor.css";
 
 const BLOCK_OPTION: OptionShape[] = [
@@ -56,18 +57,19 @@ const CODE_LANGUAGE_OPTION: OptionShape[] = Object.entries(CODE_LANGUAGE_FRIENDL
 export function Toolbar() {
   const [editor] = useLexicalComposerContext();
 
-  const [isBold, setBold] = React.useState(false);
-  const [isItalic, setItalic] = React.useState(false);
-  const [isUnderline, setUnderline] = React.useState(false);
+  const [isBold, setBold] = useState(false);
+  const [isItalic, setItalic] = useState(false);
+  const [isUnderline, setUnderline] = useState(false);
 
-  const [currentBlock, setCurrentBlock] = React.useState<string>("paragraph");
-  const [fontFamily, setFontFamily] = React.useState<string>("");
-  const [fontSize, setFontSize] = React.useState<string>("15px");
-  const [fontColor, setFontColor] = React.useState<string>("#000000");
-  const [codeLanguage, setCodeLanguage] = React.useState<string>("js");
-  const [effect, setEffect] = React.useState<string>("");
+  const [currentBlock, setCurrentBlock] = useState<string>("paragraph");
+  const [fontFamily, setFontFamily] = useState<string>("");
+  const [fontSize, setFontSize] = useState<string>("15px");
+  const [fontColor, setFontColor] = useState<string>("#000000");
+  const [recentFontColor, setRecentFontColor] = useState<string[]>([]);
+  const [codeLanguage, setCodeLanguage] = useState<string>("js");
+  const [effect, setEffect] = useState<string>("");
 
-  const updateUIFromSelection = React.useCallback(() => {
+  const updateUIFromSelection = useCallback(() => {
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -107,11 +109,11 @@ export function Toolbar() {
       const color = $getSelectionStyleValueForProperty(selection, "color", "#000000");
       if (ff !== undefined) setFontFamily(ff);
       if (fs !== undefined) setFontSize(fs);
-      if (color !== undefined) setFontColor(toHexColor(color));
+      if (color !== undefined) setFontColor(color);
     });
   }, [editor]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const u1 = editor.registerUpdateListener(() => updateUIFromSelection());
     const u2 = editor.registerCommand(
       SELECTION_CHANGE_COMMAND,
@@ -181,6 +183,21 @@ export function Toolbar() {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         $patchStyleText(selection, style);
+      }
+    });
+  };
+
+  const handleColorChange = (color: string | null) => {
+    if (!color) {
+      applyEffect("clear");
+      return;
+    }
+    setFontColor(color);
+    editor.update(() => {
+      const sel = $getSelection();
+      if ($isRangeSelection(sel)) {
+        if (color) $patchStyleText(sel, { color });
+        else $patchStyleText(sel, { color: null as unknown as string }); // 제거
       }
     });
   };
@@ -278,7 +295,6 @@ export function Toolbar() {
 
       <div className={s.divider} />
 
-      {/* Bold / Italic / Underline / Inline Code */}
       <button className={s.btn} aria-pressed={isBold} title="Bold" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold")}>
         <Icon name="bold" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
@@ -295,19 +311,8 @@ export function Toolbar() {
       </button>
 
       {/* 글자색 */}
-      <button className={s.colorBtn} title="Text Color">
-        <input
-          className={s.colorSwatch}
-          type="color"
-          value={fontColor}
-          onChange={(e) => {
-            const v = e.target.value;
-            setFontColor(v);
-            patchStyle({ color: v });
-          }}
-          aria-label="Text color"
-        />
-      </button>
+
+      <DropdownColorPicker title="글자색" value={fontColor} onChange={handleColorChange} recent={recentFontColor} onRecentChange={setRecentFontColor} />
 
       <div className={s.divider} />
 
@@ -352,26 +357,4 @@ export function Toolbar() {
       </button>
     </div>
   );
-}
-
-/** rgb()/rgba()/hex → hex 표준화(간단 변환) */
-function toHexColor(input: string): string {
-  if (!input) return "#000000";
-  if (input.startsWith("#")) {
-    if (input.length === 4) {
-      const r = input[1],
-        g = input[2],
-        b = input[3];
-      return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
-    }
-    if (input.length === 7) return input.toLowerCase();
-  }
-  const m = input.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-  if (!m) return "#000000";
-  const [r, g, b] = m.slice(1, 4).map((v) => Math.max(0, Math.min(255, parseInt(v, 10))));
-  return `#${to2(r)}${to2(g)}${to2(b)}`;
-}
-function to2(n: number) {
-  const s = n.toString(16);
-  return s.length === 1 ? "0" + s : s;
 }

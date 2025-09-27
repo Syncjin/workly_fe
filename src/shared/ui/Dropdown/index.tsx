@@ -1,73 +1,97 @@
+"use client";
+
 import { useClickOutside } from "@/shared/hooks/useClickOutside";
+import { cx } from "@/shared/styles/classes";
 import React, { createContext, useContext, useRef, useState } from "react";
 import * as styles from "./dropdown.css";
+
+export type DropdownClassNames = {
+  root?: string;
+  trigger?: string;
+  menu?: string;
+  item?: string;
+  icon?: string;
+  header?: string;
+  line?: string;
+};
 
 interface DropdownProps {
   children: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  classes?: DropdownClassNames;
+  className?: string;
 }
 
 interface DropdownContextValue {
   open: boolean;
   toggle: () => void;
   close: () => void;
+  classes?: DropdownClassNames;
 }
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
 
-const Dropdown = ({ children, open: controlledOpen, onOpenChange }: DropdownProps) => {
+const Dropdown = ({ children, open: controlledOpen, onOpenChange, classes, className }: DropdownProps) => {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
 
-  const setOpen = (value: boolean) => {
-    if (isControlled) {
-      onOpenChange?.(value);
-    } else {
-      setUncontrolledOpen(value);
-    }
-  };
-
+  const setOpen = (v: boolean) => (isControlled ? onOpenChange?.(v) : setUncontrolledOpen(v));
   const toggle = () => setOpen(!open);
   const close = () => setOpen(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  useClickOutside(containerRef, close);
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, close);
 
   return (
-    <DropdownContext.Provider value={{ open, toggle, close }}>
-      <div className={styles.dropdownContainer} ref={containerRef}>
+    <DropdownContext.Provider value={{ open, toggle, close, classes }}>
+      <div className={cx(styles.dropdownContainer, classes?.root, className)} ref={ref} data-slot="root">
         {children}
       </div>
     </DropdownContext.Provider>
   );
 };
 
-const Trigger = ({ children }: { children: React.ReactNode }) => {
-  const context = useContext(DropdownContext);
-  if (!context) throw new Error("Dropdown.Trigger 필수");
-
-  return <div onClick={context.toggle}>{children}</div>;
+const Trigger = ({ children, className, ...divProps }: React.HTMLAttributes<HTMLDivElement>) => {
+  const ctx = useContext(DropdownContext);
+  if (!ctx) throw new Error("Dropdown.Trigger 필수");
+  return (
+    <div
+      {...divProps}
+      className={cx(styles.triggerBase, ctx.classes?.trigger, className)}
+      onClick={(e) => {
+        divProps.onClick?.(e);
+        ctx.toggle();
+      }}
+      data-slot="trigger"
+      role="button"
+      aria-haspopup="menu"
+      aria-expanded={ctx.open}
+    >
+      {children}
+    </div>
+  );
 };
 
-const Menu = ({ children }: { children: React.ReactNode }) => {
-  const context = useContext(DropdownContext);
-  if (!context || !context.open) return null;
-
-  return <div className={styles.dropdownMenu}>{children}</div>;
+const Menu = ({ children, className, ...divProps }: React.HTMLAttributes<HTMLDivElement>) => {
+  const ctx = useContext(DropdownContext);
+  if (!ctx?.open) return null;
+  return (
+    <div {...divProps} className={cx(styles.dropdownMenu, ctx.classes?.menu, className)} role="menu" data-slot="menu">
+      {children}
+    </div>
+  );
 };
 
-interface HeaderProps {
-  children: React.ReactNode;
-}
-
-const Header = ({ children }: HeaderProps) => {
-  return <div className={styles.headerStyle}>{children}</div>;
+const Header = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  const ctx = useContext(DropdownContext);
+  return <div className={cx(styles.headerStyle, ctx?.classes?.header, className)}>{children}</div>;
 };
 
-const Line = () => {
-  return <div className={styles.lineStyle} />;
+const Line = ({ className }: { className?: string }) => {
+  const ctx = useContext(DropdownContext);
+  return <div className={cx(styles.lineStyle, ctx?.classes?.line, className)} />;
 };
 
 interface ItemProps {
@@ -76,20 +100,18 @@ interface ItemProps {
   onClick?: () => void;
   children?: React.ReactNode;
   closeOnClick?: boolean;
+  className?: string;
 }
 
-const Item = ({ icon, text, onClick, children, closeOnClick = true }: ItemProps) => {
-  const context = useContext(DropdownContext);
+const Item = ({ icon, text, onClick, children, closeOnClick = true, className }: ItemProps) => {
+  const ctx = useContext(DropdownContext);
   const handleClick = () => {
     onClick?.();
-    if (closeOnClick) {
-      context?.close();
-    }
+    if (closeOnClick) ctx?.close();
   };
-
   return (
-    <div className={styles.dropdownItem} onClick={handleClick}>
-      {icon && <span className={styles.iconStyle}>{icon}</span>}
+    <div className={cx(styles.dropdownItem, ctx?.classes?.item, className)} onClick={handleClick} role="menuitem">
+      {icon && <span className={cx(styles.iconStyle, ctx?.classes?.icon)}>{icon}</span>}
       {text && <span>{text}</span>}
       {children}
     </div>
@@ -103,3 +125,9 @@ Dropdown.Header = Header;
 Dropdown.Line = Line;
 
 export default Dropdown;
+
+export const useDropdown = () => {
+  const ctx = useContext(DropdownContext);
+  if (!ctx) throw new Error("Dropdown.*는 <Dropdown> 내부에서만 사용하세요.");
+  return ctx;
+};
