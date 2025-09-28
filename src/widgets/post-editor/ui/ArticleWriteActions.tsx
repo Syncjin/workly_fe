@@ -1,7 +1,7 @@
 import { Button } from "@/shared/ui/Button";
 import { toolbar } from "./postEditor.css";
 
-export default function EditorToolbar() {
+export default function ArticleWriteActions() {
   return (
     <div className={toolbar.container}>
       <div className={toolbar.leftArea}>

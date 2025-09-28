@@ -1,8 +1,9 @@
 // import { Editor } from "@/widgets/post-editor/ui/Editor";
 "use client";
-import EditorToolbar from "@/widgets/post-editor/ui/EditorToolbar";
+import ArticleWriteActions from "@/widgets/post-editor/ui/ArticleWriteActions";
+import BoardSelector from "@/widgets/post-editor/ui/BoartSelector";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as styles from "./postEditor.css";
 const Editor = dynamic(() => import("@/shared/ui/Editor").then((mod) => mod.Editor), { ssr: false });
 
@@ -10,9 +11,13 @@ export const EditorContainer = () => {
   const [html, setHtml] = useState<string>("");
   const [json, setJson] = useState<string>("");
 
+  useEffect(() => {
+    console.log("html,", html);
+  }, [html]);
   return (
     <div className={styles.container}>
-      <EditorToolbar />
+      <ArticleWriteActions />
+      <BoardSelector />
       <div className={styles.editor.container}>
         <Editor
           namespace="post-editor"
