@@ -1,0 +1,42 @@
+{
+  "name": "@workly/icons",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist/",
+    "svgs/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./svgs": {
+      "import": "./svgs",
+      "default": "./svgs"
+    },
+    "./svgs/*": {
+      "default": "./svgs/*.svg"
+    }
+  },
+  "scripts": {
+    "build": "npm run optimize-svgs && npm run generate-types && tsup",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist",
+    "optimize-svgs": "node scripts/optimize-svgs.js",
+    "generate-types": "node scripts/generate-types.js"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.2",
+    "svgo": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

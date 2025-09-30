@@ -1,0 +1,40 @@
+{
+  "name": "@workly/ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "sideEffects": ["**/*.css.ts", "**/*.vanilla.css", "**/*.css"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@workly/icons": "workspace:*",
+    "@workly/utils": "workspace:*",
+    "@vanilla-extract/css": "catalog:",
+    "@vanilla-extract/dynamic": "catalog:",
+    "@vanilla-extract/recipes": "catalog:",
+    "clsx": "^2.1.1",
+    "react-hook-form": "catalog:"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

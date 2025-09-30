@@ -1,0 +1,10 @@
+{
+  "name": "@workly/tsconfig",
+  "private": true,
+  "version": "0.0.0",
+  "files": ["*.json"],
+  "exports": {
+    "./base.json": "./base.json",
+    "./next-app.json": "./next-app.json"
+  }
+}

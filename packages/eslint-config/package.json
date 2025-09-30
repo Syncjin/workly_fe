@@ -1,0 +1,17 @@
+{
+  "name": "@workly/eslint-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./next": "./next.mjs"
+  },
+  "peerDependencies": {
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "@eslint/eslintrc": "catalog:",
+    "typescript": "catalog:"
+  }
+}

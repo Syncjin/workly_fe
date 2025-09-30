@@ -46,5 +46,6 @@
     "editor.formatOnPaste": true
   },
   "prettier.requireConfig": true,
-  "prettier.useEditorConfig": false
+  "prettier.useEditorConfig": false,
+  "typescript.autoClosingTags": false
 } 
