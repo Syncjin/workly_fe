@@ -8,8 +8,8 @@
 import type { Post, PostDeleteRequest, PostListParams, PostReadRequest } from "@/entities/post/model";
 import { postApi, postQueryKeys } from "@/features/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
-import type { ApiError, ApiResponse, Pagination } from "@/shared/api/types";
 import type { UseQueryOptions } from "@tanstack/react-query";
+import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
 /**
  * 게시글 목록을 가져오는 React Query 훅

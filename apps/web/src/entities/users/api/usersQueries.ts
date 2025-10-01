@@ -1,8 +1,8 @@
 import { usersApi } from "@/entities/users/api/usersApi";
 import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
-import type { ApiError, ApiResponse } from "@/shared/api/types";
 import type { UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
-import { User, usersQueryKeys } from "../model";
+import type { ApiError, ApiResponse } from "@workly/types/common";
+import { type User, usersQueryKeys } from "../model";
 
 /**
  * 사용자 정보를 가져오는 React Query 훅

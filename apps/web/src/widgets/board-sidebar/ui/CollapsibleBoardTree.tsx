@@ -1,6 +1,6 @@
 import { Icon } from "@workly/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SidebarBoard, SidebarGroup } from "../model/useSidebarBoard";
+import type { SidebarBoard, SidebarGroup } from "../model/useSidebarBoard";
 import * as styles from "./collapsibleBoardTree.css";
 
 interface CollapsibleBoardTreeProps {

@@ -1,8 +1,8 @@
 import { boardCategoryApi } from "@/entities/boardCategory/api/boardCategoryApi";
 import type { BoardCategory } from "@/entities/boardCategory/model/types";
 import { useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
-import type { ApiError, ApiResponse } from "@/shared/api/types";
 import type { UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import type { ApiError, ApiResponse } from "@workly/types/common";
 import { boardCategoryQueryKeys } from "../model";
 
 /**

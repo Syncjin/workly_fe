@@ -1,4 +1,4 @@
-import { PostListParams, usePostListSuspense } from "@/entities/post";
+import { type PostListParams, usePostListSuspense } from "@/entities/post";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";

@@ -1,6 +1,6 @@
 import type { Board } from "@/entities/board/model";
 import type { BoardCategory } from "@/entities/boardCategory/model";
-import { ApiResponse } from "@/shared/api/types";
+import type { ApiResponse } from "@workly/types";
 import type { SidebarBoard, SidebarGroup } from "./useSidebarBoard";
 
 export type CatMap = Record<number, { name: string; order: number }>;

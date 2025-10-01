@@ -3,18 +3,19 @@
  * 게시판 CRUD API
  */
 
-import type { Board, BoardParams } from "@/entities/board/model/types";
-import { api } from "@/shared/api/client";
-import type { ApiResponse } from "@/shared/api/types";
+import { http } from "@/shared/api/client";
+import { createBoardApi } from "@workly/api";
 
 /**
  * Board API functions
  */
-export const boardApi = {
-  getBoards: async (): Promise<ApiResponse<Board[]>> => {
-    return await api.get<Board[]>("/boards");
-  },
-  getBoardById: async (params?: BoardParams): Promise<ApiResponse<Board>> => {
-    return await api.get<Board>(`/boards/${params?.boardId.toString()}`);
-  },
-};
+
+export const boardApi = createBoardApi(http);
+
+/** 타입이 달라질경우 adapter 추가 */
+// const raw = createBoardApi(http);
+// export const boardApi = {
+//   ...raw,
+//   // 예: 이 메서드만 DTO→UI 변환 적용
+//   getBoardById: lift(raw.getBoardById, toBoardModel),
+// };

@@ -1,6 +1,7 @@
 import { log } from "@/lib/logger";
-import { QueryFunctionContext, useMutation, UseMutationOptions, useQuery, UseQueryOptions, useSuspenseQuery, UseSuspenseQueryOptions } from "@tanstack/react-query";
-import { ApiError, ApiResponse, createQueryKey } from "./types";
+import type { QueryFunctionContext, UseMutationOptions, UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import type { ApiError, ApiResponse } from "@workly/types/common";
 
 // GET 요청 훅
 export function useApiQuery<T, TSelected = ApiResponse<T>>(queryKey: readonly unknown[], queryFn: (ctx: QueryFunctionContext) => Promise<ApiResponse<T>>, options?: Omit<UseQueryOptions<ApiResponse<T>, ApiError, TSelected>, "queryKey" | "queryFn">) {
@@ -41,6 +42,3 @@ export function useApiMutation<TData, TVariables = unknown, TContext = unknown>(
     ...options,
   });
 }
-
-// 쿼리 키 팩토리 export
-export { createQueryKey };

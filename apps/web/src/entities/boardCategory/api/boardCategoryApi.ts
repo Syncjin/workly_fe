@@ -3,15 +3,11 @@
  * 게시판 카테고리 CRUD API
  */
 
-import type { BoardCategory } from "@/entities/boardCategory/model/types";
-import { api } from "@/shared/api/client";
-import type { ApiResponse } from "@/shared/api/types";
+import { http } from "@/shared/api/client";
+import { createBoardCategoryApi } from "@workly/api";
 
 /**
  * Board Category API functions
  */
-export const boardCategoryApi = {
-  getBoardCategory: async (): Promise<ApiResponse<BoardCategory[]>> => {
-    return await api.get<BoardCategory[]>("/admin/board-categories");
-  },
-};
+
+export const boardCategoryApi = createBoardCategoryApi(http);

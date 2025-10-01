@@ -1,6 +1,6 @@
-import { Post, usePostRead } from "@/entities/post";
-import { ApiResponse, Pagination } from "@/shared/api/types";
-import { InfiniteData, useQueryClient } from "@tanstack/react-query";
+import { type Post, usePostRead } from "@/entities/post";
+import { type InfiniteData, useQueryClient } from "@tanstack/react-query";
+import type { ApiResponse, Pagination } from "@workly/types/common";
 import { useCallback } from "react";
 
 function isApiRespPagination<T>(v: any): v is ApiResponse<Pagination<T>> {
