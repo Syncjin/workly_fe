@@ -1,0 +1,17 @@
+{
+  "extends": "@workly/tsconfig/base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false,
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+        "@workly/types/common/*": ["src/common/*"],
+        "@workly/types/domain/*": ["src/domain/*"]
+    }
+  },
+  "include": ["src"]
+}

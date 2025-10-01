@@ -1,0 +1,39 @@
+{
+  "name": "@workly/types",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "types": "./dist/common/index.d.ts"
+    },
+    "./common/*": {
+      "types": "./dist/common/*.d.ts"
+    },
+    "./domain": {
+      "types": "./dist/domain/index.d.ts"
+    },
+    "./domain/*": {
+      "types": "./dist/domain/*.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json -w",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "@workly/tsconfig": "workspace:^",
+    "rimraf": "^6.0.1",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.2.0"
+  }
+}

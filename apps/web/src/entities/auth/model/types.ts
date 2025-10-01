@@ -4,14 +4,10 @@
  * Auth 인증 관련
  */
 
-export interface UserLoginRequest {
-  userId: string;
-  password: string;
-}
+import type { UserLoginRequest as UserLoginRequestDTO, UserLoginResponse as UserLoginResponseDTO } from "@workly/types/domain";
 
-export interface UserLoginResponse {
-  accessToken: string;
+export interface UserLoginRequest extends UserLoginRequestDTO {}
+
+export interface UserLoginResponse extends UserLoginResponseDTO {
   csrfToken?: string;
-  tokenType: string;
-  expiresIn: number;
 }

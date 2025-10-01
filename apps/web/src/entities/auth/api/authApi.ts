@@ -4,7 +4,7 @@
 
 import { api } from "@/shared/api/client";
 import type { ApiResponse } from "@/shared/api/types";
-import { UserLoginRequest, UserLoginResponse } from "../model/types";
+import type { UserLoginRequest, UserLoginResponse } from "../model/types";
 
 /**
  * Auth API functions

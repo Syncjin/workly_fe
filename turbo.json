@@ -6,7 +6,7 @@
       "persistent": true
     },
     "build": {
-      "outputs": ["dist/**", ".next/**", "build/**"],
+      "outputs": ["dist/**", ".next/**", "build/**", "dist/**/*.d.ts"],
       "dependsOn": ["^build"]
     },
     "lint": {

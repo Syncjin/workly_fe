@@ -6,7 +6,7 @@
  */
 
 import { authApi } from "@/entities/auth/api/authApi";
-import { UserLoginRequest, UserLoginResponse } from "@/entities/auth/model";
+import type { UserLoginRequest, UserLoginResponse } from "@/entities/auth/model";
 import { useApiMutation } from "@/shared/api/hooks";
 
 /**
