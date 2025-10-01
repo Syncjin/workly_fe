@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@workly/tsconfig": "workspace:*"
   }
 }

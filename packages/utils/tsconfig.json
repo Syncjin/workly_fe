@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig/base.json",
+  "extends": "@workly/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "dist"
   },

@@ -8,6 +8,7 @@
     "noEmit": false,
     "types": [],
     "baseUrl": ".",
+    "verbatimModuleSyntax": true,
     "paths": {
         "@workly/types/common/*": ["src/common/*"],
         "@workly/types/domain/*": ["src/domain/*"]

@@ -1,25 +1,30 @@
 {
   "name": "@workly/api",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "version": "0.0.0",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
+  "sideEffects": false,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
+  },
+  "dependencies": {
+    "@workly/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@workly/tsconfig": "workspace:^",
+    "typescript": "catalog:",
+    "tsup": "^8.3.0",
+    "rimraf": "^6.0.1"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "react": ">=18"
-  },
-  "dependencies": {
-    "zod": "catalog:"
+    "typescript": ">=5.2.0"
   }
 }
