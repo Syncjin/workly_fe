@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
     return [{ source: "/api/:path*", destination: "http://3.39.234.241:8080/api/v1/:path*" }];
   },
   transpilePackages: ["@workly/ui", "@workly/editor", "@workly/api", "@workly/icons", "@workly/types"],
-  experimental: { externalDir: true },
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.(".svg"));
 
