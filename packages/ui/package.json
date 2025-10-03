@@ -3,13 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "sideEffects": ["**/*.css.ts", "**/*.vanilla.css", "**/*.css"],
+  "sideEffects": [
+    "**/*.css.ts",
+    "**/*.vanilla.css",
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./src/index.ts",
       "default": "./src/index.ts"
-    }
+    },
+    "./overlays": { "types": "./dist/overlays/index.d.ts", "import": "./dist/overlays/index.js" }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,11 +24,11 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@workly/icons": "workspace:*",
-    "@workly/utils": "workspace:*",
     "@vanilla-extract/css": "catalog:",
     "@vanilla-extract/dynamic": "catalog:",
     "@vanilla-extract/recipes": "catalog:",
+    "@workly/icons": "workspace:*",
+    "@workly/utils": "workspace:*",
     "clsx": "^2.1.1",
     "react-hook-form": "catalog:"
   },
@@ -35,6 +40,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vanilla-extract/esbuild-plugin": "^2.3.18",
     "typescript": "catalog:"
   }
 }
