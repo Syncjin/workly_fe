@@ -1,4 +1,4 @@
-import { AuthProvider } from "@/lib/providers/AuthProvider";
+import AppProvider from "@/lib/providers/AppProvider";
 import { BoardSidebar } from "@/widgets/board-sidebar";
 import { SidebarBoundary } from "@/widgets/board-sidebar/ui/BoardSidebarBoundary";
 import { Header } from "@workly/ui";
@@ -6,7 +6,7 @@ import * as style from "./layout.css";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider fallback={null}>
+    <AppProvider>
       <main className={style.mainLayout}>
         <Header className={style.headerArea} />
         <SidebarBoundary>
@@ -14,6 +14,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </SidebarBoundary>
         <div className={style.contentLayout}>{children}</div>
       </main>
-    </AuthProvider>
+    </AppProvider>
   );
 }
