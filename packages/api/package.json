@@ -10,7 +10,8 @@
     ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
   },
   "dependencies": {
-    "@workly/types": "workspace:*"
+    "@workly/types": "workspace:*",
+    "@workly/utils": "workspace:*"
   },
   "devDependencies": {
     "@workly/tsconfig": "workspace:^",

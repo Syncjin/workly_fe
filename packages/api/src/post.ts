@@ -1,17 +1,8 @@
 import type { ApiResponse, Pagination } from "@workly/types/common";
 import type { PostDeleteRequest, PostDTO, PostListParams, PostReadRequest } from "@workly/types/domain";
+import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 
-function qs(params?: Record<string, unknown>) {
-  if (!params) return "";
-  const q = new URLSearchParams();
-  Object.entries(params).forEach(([k, v]) => {
-    if (v === undefined || v === null) return;
-    q.append(k, String(v));
-  });
-  const s = q.toString();
-  return s ? `?${s}` : "";
-}
 
 export function createPostApi(http: HttpClient) {
   

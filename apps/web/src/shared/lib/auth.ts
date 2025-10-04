@@ -6,8 +6,8 @@
  */
 
 import { log } from "@/lib/logger";
+import { type ApiResponse } from "@workly/types/common";
 import { parse, serialize } from "cookie";
-import { ApiResponse } from "../api/types";
 
 /** 브라우저/SSR 가드 */
 const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
