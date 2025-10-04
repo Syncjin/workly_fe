@@ -11,6 +11,7 @@ export * from './components/Header'
 export { default as Icon } from './components/Icon'
 export { Input, InputField } from './components/Input'
 export * from './components/InputHint'
+export * from "./components/Loading"
 export { default as Pagination } from './components/Pagination'
 export * from './components/Popup'
 export * from './components/Radio'
