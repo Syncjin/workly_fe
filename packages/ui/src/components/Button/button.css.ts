@@ -28,7 +28,6 @@ const baseLayered = style({
       selectors: {
         "&:hover": { backgroundColor: btnBgHover },
         "&:disabled, &[data-loading]": {
-          cursor: "not-allowed",
         },
         "&:focus": { outline: "none" },
         // "@media": {
