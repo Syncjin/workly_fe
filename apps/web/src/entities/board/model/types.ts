@@ -6,4 +6,4 @@
  */
 import type { BoardDTO } from "@workly/types/domain";
 export type Board = BoardDTO;
-export type { BoardParams } from "@workly/types/domain";
+export type { BoardDetailParams, BoardParams } from "@workly/types/domain";

@@ -3,4 +3,4 @@
  */
 
 export { boardQueryKeys } from "./keys";
-export type { Board, BoardParams } from "./types";
+export type { Board, BoardDetailParams, BoardParams } from "./types";
