@@ -1,5 +1,5 @@
 import React from "react";
-import { radioBase, radioSize, radioChecked, radioDot, radioContainer } from "./radio.css";
+import { radioBase, radioChecked, radioContainer, radioDot, radioSize } from "./radio.css";
 
 interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   size?: "sm" | "md" | "lg";
@@ -13,7 +13,7 @@ const dotSizeMap = {
   lg: 12,
 };
 
-const Radio: React.FC<RadioProps> = ({ size = "md", checked, defaultChecked, className, style, disabled, ...rest }) => {
+export const Radio: React.FC<RadioProps> = ({ size = "md", checked, defaultChecked, className, style, disabled, ...rest }) => {
   const isControlled = checked !== undefined;
   const boxSize = size === "sm" ? 16 : size === "lg" ? 24 : 20;
   const dotSize = dotSizeMap[size];
@@ -48,4 +48,3 @@ const Radio: React.FC<RadioProps> = ({ size = "md", checked, defaultChecked, cla
   );
 };
 
-export default Radio;

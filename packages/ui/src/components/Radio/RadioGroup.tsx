@@ -1,5 +1,5 @@
 import React from "react";
-import Radio from "./index";
+import { Radio } from "./Radio";
 
 interface RadioOption {
   label: React.ReactNode;
@@ -24,7 +24,7 @@ interface RadioGroupProps {
   style?: React.CSSProperties;
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ options, value, defaultValue, onChange, name, size = "md", direction = "column", label, description, errorText, helperText, disabled = false, className, style }) => {
+export const RadioGroup: React.FC<RadioGroupProps> = ({ options, value, defaultValue, onChange, name, size = "md", direction = "column", label, description, errorText, helperText, disabled = false, className, style }) => {
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue);
   const groupValue = isControlled ? value : uncontrolledValue;
@@ -114,4 +114,3 @@ const RadioGroup: React.FC<RadioGroupProps> = ({ options, value, defaultValue, o
   );
 };
 
-export default RadioGroup;
