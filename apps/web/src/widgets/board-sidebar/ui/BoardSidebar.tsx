@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminBoardLink } from "@/features/board/board-manage";
+import { openBoardSelect } from "@/shared/ui/modal/openers";
 import { Button, Icon } from "@workly/ui";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { startTransition, useCallback, useMemo, useState } from "react";
@@ -8,6 +9,7 @@ import { SidebarBoard, useSidebarBoardsSuspense } from "../model/useSidebarBoard
 import CollapsibleBoardTree from "./CollapsibleBoardTree";
 import * as styles from "./boardSidebar.css";
 import * as treeStyles from "./collapsibleBoardTree.css";
+
 interface BoardSidebarProps {
   className?: string;
   style?: React.CSSProperties;
@@ -22,7 +24,20 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   const searchParams = useSearchParams();
 
   const { data = [] } = useSidebarBoardsSuspense();
-  const onCreatePost = () => {};
+
+  const onCreatePost = useCallback(async () => {
+    const sp = new URLSearchParams(searchParams?.toString() ?? "");
+    let boardId = sp.get("boardId");
+    if (!boardId) {
+      boardId = await openBoardSelect();
+    }
+
+    if (boardId) {
+      startTransition(() => {
+        router.push(`/article/write?boardId=${boardId}`, { scroll: false });
+      });
+    }
+  }, [searchParams]);
 
   const activeBoardId = useMemo(() => {
     const v = searchParams?.get("boardId");

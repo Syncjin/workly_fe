@@ -20,7 +20,7 @@ export function useSidebarBoardsSuspense() {
     select: selectCatMap,
   });
 
-  const boardQ = useBoardListSuspense<SidebarBoard[]>({
+  const boardQ = useBoardListSuspense<SidebarBoard[]>(undefined, {
     select: selectBoards,
   });
 
