@@ -101,30 +101,51 @@ export function createHttpClient(opts: HttpClientOptions) {
     await inflightRefresh;
   }
 
+  function isFormDataBody(b: unknown): b is FormData {
+  return typeof FormData !== "undefined" && b instanceof FormData;
+}
+
   async function request<T>(method: string, endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
     await ensureAccessTokenIfNeeded(endpoint);
 
     const service = resolveService(endpoint, options.service);
     const url = getFullUrl(endpoint, service, options.absolute);
 
-    const defaultHeaders: HeadersInit = {
-      "Content-Type": "application/json",
+    const baseHeaders: HeadersInit = {
       ...(environment ? { "X-Environment": environment } : {}),
     };
 
-    const at = auth?.getAccessToken?.();
-    if (at) (defaultHeaders as any).Authorization = `Bearer ${at}`;
+  const at = auth?.getAccessToken?.();
+  if (at) (baseHeaders as any).Authorization = `Bearer ${at}`;
+  const csrf = auth?.getCsrfToken?.();
+  if (csrf) (baseHeaders as any)["X-CSRF-TOKEN"] = csrf;
 
-    const csrf = auth?.getCsrfToken?.();
-    if (csrf) (defaultHeaders as any)["X-CSRF-TOKEN"] = csrf;
+  const body =
+    options.body == null
+      ? undefined
+      : isFormDataBody(options.body)
+      ? options.body // ← FormData는 그대로
+      : typeof options.body === "string"
+      ? options.body // 이미 문자열인 경우(직접 JSON.stringify 해서 넣은 경우 등)
+      : options.body; // post/put/patch에서 이미 JSON.stringify하여 전달함
+
+  // Content-Type 결정: FormData면 지정하지 않음(브라우저가 boundary 포함 자동 설정)
+const isForm = isFormDataBody(body);
+
+const headers: HeadersInit = {
+    ...(isForm ? {} : { "Content-Type": "application/json" }),
+    ...baseHeaders,
+    ...(options.headers ?? {}),
+  };
 
     const isLocalApi = typeof url === "string" && url.startsWith("/api/");
     const req: RequestInit = {
-      method,
-      headers: { ...defaultHeaders, ...options.headers },
-      credentials: isLocalApi ? "include" : options.credentials,
-      ...options,
-    };
+    method,
+    headers,
+    credentials: isLocalApi ? "include" : options.credentials,
+    ...options,
+    body, // 위에서 결정한 body 사용
+  };
 
     if (debug) console.debug("[http]", method, url, req);
 
@@ -134,9 +155,12 @@ export function createHttpClient(opts: HttpClientOptions) {
       if (res.status === 401 && auth?.refreshAccessToken) {
         const newToken = await auth.refreshAccessToken();
         if (newToken) {
-          const retryHeaders: any = { ...defaultHeaders, ...options.headers, Authorization: `Bearer ${newToken}` };
-          const retryCsrf = auth.getCsrfToken?.();
-          if (retryCsrf) retryHeaders["X-CSRF-TOKEN"] = retryCsrf;
+          const retryHeaders: any = {
+          ...(isForm ? {} : { "Content-Type": "application/json" }),
+          ...baseHeaders,
+          Authorization: `Bearer ${newToken}`,
+          ...(options.headers ?? {}),
+        };
 
           const retryRes = await fetch(url, { ...req, headers: retryHeaders });
           if (retryRes.ok) return parseApiJsonSafe<T>(retryRes);
