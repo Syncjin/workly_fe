@@ -6,6 +6,7 @@
  */
 
 import type { Post, PostDeleteRequest, PostListParams, PostReadRequest } from "@/entities/post/model";
+import { PostCreateParams } from "@/entities/post/model/types";
 import { postApi, postQueryKeys } from "@/features/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
@@ -41,4 +42,8 @@ export const usePostRead = () => {
 
 export const usePostDelete = () => {
   return useApiMutation<void, PostDeleteRequest>((params) => postApi.deletePosts(params), {});
+};
+
+export const usePostCreate = () => {
+  return useApiMutation<Post, PostCreateParams>((params) => postApi.postPosts(params.post, params?.files), {});
 };

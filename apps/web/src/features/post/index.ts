@@ -15,5 +15,4 @@ export type { PostFiltersState, PostFiltersType } from "./post-filters";
 export { PostSearch, usePostSearch } from "./post-search";
 export type { PostSearchState } from "./post-search";
 
-export { PostActions, usePostActions } from "./post-actions";
-export type { PostActionConfig, PostActionsState, UsePostActionsOptions } from "./post-actions";
+export { usePostCreateAction } from "./post-create";
