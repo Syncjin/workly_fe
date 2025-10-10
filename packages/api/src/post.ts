@@ -1,5 +1,5 @@
 import type { ApiResponse, Pagination } from "@workly/types/common";
-import type { PostDeleteRequest, PostDTO, PostListParams, PostReadRequest } from "@workly/types/domain";
+import type { PostCreateRequest, PostDeleteRequest, PostDTO, PostListParams, PostReadRequest } from "@workly/types/domain";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 
@@ -27,5 +27,12 @@ export function createPostApi(http: HttpClient) {
     deletePosts: (body: PostDeleteRequest): Promise<ApiResponse<void>> => {
       return http.delete<void>(`/posts`, body);
     },
+
+    postPosts: (post: PostCreateRequest, files?: File[]): Promise<ApiResponse<PostDTO>> => {
+      const fd = new FormData();
+      fd.append("post", new Blob([JSON.stringify(post)], { type: "application/json" }));
+      (files ?? []).forEach((f) => fd.append("files", f));
+      return http.postMultipart<PostDTO>(`/posts`, fd);
+    }
   };
 }

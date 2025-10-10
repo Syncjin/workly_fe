@@ -157,6 +157,8 @@ export function createHttpClient(opts: HttpClientOptions) {
     get:  <T>(endpoint: string, options?: RequestOptions) => request<T>("GET", endpoint, options),
     post: <T>(endpoint: string, body?: any, options?: RequestOptions) =>
       request<T>("POST", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    postMultipart: <T>(endpoint: string, form: FormData, options?: RequestOptions) =>
+      request<T>("POST", endpoint, { ...options, body: form }),
     put:  <T>(endpoint: string, body?: any, options?: RequestOptions) =>
       request<T>("PUT", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
     patch:<T>(endpoint: string, body?: any, options?: RequestOptions) =>
