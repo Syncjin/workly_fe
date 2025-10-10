@@ -1,4 +1,4 @@
-import { style } from "@vanilla-extract/css";
+import { globalStyle, style } from "@vanilla-extract/css";
 
 export const container = style({
   width: "100%",
@@ -35,13 +35,30 @@ export const boardSelector = {
     display: "grid",
     gridTemplateColumns: "130px 1fr",
     flexDirection: "column",
+    alignItems: "center",
   }),
-  title: style({
+  categoryName: style({
+    fontSize: 14,
+    fontWeight: 500,
+    color: "var(--color-gray-500)",
+    marginLeft: 16,
+  }),
+  boardName: style({
     fontSize: 14,
     fontWeight: 500,
     color: "var(--color-gray-900)",
   }),
+  boardBtnArea: style({
+    display: "flex",
+    alignItems: "center",
+  }),
 };
+
+globalStyle(`${boardSelector.container} > span`, {
+  fontSize: 14,
+  fontWeight: 700,
+  color: "var(--color-gray-900)",
+});
 
 export const editor = {
   container: style({
