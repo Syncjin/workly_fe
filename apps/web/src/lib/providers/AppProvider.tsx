@@ -7,9 +7,11 @@ import { ModalHost, ModalProvider } from "@workly/ui/overlays";
 import React from "react";
 
 import { registry as boardSelectRegistry } from "@/features/board/board-select/model";
+import { registry as loadingOverlayRegistry } from "@/shared/ui/modal/model";
 
 const loaders: LoaderRegistry = {
   ...boardSelectRegistry,
+  ...loadingOverlayRegistry,
 };
 
 export default function AppProvider({ children }: { children: React.ReactNode }) {
