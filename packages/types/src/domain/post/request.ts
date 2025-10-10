@@ -13,3 +13,9 @@ export interface PostReadRequest {
 export interface PostDeleteRequest {
   postIds: number[];
 }
+
+export interface PostCreateRequest {
+  title: string;
+  content: string;
+  boardId: number;
+}
