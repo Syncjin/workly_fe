@@ -1,20 +1,13 @@
-// import { Editor } from "@/widgets/post-editor/ui/Editor";
 "use client";
+import { PostEditorProvider, usePostEditorActions } from "@/widgets/post-editor/model";
 import ArticleWriteActions from "@/widgets/post-editor/ui/ArticleWriteActions";
-import BoardSelector from "@/widgets/post-editor/ui/BoartSelector";
-// import dynamic from "next/dynamic";
+import BoardSelector from "@/widgets/post-editor/ui/BoardSelector";
 import { Editor } from "@workly/editor";
-import { useEffect, useState } from "react";
 import * as styles from "./postEditor.css";
-// const Editor = dynamic(() => import("@workly/editor").then((mod) => mod.Editor), { ssr: false });
 
-export const EditorContainer = () => {
-  const [html, setHtml] = useState<string>("");
-  const [json, setJson] = useState<string>("");
+export const EditorBody = () => {
+  const { setHtml } = usePostEditorActions();
 
-  useEffect(() => {
-    console.log("html,", html);
-  }, [html]);
   return (
     <div className={styles.container}>
       <ArticleWriteActions />
@@ -24,7 +17,6 @@ export const EditorContainer = () => {
           namespace="post-editor"
           placeholder="내용을 입력하세요…"
           onChangeHTML={setHtml}
-          onChangeJSON={setJson}
           onPickImageFile={async () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -44,3 +36,11 @@ export const EditorContainer = () => {
     </div>
   );
 };
+
+export const EditorContainer = () => (
+  <PostEditorProvider>
+    <EditorBody />
+  </PostEditorProvider>
+);
+
+EditorContainer.displayName = "EditorContainer";
