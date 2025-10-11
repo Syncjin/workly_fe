@@ -8,10 +8,6 @@
 export { postApi, postQueryKeys, usePostList } from "@/entities/post";
 export type { PostListParams } from "@/entities/post/model/types";
 
-// Export post features
-export { PostFilters, usePostFilters } from "./post-filters";
-export type { PostFiltersState, PostFiltersType } from "./post-filters";
-
 export { PostSearch, usePostSearch } from "./post-search";
 export type { PostSearchState } from "./post-search";
 

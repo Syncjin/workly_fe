@@ -80,7 +80,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
       sp.delete("size");
 
       startTransition(() => {
-        router.push(`${pathname}?${sp.toString()}`, { scroll: false });
+        router.push(`/board?${sp.toString()}`, { scroll: false });
       });
     },
     [pathname, router, searchParams]
