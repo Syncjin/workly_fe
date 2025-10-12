@@ -23,3 +23,10 @@ export interface PostDTO {
   isRead: boolean;
   readCount: number;
 }
+
+export interface PostMoveResponse {
+  boardId: number;  
+  requestedCount: number;  
+  movedCount: number;  
+  movedIds: number[];
+}

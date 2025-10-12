@@ -23,3 +23,12 @@ export interface PostCreateRequest {
 export interface PostDetailRequest {
   postId: number;
 }
+
+export interface PostUpdateRequest {
+    postId: number;
+}
+
+export interface PostMoveRequest {
+  boardId: number;  
+  postIds: number[];
+}

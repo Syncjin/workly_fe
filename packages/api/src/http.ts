@@ -187,6 +187,8 @@ const headers: HeadersInit = {
       request<T>("PUT", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
     patch:<T>(endpoint: string, body?: any, options?: RequestOptions) =>
       request<T>("PATCH", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    patchMultipart: <T>(endpoint: string, form: FormData, options?: RequestOptions) =>
+      request<T>("PATCH", endpoint, { ...options, body: form }),
     delete:<T>(endpoint: string, body?: any, options?: RequestOptions) =>
       request<T>("DELETE", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
 
