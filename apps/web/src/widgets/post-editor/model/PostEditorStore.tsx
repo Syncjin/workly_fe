@@ -1,5 +1,6 @@
 "use client";
 
+import { Post } from "@/entities/post";
 import * as React from "react";
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
@@ -8,9 +9,11 @@ export type PostEditorState = {
   boardId?: number;
   title: string;
   json: string;
+  post?: Post;
   setBoardId: (id?: number) => void;
   setTitle: (v: string) => void;
   setJson: (v: string) => void;
+  setPost: (v?: Post) => void;
   reset: () => void;
 };
 
@@ -22,7 +25,8 @@ function makeStore() {
     setBoardId: (id) => set({ boardId: id }),
     setTitle: (v) => set({ title: v }),
     setJson: (v) => set({ json: v }),
-    reset: () => set({ boardId: undefined, title: "", json: "" }),
+    setPost: (v) => set({ post: v }),
+    reset: () => set({ boardId: undefined, title: "", json: "", post: undefined }),
   }));
 }
 
@@ -44,14 +48,16 @@ export const usePostEditorState = () => {
   const boardId = usePostEditorStore((s) => s.boardId);
   const title = usePostEditorStore((s) => s.title);
   const json = usePostEditorStore((s) => s.json);
+  const post = usePostEditorStore((s) => s.post);
 
   return React.useMemo(
     () => ({
       boardId,
       title,
       json,
+      post,
     }),
-    [boardId, title, json]
+    [boardId, title, json, post]
   );
 };
 
@@ -60,6 +66,7 @@ export const usePostEditorActions = () => {
   const setBoardId = usePostEditorStore((s) => s.setBoardId);
   const setTitle = usePostEditorStore((s) => s.setTitle);
   const setJson = usePostEditorStore((s) => s.setJson);
+  const setPost = usePostEditorStore((s) => s.setPost);
   const reset = usePostEditorStore((s) => s.reset);
-  return { setBoardId, setTitle, setJson, reset };
+  return { setBoardId, setTitle, setJson, setPost, reset };
 };
