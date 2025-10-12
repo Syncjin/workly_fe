@@ -1,7 +1,7 @@
 "use client";
 
 import { PostSearch, usePostSearch } from "@/features/post";
-import { usePostDeleteAction } from "@/features/post/post-delete";
+import { DeletePostButton, type DeletePostRenderProps } from "@/features/post/post-delete";
 import { usePostReadAction } from "@/features/post/post-read";
 import { useSearchParamsManager } from "@/features/post/post-search";
 import { log } from "@/lib/logger";
@@ -20,7 +20,6 @@ export const PostListToolbar = React.memo(() => {
   const { selectAllVisible, clearVisible } = useSelectionActions();
   const postIds = useSelectedPostIdsOnPage();
   const { run: postSelectRead } = usePostReadAction();
-  const { run: postSelectDelete } = usePostDeleteAction();
 
   const onAllCheckChange = useCallback(() => {
     if (isAllCheck) {
@@ -49,15 +48,29 @@ export const PostListToolbar = React.memo(() => {
     }
   }, [clearVisible, postIds, postSelectRead]);
 
-  const handleOnDelete = useCallback(async () => {
-    if (postIds.length === 0) return;
-    try {
-      await postSelectDelete(postIds);
-      clearVisible();
-    } catch (e) {
-      log.error("휴지통 이동 처리 실패", { error: e, op: "handleOnDelete" });
-    }
-  }, [clearVisible, postIds, postSelectDelete]);
+  const renderOnDelete = useCallback(
+    ({ run, isPending, isPermitted }: DeletePostRenderProps) => {
+      if (!isPermitted) return null;
+      const disabled = !hasSelectedItems || isPending;
+
+      const onClick = async () => {
+        if (disabled) return;
+        try {
+          await run();
+          clearVisible();
+        } catch (e) {
+          log.error("휴지통 이동 처리 실패", { error: e, op: "DeleteToolbarButton" });
+        }
+      };
+
+      return (
+        <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={isPending || undefined} onClick={onClick}>
+          삭제
+        </Button>
+      );
+    },
+    [hasSelectedItems]
+  );
 
   return (
     <div className={toolbar.container}>
@@ -66,9 +79,7 @@ export const PostListToolbar = React.memo(() => {
         <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={handleOnRead}>
           읽음
         </Button>
-        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={handleOnDelete}>
-          삭제
-        </Button>
+        <DeletePostButton postIds={postIds}>{renderOnDelete}</DeletePostButton>
         <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems}>
           이동
         </Button>

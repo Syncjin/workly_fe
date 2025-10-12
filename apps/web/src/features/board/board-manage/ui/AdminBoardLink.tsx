@@ -1,8 +1,10 @@
 "use client";
 
+import { PermissionGate } from "@/entities/permission";
+import { PERM } from "@/entities/permission/lib/policies";
+import { useBoardManagePermission } from "@/features/board/board-manage/model";
 import Link, { LinkProps } from "next/link";
 import { MouseEvent, useCallback } from "react";
-import { useBoardManagePermission } from "../model/useBoardManagePermission";
 
 type AdminBoardLinkProps = Omit<React.ComponentProps<typeof Link>, "href"> & {
   href?: LinkProps["href"];
@@ -23,8 +25,10 @@ export function AdminBoardLink({ className, children = "관리" }: AdminBoardLin
   const disabled = isLoading || isError || !isPermitted;
 
   return (
-    <Link href="/admin/board" onClick={onClick} aria-disabled={disabled || undefined} className={[className].filter(Boolean).join(" ")}>
-      {children}
-    </Link>
+    <PermissionGate perm={PERM.BOARD_MANAGE} fallback={null}>
+      <Link href="/admin/board" onClick={onClick} aria-disabled={disabled || undefined} className={[className].filter(Boolean).join(" ")}>
+        {children}
+      </Link>
+    </PermissionGate>
   );
 }
