@@ -8,8 +8,8 @@ type ModalSlice = {
   current: { type: ModalKey | null; props?: any };
   _resolver: Resolver; // 프라미스 resolve를 저장
   open: (type: ModalKey, props?: any) => Promise<any | null>;
-  resolve: (result: any) => void;
-  cancel: () => void;
+  resolve: (result: any, key?: ModalKey) => void;
+  cancel: (key?: ModalKey) => void;
 };
 
 export const useModalStore = create<ModalSlice>((set, get) => ({
@@ -18,21 +18,22 @@ export const useModalStore = create<ModalSlice>((set, get) => ({
 
   open: (type, props) =>
     new Promise((resolve) => {
-      // 기존 대기 프라미스가 있으면 취소하고 교체(원하면 큐잉으로 확장 가능)
       const prev = get()._resolver;
       prev?.(null);
       set({ current: { type, props }, _resolver: resolve });
     }),
 
-  resolve: (result) => {
-    const r = get()._resolver;
-    r?.(result);
+  resolve: (result, key) => {
+    const { current, _resolver } = get();
+    if (key && current.type !== key) return;
+    _resolver?.(result);
     set({ current: { type: null }, _resolver: null });
   },
 
-  cancel: () => {
-    const r = get()._resolver;
-    r?.(null);
+  cancel: (key) => {
+    const { current, _resolver } = get();
+    if (key && current.type !== key) return;
+    _resolver?.(null);
     set({ current: { type: null }, _resolver: null });
   },
 }));
