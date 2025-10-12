@@ -49,3 +49,11 @@ export const footer = style({
   display: "flex",
   flexDirection: "column",
 });
+
+export const actionArea = style({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-end",
+  gap: 12,
+  paddingTop: 40,
+});

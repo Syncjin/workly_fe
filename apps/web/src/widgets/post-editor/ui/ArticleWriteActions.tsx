@@ -1,4 +1,5 @@
 import { usePostCreateAction } from "@/features/post/post-create";
+import { usePostUpdateAction } from "@/features/post/post-update";
 import { closeLoadingOverlay, openLoadingOverlay } from "@/shared/ui/modal/openers";
 import { usePostEditorState } from "@/widgets/post-editor/model/PostEditorStore";
 import { Button } from "@workly/ui";
@@ -7,8 +8,9 @@ import { useCallback } from "react";
 import { toolbar } from "./postEditor.css";
 
 export default function ArticleWriteActions() {
-  const { boardId, title, json } = usePostEditorState();
-  const { run } = usePostCreateAction();
+  const { boardId, title, json, post } = usePostEditorState();
+  const { run: createRun } = usePostCreateAction();
+  const { run: updateRun } = usePostUpdateAction();
   const router = useRouter();
 
   const handleSubmit = useCallback(async () => {
@@ -18,10 +20,19 @@ export default function ArticleWriteActions() {
 
     openLoadingOverlay();
     try {
-      const res = await run({ post: { boardId, title, content: json } });
-      console.log("res", res);
-      if (res?.data?.postId) {
-        router.push(`/article/${res.data.postId}`);
+      if (post) {
+        // 게시판 이동이 필요한지 확인 필요
+        const res = await updateRun({ params: { postId: post.postId }, post: { boardId, title, content: json } });
+        console.log("res", res);
+        if (res?.data.postId) {
+          router.push(`/article/${res.data.postId}`);
+        }
+      } else {
+        const res = await createRun({ post: { boardId, title, content: json } });
+        console.log("res", res);
+        if (res?.data?.postId) {
+          router.push(`/article/${res.data.postId}`);
+        }
       }
     } catch (error) {
       closeLoadingOverlay();

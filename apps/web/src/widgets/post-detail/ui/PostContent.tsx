@@ -7,9 +7,8 @@ import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/u
 import { useQueryClient } from "@tanstack/react-query";
 import { EditorViewer } from "@workly/editor";
 import { Button } from "@workly/ui";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MouseEvent, startTransition, useCallback, useMemo } from "react";
+import { startTransition, useCallback } from "react";
 import * as styles from "./postDetail.css";
 
 const PostContent = (post: Post) => {
@@ -17,21 +16,17 @@ const PostContent = (post: Post) => {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
 
-  const initialJSON = useMemo(() => {
-    try {
-      return post?.content ? JSON.parse(post.content) : null;
-    } catch {
-      return null;
-    }
-  }, [post?.content]);
   const { isPermitted, isLoading, isError } = usePermission(PERM.POST_EDIT);
 
-  const onClick = useCallback(
-    (e: MouseEvent<HTMLAnchorElement>) => {
-      if (isLoading || isError || !isPermitted) e.preventDefault();
-    },
-    [isLoading, isError, isPermitted]
-  );
+  const onClick = useCallback(() => {
+    const sp = new URLSearchParams(searchParams?.toString() ?? "");
+    sp.set("boardId", String(post.board.boardId));
+    sp.set("postId", String(post.postId));
+    startTransition(() => {
+      router.push(`/article/write?${sp.toString()}`, { scroll: false });
+    });
+  }, [post]);
+
   const disabled = isLoading || isError || !isPermitted;
 
   const renderOnDelete = useCallback(
@@ -74,14 +69,14 @@ const PostContent = (post: Post) => {
 
   return (
     <div className={styles.content}>
-      {initialJSON && (
+      {post?.content && (
         <>
-          <EditorViewer namespace="post-viewer" initialJSON={initialJSON} contentClassName={styles.editorViewer} />
+          <EditorViewer namespace="post-viewer" initialJSON={post?.content ?? null} contentClassName={styles.editorViewer} />
           <div className={styles.actionArea}>
             <PermissionGate perm={PERM.POST_EDIT} fallback={null}>
-              <Link href="/admin/board" onClick={onClick} aria-disabled={disabled || undefined} className={""}>
+              <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={undefined} onClick={onClick}>
                 수정
-              </Link>
+              </Button>
             </PermissionGate>
             <DeletePostButton postIds={[post.postId]}>{renderOnDelete}</DeletePostButton>
           </div>
