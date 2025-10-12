@@ -19,3 +19,7 @@ export interface PostCreateRequest {
   content: string;
   boardId: number;
 }
+
+export interface PostDetailRequest {
+  postId: number;
+}

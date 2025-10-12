@@ -1,5 +1,5 @@
 import type { ApiResponse, Pagination } from "@workly/types/common";
-import type { PostCreateRequest, PostDeleteRequest, PostDTO, PostListParams, PostReadRequest } from "@workly/types/domain";
+import type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostListParams, PostReadRequest } from "@workly/types/domain";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 
@@ -17,6 +17,10 @@ export function createPostApi(http: HttpClient) {
             size: params?.size,
         });
         return http.get<Pagination<PostDTO>>(`/posts${query}`);
+    },
+     /** 게시글 단건 */
+    getPostsDetail: async (params: PostDetailRequest): Promise<ApiResponse<PostDTO>> => {
+        return http.get<PostDTO>(`/posts/${params.postId}`);
     },
      /** 게시글 읽음 마킹 */
     postPostsRead: (body: PostReadRequest): Promise<ApiResponse<void>> => {
