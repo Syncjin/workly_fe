@@ -1,5 +1,6 @@
 "use client";
 
+import { Post } from "@/entities/post";
 import * as React from "react";
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
@@ -7,10 +8,12 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 export type PostEditorState = {
   boardId?: number;
   title: string;
-  html: string;
+  json: string;
+  post?: Post;
   setBoardId: (id?: number) => void;
   setTitle: (v: string) => void;
-  setHtml: (v: string) => void;
+  setJson: (v: string) => void;
+  setPost: (v?: Post) => void;
   reset: () => void;
 };
 
@@ -18,11 +21,12 @@ function makeStore() {
   return createStore<PostEditorState>((set) => ({
     boardId: undefined,
     title: "",
-    html: "",
+    json: "",
     setBoardId: (id) => set({ boardId: id }),
     setTitle: (v) => set({ title: v }),
-    setHtml: (v) => set({ html: v }),
-    reset: () => set({ boardId: undefined, title: "", html: "" }),
+    setJson: (v) => set({ json: v }),
+    setPost: (v) => set({ post: v }),
+    reset: () => set({ boardId: undefined, title: "", json: "", post: undefined }),
   }));
 }
 
@@ -43,15 +47,17 @@ export function usePostEditorStore<T>(selector: (s: PostEditorState) => T) {
 export const usePostEditorState = () => {
   const boardId = usePostEditorStore((s) => s.boardId);
   const title = usePostEditorStore((s) => s.title);
-  const html = usePostEditorStore((s) => s.html);
+  const json = usePostEditorStore((s) => s.json);
+  const post = usePostEditorStore((s) => s.post);
 
   return React.useMemo(
     () => ({
       boardId,
       title,
-      html,
+      json,
+      post,
     }),
-    [boardId, title, html]
+    [boardId, title, json, post]
   );
 };
 
@@ -59,7 +65,8 @@ export const usePostEditorState = () => {
 export const usePostEditorActions = () => {
   const setBoardId = usePostEditorStore((s) => s.setBoardId);
   const setTitle = usePostEditorStore((s) => s.setTitle);
-  const setHtml = usePostEditorStore((s) => s.setHtml);
+  const setJson = usePostEditorStore((s) => s.setJson);
+  const setPost = usePostEditorStore((s) => s.setPost);
   const reset = usePostEditorStore((s) => s.reset);
-  return { setBoardId, setTitle, setHtml, reset };
+  return { setBoardId, setTitle, setJson, setPost, reset };
 };

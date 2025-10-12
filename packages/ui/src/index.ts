@@ -1,6 +1,6 @@
 "use client"
 // UI Components
-export * from './components/Avatar'
+export { default as Avatar } from './components/Avatar'
 export * from './components/Badge'
 export * from './components/Button'
 export * from './components/Carousel'

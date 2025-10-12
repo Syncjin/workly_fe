@@ -1,12 +1,22 @@
 "use client";
+import { Post } from "@/entities/post";
+import { usePostDetail } from "@/widgets/post-detail/model";
 import { PostEditorProvider, usePostEditorActions } from "@/widgets/post-editor/model";
 import ArticleWriteActions from "@/widgets/post-editor/ui/ArticleWriteActions";
 import BoardSelector from "@/widgets/post-editor/ui/BoardSelector";
 import { Editor } from "@workly/editor";
+import { useEffect } from "react";
 import * as styles from "./postEditor.css";
 
-export const EditorBody = () => {
-  const { setHtml } = usePostEditorActions();
+export const EditorBody = ({ post }: { post?: Post }) => {
+  const { setJson, setTitle, setPost } = usePostEditorActions();
+  useEffect(() => {
+    if (post) {
+      setTitle(post.title);
+      setPost(post);
+      setJson(post.content);
+    }
+  }, [post]);
 
   return (
     <div className={styles.container}>
@@ -16,7 +26,8 @@ export const EditorBody = () => {
         <Editor
           namespace="post-editor"
           placeholder="내용을 입력하세요…"
-          onChangeHTML={setHtml}
+          onChangeJSON={setJson}
+          initialJSON={post?.content}
           onPickImageFile={async () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -38,9 +49,17 @@ export const EditorBody = () => {
 };
 
 export const EditorContainer = () => (
-  <PostEditorProvider>
+  <PostEditorProvider key="create">
     <EditorBody />
   </PostEditorProvider>
 );
 
 EditorContainer.displayName = "EditorContainer";
+
+export const EditorEditContainer = ({ postId }: { postId: number }) => {
+  const { data } = usePostDetail({ postId });
+
+  return <PostEditorProvider key={`edit-${postId}`}>{data && <EditorBody post={data} />}</PostEditorProvider>;
+};
+
+EditorEditContainer.displayName = "EditorEditContainer";

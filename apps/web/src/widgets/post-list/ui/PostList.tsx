@@ -31,6 +31,11 @@ export const PostList = React.memo(() => {
     [searchParams, router]
   );
 
+  const handlePostClick = useCallback((item: Post) => {
+    console.log("item", item);
+    router.push(`/article/${item.postId}`);
+  }, []);
+
   if (isLoading) {
     return <PostListSkeleton rows={10} />;
   }
@@ -38,7 +43,7 @@ export const PostList = React.memo(() => {
   return (
     <div className={styles.listView}>
       {posts.map((post) => {
-        return <PostRow key={post.postId} post={post} onToggle={toggle} />;
+        return <PostRow key={post.postId} post={post} onToggle={toggle} handlePostClick={handlePostClick} />;
       })}
 
       {posts && <Pagination pagination={data} onPageChange={handlePageChange} />}
@@ -48,16 +53,12 @@ export const PostList = React.memo(() => {
 
 PostList.displayName = "PostList";
 
-const PostRow = memo(({ post, onToggle }: { post: Post; onToggle: (id: number, next?: boolean) => void }) => {
+const PostRow = memo(({ post, onToggle, handlePostClick }: { post: Post; onToggle: (id: number, next?: boolean) => void; handlePostClick: (item: Post) => void }) => {
   const checked = useIsSelected(post.postId);
 
   const handleCheckedChange = useCallback((next: boolean) => onToggle(post.postId, next), [onToggle, post.postId]);
 
-  const handlePostClick = useCallback(() => {
-    // TODO: 게시글 클릭 로직 구현
-  }, []);
-
-  return <PostListItem.Root post={post} onClick={handlePostClick} onCheckedChange={handleCheckedChange} checked={checked} selectable />;
+  return <PostListItem.Root post={post} onClick={() => handlePostClick(post)} onCheckedChange={handleCheckedChange} checked={checked} selectable />;
 });
 
 PostRow.displayName = "PostRow";

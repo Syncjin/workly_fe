@@ -5,8 +5,8 @@
  * 적절한 캐싱 전략과 함께 공유 useApiQuery 훅을 사용합니다.
  */
 
-import type { Post, PostDeleteRequest, PostListParams, PostReadRequest } from "@/entities/post/model";
-import { PostCreateParams } from "@/entities/post/model/types";
+import type { Post, PostDeleteRequest, PostDetailRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@/entities/post/model";
+import { PostCreateParams, PostUpdateParams } from "@/entities/post/model/types";
 import { postApi, postQueryKeys } from "@/features/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
@@ -46,4 +46,20 @@ export const usePostDelete = () => {
 
 export const usePostCreate = () => {
   return useApiMutation<Post, PostCreateParams>((params) => postApi.postPosts(params.post, params?.files), {});
+};
+
+export const usePostUpdate = () => {
+  return useApiMutation<Post, PostUpdateParams>((params) => postApi.patchPosts(params.params, params.post, params?.files), {});
+};
+
+export const usePostMove = () => {
+  return useApiMutation<PostMoveResponse, PostMoveRequest>((params) => postApi.patchPostsMove(params), {});
+};
+
+export const usePostDetailSuspense = <TSelected = ApiResponse<Post>>(params: PostDetailRequest, options?: Omit<UseQueryOptions<ApiResponse<Post>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = postQueryKeys.detail(params.postId);
+
+  return useApiSuspenseQuery<Post, TSelected>(queryKey, () => postApi.getPostsDetail(params), {
+    ...options,
+  });
 };

@@ -60,7 +60,7 @@ function removeIdsFromList(oldData: unknown, idSet: Set<number>): unknown {
 
 export function usePostDeleteAction() {
   const qc = useQueryClient();
-  const { mutateAsync } = usePostDelete();
+  const { mutateAsync, isPending } = usePostDelete();
 
   const run = useCallback(
     async (postIds: number[]) => {
@@ -91,5 +91,5 @@ export function usePostDeleteAction() {
     [qc, mutateAsync]
   );
 
-  return { run };
+  return { run, isPending };
 }

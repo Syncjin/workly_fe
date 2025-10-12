@@ -1,1 +1,1 @@
-export { EditorContainer } from "./EditorContainer";
+export { EditorContainer, EditorEditContainer } from "./EditorContainer";

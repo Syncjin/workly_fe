@@ -26,7 +26,7 @@ export function useSidebarBoardsSuspense() {
 
   const data = useMemo<SidebarGroup[]>(() => buildGroups(catQ.data, boardQ.data), [catQ.data, boardQ.data]);
 
-  const isFetching = catQ.isFetching || boardQ.isPending;
+  const isFetching = catQ.isFetching || boardQ.isFetching;
   const refetch = async () => Promise.all([catQ.refetch(), boardQ.refetch()]);
   return { data, isFetching, refetch };
 }

@@ -9,7 +9,6 @@ export const mainLayout = style({
     "header header"
     "sidebar content"
   `,
-  overflow: "hidden",
   background: "#fff",
 });
 
@@ -29,4 +28,5 @@ export const contentLayout = style({
   overflow: "auto", // 내부 콘텐츠 스크롤 허용
   background: "#fff",
   padding: "24px 24px 80px 24px",
+  boxSizing: "border-box",
 });
