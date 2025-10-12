@@ -10,6 +10,7 @@ import { PostCreateParams } from "@/entities/post/model/types";
 import { postApi, postQueryKeys } from "@/features/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
+import { PostDetailRequest } from "@workly/types";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
 /**
@@ -46,4 +47,12 @@ export const usePostDelete = () => {
 
 export const usePostCreate = () => {
   return useApiMutation<Post, PostCreateParams>((params) => postApi.postPosts(params.post, params?.files), {});
+};
+
+export const usePostDetailSuspense = <TSelected = ApiResponse<Post>>(params: PostDetailRequest, options?: Omit<UseQueryOptions<ApiResponse<Post>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = postQueryKeys.detail(params.postId);
+
+  return useApiSuspenseQuery<Post, TSelected>(queryKey, () => postApi.getPostsDetail(params), {
+    ...options,
+  });
 };
