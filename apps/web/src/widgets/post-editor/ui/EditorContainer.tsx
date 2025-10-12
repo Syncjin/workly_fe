@@ -6,7 +6,7 @@ import { Editor } from "@workly/editor";
 import * as styles from "./postEditor.css";
 
 export const EditorBody = () => {
-  const { setHtml } = usePostEditorActions();
+  const { setJson } = usePostEditorActions();
 
   return (
     <div className={styles.container}>
@@ -16,7 +16,7 @@ export const EditorBody = () => {
         <Editor
           namespace="post-editor"
           placeholder="내용을 입력하세요…"
-          onChangeHTML={setHtml}
+          onChangeJSON={setJson}
           onPickImageFile={async () => {
             const input = document.createElement("input");
             input.type = "file";

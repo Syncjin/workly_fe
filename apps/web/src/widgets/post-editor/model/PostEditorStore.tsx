@@ -7,10 +7,10 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 export type PostEditorState = {
   boardId?: number;
   title: string;
-  html: string;
+  json: string;
   setBoardId: (id?: number) => void;
   setTitle: (v: string) => void;
-  setHtml: (v: string) => void;
+  setJson: (v: string) => void;
   reset: () => void;
 };
 
@@ -18,11 +18,11 @@ function makeStore() {
   return createStore<PostEditorState>((set) => ({
     boardId: undefined,
     title: "",
-    html: "",
+    json: "",
     setBoardId: (id) => set({ boardId: id }),
     setTitle: (v) => set({ title: v }),
-    setHtml: (v) => set({ html: v }),
-    reset: () => set({ boardId: undefined, title: "", html: "" }),
+    setJson: (v) => set({ json: v }),
+    reset: () => set({ boardId: undefined, title: "", json: "" }),
   }));
 }
 
@@ -43,15 +43,15 @@ export function usePostEditorStore<T>(selector: (s: PostEditorState) => T) {
 export const usePostEditorState = () => {
   const boardId = usePostEditorStore((s) => s.boardId);
   const title = usePostEditorStore((s) => s.title);
-  const html = usePostEditorStore((s) => s.html);
+  const json = usePostEditorStore((s) => s.json);
 
   return React.useMemo(
     () => ({
       boardId,
       title,
-      html,
+      json,
     }),
-    [boardId, title, html]
+    [boardId, title, json]
   );
 };
 
@@ -59,7 +59,7 @@ export const usePostEditorState = () => {
 export const usePostEditorActions = () => {
   const setBoardId = usePostEditorStore((s) => s.setBoardId);
   const setTitle = usePostEditorStore((s) => s.setTitle);
-  const setHtml = usePostEditorStore((s) => s.setHtml);
+  const setJson = usePostEditorStore((s) => s.setJson);
   const reset = usePostEditorStore((s) => s.reset);
-  return { setBoardId, setTitle, setHtml, reset };
+  return { setBoardId, setTitle, setJson, reset };
 };
