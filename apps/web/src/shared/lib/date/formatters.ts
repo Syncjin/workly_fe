@@ -13,6 +13,15 @@ export function formatYMD(iso: string, tz: string = DEFAULT_TZ, sep = ".") {
   return d.format(fmt);
 }
 
+/** YYYY. MM. DD HH:mm */
+export const formatYMDHM = (iso: string, tz: string = DEFAULT_TZ) =>
+  formatDateCustom(iso, {
+    tz,
+    today: "YYYY. MM. DD HH:mm",
+    sameYear: "YYYY. MM. DD HH:mm",
+    other: "YYYY. MM. DD HH:mm",
+  });
+
 /** 프리셋 가능한 스마트 포맷터 */
 export function formatDateCustom(iso: string, opts: { tz?: string; today: string; other: string; sameYear?: string }) {
   if (!iso) return "";
