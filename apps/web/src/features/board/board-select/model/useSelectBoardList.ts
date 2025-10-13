@@ -10,8 +10,14 @@ export type SelectBoard = {
   categoryId: number | null;
 };
 
+export type SelectCategory = {
+  id: number;
+  name: string;
+  order: number;
+};
+
 export type SelectBoardGroup = {
-  category: { id: number; name: string; order: number };
+  category: SelectCategory;
   boards: SelectBoard[];
 };
 

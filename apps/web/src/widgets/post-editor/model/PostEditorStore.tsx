@@ -1,15 +1,20 @@
 "use client";
 
 import { Post } from "@/entities/post";
+import { SelectBoard, SelectCategory } from "@/features/board/board-select";
 import * as React from "react";
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 export type PostEditorState = {
+  category?: SelectCategory;
+  board?: SelectBoard;
   boardId?: number;
   title: string;
   json: string;
   post?: Post;
+  setCategory: (v?: SelectCategory) => void;
+  setBoard: (v?: SelectBoard) => void;
   setBoardId: (id?: number) => void;
   setTitle: (v: string) => void;
   setJson: (v: string) => void;
@@ -19,14 +24,18 @@ export type PostEditorState = {
 
 function makeStore() {
   return createStore<PostEditorState>((set) => ({
+    category: undefined,
+    board: undefined,
     boardId: undefined,
     title: "",
     json: "",
+    setCategory: (v) => set({ category: v }),
+    setBoard: (v) => set({ board: v }),
     setBoardId: (id) => set({ boardId: id }),
     setTitle: (v) => set({ title: v }),
     setJson: (v) => set({ json: v }),
     setPost: (v) => set({ post: v }),
-    reset: () => set({ boardId: undefined, title: "", json: "", post: undefined }),
+    reset: () => set({ category: undefined, board: undefined, boardId: undefined, title: "", json: "", post: undefined }),
   }));
 }
 
@@ -45,6 +54,8 @@ export function usePostEditorStore<T>(selector: (s: PostEditorState) => T) {
 }
 
 export const usePostEditorState = () => {
+  const category = usePostEditorStore((s) => s.category);
+  const board = usePostEditorStore((s) => s.board);
   const boardId = usePostEditorStore((s) => s.boardId);
   const title = usePostEditorStore((s) => s.title);
   const json = usePostEditorStore((s) => s.json);
@@ -52,21 +63,25 @@ export const usePostEditorState = () => {
 
   return React.useMemo(
     () => ({
+      category,
+      board,
       boardId,
       title,
       json,
       post,
     }),
-    [boardId, title, json, post]
+    [category, board, boardId, title, json, post]
   );
 };
 
 /** 편의 액션 훅들 */
 export const usePostEditorActions = () => {
+  const setCategory = usePostEditorStore((s) => s.setCategory);
+  const setBoard = usePostEditorStore((s) => s.setBoard);
   const setBoardId = usePostEditorStore((s) => s.setBoardId);
   const setTitle = usePostEditorStore((s) => s.setTitle);
   const setJson = usePostEditorStore((s) => s.setJson);
   const setPost = usePostEditorStore((s) => s.setPost);
   const reset = usePostEditorStore((s) => s.reset);
-  return { setBoardId, setTitle, setJson, setPost, reset };
+  return { setCategory, setBoard, setBoardId, setTitle, setJson, setPost, reset };
 };
