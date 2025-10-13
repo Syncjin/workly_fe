@@ -1,7 +1,7 @@
 import { boardApi, boardQueryKeys } from "@/entities/board";
-import { PERM, PermissionGate, usePermission } from "@/entities/permission";
 import { Post } from "@/entities/post";
 import { DeletePostButton, DeletePostRenderProps } from "@/features/post/post-delete";
+import { UpdatePostButton, UpdatePostRenderProps } from "@/features/post/post-update/ui";
 import { log } from "@/lib/logger";
 import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,19 +15,6 @@ const PostContent = (post: Post) => {
   const router = useRouter();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
-
-  const { isPermitted, isLoading, isError } = usePermission(PERM.POST_EDIT);
-
-  const onClick = useCallback(() => {
-    const sp = new URLSearchParams(searchParams?.toString() ?? "");
-    sp.set("boardId", String(post.board.boardId));
-    sp.set("postId", String(post.postId));
-    startTransition(() => {
-      router.push(`/article/write?${sp.toString()}`, { scroll: false });
-    });
-  }, [post]);
-
-  const disabled = isLoading || isError || !isPermitted;
 
   const renderOnDelete = useCallback(
     ({ run, isPending, isPermitted }: DeletePostRenderProps) => {
@@ -67,17 +54,35 @@ const PostContent = (post: Post) => {
     [post]
   );
 
+  const renderOnUpdate = useCallback(
+    ({ isPermitted, isPending, isError }: UpdatePostRenderProps) => {
+      const disabled = !isPermitted || isPending || isError;
+
+      const onClick = useCallback(() => {
+        const sp = new URLSearchParams(searchParams?.toString() ?? "");
+        sp.set("boardId", String(post.board.boardId));
+        sp.set("postId", String(post.postId));
+        startTransition(() => {
+          router.push(`/article/write?${sp.toString()}`, { scroll: false });
+        });
+      }, [post]);
+
+      return (
+        <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={undefined} onClick={onClick}>
+          수정
+        </Button>
+      );
+    },
+    [post]
+  );
+
   return (
     <div className={styles.content}>
       {post?.content && (
         <>
           <EditorViewer namespace="post-viewer" initialJSON={post?.content ?? null} contentClassName={styles.editorViewer} />
           <div className={styles.actionArea}>
-            <PermissionGate perm={PERM.POST_EDIT} fallback={null}>
-              <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={undefined} onClick={onClick}>
-                수정
-              </Button>
-            </PermissionGate>
+            <UpdatePostButton>{renderOnUpdate}</UpdatePostButton>
             <DeletePostButton postIds={[post.postId]}>{renderOnDelete}</DeletePostButton>
           </div>
         </>
