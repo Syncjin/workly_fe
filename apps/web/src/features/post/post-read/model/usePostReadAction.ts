@@ -81,7 +81,7 @@ export function usePostReadAction() {
       }
 
       try {
-        await mutateAsync({ postIds: ids });
+        return await mutateAsync({ postIds: ids });
       } catch (e) {
         // 롤백
         for (const [key, snap] of snapshots) qc.setQueryData(key, snap);

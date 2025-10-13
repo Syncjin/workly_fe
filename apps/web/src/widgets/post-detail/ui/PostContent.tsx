@@ -1,6 +1,7 @@
 import { boardApi, boardQueryKeys } from "@/entities/board";
 import { Post } from "@/entities/post";
 import { DeletePostButton, DeletePostRenderProps } from "@/features/post/post-delete";
+import { usePostReadAction } from "@/features/post/post-read";
 import { UpdatePostButton, UpdatePostRenderProps } from "@/features/post/post-update/ui";
 import { log } from "@/lib/logger";
 import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
@@ -8,13 +9,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { EditorViewer } from "@workly/editor";
 import { Button } from "@workly/ui";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useCallback } from "react";
+import { startTransition, useCallback, useEffect } from "react";
 import * as styles from "./postDetail.css";
 
 const PostContent = (post: Post) => {
   const router = useRouter();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
+
+  const { run } = usePostReadAction();
 
   const renderOnDelete = useCallback(
     ({ run, isPending, isPermitted }: DeletePostRenderProps) => {
@@ -75,6 +78,10 @@ const PostContent = (post: Post) => {
     },
     [post]
   );
+
+  useEffect(() => {
+    if (!post.isRead) run([post.postId]);
+  }, []);
 
   return (
     <div className={styles.content}>

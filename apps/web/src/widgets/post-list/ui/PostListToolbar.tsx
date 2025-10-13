@@ -41,8 +41,8 @@ export const PostListToolbar = React.memo(() => {
   const handleOnRead = useCallback(async () => {
     if (postIds.length === 0) return;
     try {
-      await postSelectRead(postIds); // 낙관적 업데이트 + 서버 반영 + 무효화
-      clearVisible(); // UI 정책: 읽음 후 현재 페이지 선택 해제
+      await postSelectRead(postIds);
+      clearVisible();
     } catch (e) {
       log.error("읾음 처리 실패", { error: e, op: "handleOnRead" });
     }
