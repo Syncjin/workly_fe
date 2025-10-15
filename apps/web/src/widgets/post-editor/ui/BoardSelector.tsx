@@ -29,6 +29,7 @@ const BoardSelector = () => {
     const res = await openBoardSelect({ initialBoardId: board ? board.id : boardId });
     if (res) {
       setBoard(res.board);
+      setBoardId(res.board.id);
       setCategory(res.category);
     }
   }, [boardId, board]);
