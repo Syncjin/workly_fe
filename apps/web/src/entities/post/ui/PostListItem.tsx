@@ -2,7 +2,7 @@
 
 import { Post } from "@/entities/post/model";
 import { postListItemStyles } from "@/entities/post/ui/postListItem.css";
-import { formatDayOrTime } from "@/shared/lib/date/formatters";
+import { formatDayOrTime } from "@/shared/lib/format/date/formatters";
 import { CheckBox, cx, Icon } from "@workly/ui";
 import React, { createContext, useContext } from "react";
 

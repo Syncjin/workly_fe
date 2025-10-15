@@ -16,19 +16,23 @@ const BoardSelector = () => {
   const searchParams = useSearchParams();
   const initialFromQS = useMemo(() => parse(searchParams?.get("boardId")), [searchParams]);
   const boardId = usePostEditorStore((s) => s.boardId);
+  const board = usePostEditorStore((s) => s.board);
   const title = usePostEditorStore((s) => s.title);
-  const { setBoardId, setTitle } = usePostEditorActions();
-  const { data } = useCurrentBoard({ boardId });
+  const { setCategory, setBoard, setBoardId, setTitle } = usePostEditorActions();
+  const { data } = useCurrentBoard({ boardId: board ? board.id : boardId });
 
   useEffect(() => {
     if (boardId == null && initialFromQS != null) setBoardId(initialFromQS);
   }, [boardId, initialFromQS, setBoardId]);
 
   const handleBoardSelect = useCallback(async () => {
-    const res = await openBoardSelect({ initialBoardId: boardId });
-    console.log("res", res);
-    if (res) setBoardId(res);
-  }, [boardId]);
+    const res = await openBoardSelect({ initialBoardId: board ? board.id : boardId });
+    if (res) {
+      setBoard(res.board);
+      setBoardId(res.board.id);
+      setCategory(res.category);
+    }
+  }, [boardId, board]);
 
   return (
     <div className={s.boardSelector.container}>

@@ -15,34 +15,47 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test": "vitest --run",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
-    "lexical": "^0.35.0",
-    "@lexical/code": "^0.35.0",
-    "@lexical/html": "^0.35.0",
-    "@lexical/link": "^0.35.0",
-    "@lexical/list": "^0.35.0",
-    "@lexical/markdown": "^0.35.0",
-    "@lexical/react": "^0.35.0",
-    "@lexical/rich-text": "^0.35.0",
-    "@lexical/selection": "^0.35.0",
-    "@lexical/table": "^0.35.0",
-    "@lexical/utils": "^0.35.0",
+    "@lexical/code": "^0.37.0",
+    "@lexical/html": "^0.37.0",
+    "@lexical/link": "^0.37.0",
+    "@lexical/list": "^0.37.0",
+    "@lexical/markdown": "^0.37.0",
+    "@lexical/react": "^0.37.0",
+    "@lexical/rich-text": "^0.37.0",
+    "@lexical/selection": "^0.37.0",
+    "@lexical/table": "^0.37.0",
+    "@lexical/text": "^0.37.0",
+    "@lexical/utils": "^0.37.0",
     "@vanilla-extract/css": "catalog:",
     "@vanilla-extract/dynamic": "catalog:",
     "@vanilla-extract/recipes": "catalog:",
-    "@workly/ui": "workspace:*"
+    "@workly/ui": "workspace:*",
+    "lexical": "^0.37.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "typescript": "catalog:"
+    "@workly/eslint-config": "workspace:*",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@workly/ui": "workspace:*",
     "react": ">=18",
-    "react-dom": ">=18",
-    "@workly/ui": "workspace:*"
+    "react-dom": ">=18"
   }
 }

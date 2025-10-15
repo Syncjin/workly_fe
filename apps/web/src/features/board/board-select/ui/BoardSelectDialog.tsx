@@ -1,5 +1,6 @@
 "use client";
 
+import type { SelectBoard, SelectCategory } from "@/features/board/board-select/model";
 import { BOARD_SELECT_MODAL_KEY } from "@/features/board/board-select/model/keys";
 import { BoardSelectDialogContent } from "@/features/board/board-select/ui/BoardSelectDialogContent";
 import { modalClient } from "@/shared/ui/modal/client";
@@ -21,6 +22,8 @@ export const BoardSelectDialog: FC<Props> = () => {
   const initialBoardId = modalState.props?.params?.initialBoardId as number | undefined;
 
   const [activeBoardId, setActiveBoardId] = useState<number | undefined>();
+  const [activeBoard, setActiveBoard] = useState<SelectBoard>();
+  const [activeCategory, setActiveCategory] = useState<SelectCategory>();
 
   useEffect(() => {
     if (!isOpen) {
@@ -30,8 +33,21 @@ export const BoardSelectDialog: FC<Props> = () => {
     setActiveBoardId(initialBoardId);
   }, [isOpen, initialBoardId]);
 
-  const handleChange = useCallback((b: { id: number }) => setActiveBoardId(b.id), []);
-  const handleSelect = useCallback(() => activeBoardId && modalClient.resolve(activeBoardId), [activeBoardId]);
+  const handleChange = useCallback((cate: SelectCategory, board: SelectBoard) => {
+    setActiveBoardId(board.id);
+    setActiveBoard(board);
+    setActiveCategory(cate);
+  }, []);
+
+  const handleSelect = useCallback(
+    () =>
+      activeBoard &&
+      modalClient.resolve({
+        category: activeCategory,
+        board: activeBoard,
+      }),
+    [activeBoard, activeCategory]
+  );
   const handleCancel = useCallback(() => modalClient.cancel(), []);
 
   return (

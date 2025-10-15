@@ -16,7 +16,7 @@ function isEditorEffectivelyEmpty(): boolean {
   const text = root
     .getTextContent()
     .replace(/\u200B/g, "") // zero-width space
-    .replace(/\xa0/g, " ")  // &nbsp;
+    .replace(/\xa0/g, " ") // &nbsp;
     .trim();
 
   if (text.length > 0) return false;

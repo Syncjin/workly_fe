@@ -1,13 +1,13 @@
 "use client";
 
-import { SelectBoard, useSelectBoardList } from "@/features/board/board-select/model/useSelectBoardList";
+import { type SelectBoard, type SelectCategory, useSelectBoardList } from "@/features/board/board-select/model";
 import { Radio } from "@workly/ui";
 import { useMemo } from "react";
 import * as styles from "./boardSelectDialog.css";
 
 type BodyProps = {
   activeBoardId?: number;
-  onChange: (board: SelectBoard) => void;
+  onChange: (category: SelectCategory, board: SelectBoard) => void;
 };
 
 export const BoardSelectDialogContent = ({ activeBoardId, onChange }: BodyProps) => {
@@ -25,7 +25,7 @@ export const BoardSelectDialogContent = ({ activeBoardId, onChange }: BodyProps)
             return (
               <li key={board.id}>
                 <label className={styles.list} htmlFor={`board-${board.id}`} data-active={active ? "true" : undefined}>
-                  <Radio id={`board-${board.id}`} name={category.name} size="sm" checked={active} onChange={() => onChange(board)} />
+                  <Radio id={`board-${board.id}`} name={category.name} size="sm" checked={active} onChange={() => onChange(category, board)} />
                   <span className={styles.boardText}>{board.name}</span>
                 </label>
               </li>

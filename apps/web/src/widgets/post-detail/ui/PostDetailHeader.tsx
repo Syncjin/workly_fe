@@ -1,5 +1,5 @@
 import { Post } from "@/entities/post";
-import { formatYMDHM } from "@/shared/lib/date/formatters";
+import { formatYMDHM } from "@/shared/lib/format/date/formatters";
 import { Avatar } from "@workly/ui";
 import { useMemo } from "react";
 import * as styles from "./postDetailHeader.css";
