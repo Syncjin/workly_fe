@@ -1,19 +1,12 @@
 /**
  * 이미지 파일 관리 클래스
- * 
+ *
  * Editor 컴포넌트에서 이미지 파일 관련 로직을 분리합니다.
  */
 
 import type { LexicalEditor } from "lexical";
-import type {
-  FileDeleteAdapter,
-  FileUploadAdapter,
-  ImageDiff,
-  SubmitOptions,
-  UploadStatus
-} from "../types/upload";
+import type { FileDeleteAdapter, FileUploadAdapter, ImageDiff, SubmitOptions, UploadStatus } from "../types/upload";
 import { walkNodes, type JSONNode } from "../utils/walkNodes";
-
 
 export class ImageFileManager {
   private fileStore = new Map<string, File>();
@@ -23,7 +16,7 @@ export class ImageFileManager {
     isUploading: false,
     uploadedCount: 0,
     totalCount: 0,
-    errors: []
+    errors: [],
   };
 
   /**
@@ -56,7 +49,7 @@ export class ImageFileManager {
     return { totalFiles: files.length, totalSize, files };
   }
 
-   /**
+  /**
    * 초기 이미지 상태 주입, 조회
    */
   async setInitialImageState(initialJSON?: string): Promise<void> {
@@ -79,11 +72,11 @@ export class ImageFileManager {
 
   /**
    * 현재 업로드 상태 반환
-  */
+   */
   getUploadStatus(): UploadStatus {
     return {
       ...this.uploadStatus,
-      isUploading: this.uploadStatus.isUploading || this.isSubmitting
+      isUploading: this.uploadStatus.isUploading || this.isSubmitting,
     };
   }
 
@@ -117,14 +110,12 @@ export class ImageFileManager {
     toDelete.forEach((id) => this.fileStore.delete(id));
   }
 
-    /**
+  /**
    * 업로드가 필요한 파일 목록 제공 - 실제 사용 중인 파일만 반환
    */
   getFilesToUpload(editor?: LexicalEditor): Array<{ tempId: string; file: File }> {
     if (editor) this.cleanupUnusedFiles(editor);
-    const active = editor
-      ? this.getActiveTempIdsFromJSONRoot((editor.getEditorState().toJSON() as any).root)
-      : null;
+    const active = editor ? this.getActiveTempIdsFromJSONRoot((editor.getEditorState().toJSON() as any).root) : null;
 
     const list: Array<{ tempId: string; file: File }> = [];
     this.fileStore.forEach((file, tempId) => {
@@ -140,7 +131,7 @@ export class ImageFileManager {
   /**
    * 이미지 추출해서 Imagenode json으로 치환
    */
-   private extractImagesFromJSON(initialJSON: string): Array<{ fileId: string; src: string; tempId?: string }> {
+  private extractImagesFromJSON(initialJSON: string): Array<{ fileId: string; src: string; tempId?: string }> {
     try {
       const parsed = JSON.parse(initialJSON);
       const root = parsed?.root as JSONNode;
@@ -177,10 +168,7 @@ export class ImageFileManager {
   /**
    * image 추가,삭제된 다른점이 있는지 확인 계산
    */
-  private calculateImageDiffInternal(
-    editor: LexicalEditor,
-    initialImageState: Map<string, string>
-  ): ImageDiff {
+  private calculateImageDiffInternal(editor: LexicalEditor, initialImageState: Map<string, string>): ImageDiff {
     const currentImages = this.extractImagesFromCurrentState(editor);
 
     const toUpload: Array<{ tempId: string; file: File }> = [];
@@ -205,7 +193,7 @@ export class ImageFileManager {
 
     return { toUpload, toDelete, unchanged };
   }
-  
+
   async getImageDiff(editor: LexicalEditor): Promise<ImageDiff> {
     return this.calculateImageDiffInternal(editor, this.initialImageState);
   }
@@ -255,14 +243,10 @@ export class ImageFileManager {
     }
   }
 
-  private async processImageDeletions(
-    toDelete: Array<{ fileId: string; src: string }>,
-    deleteAPI?: FileDeleteAdapter
-  ): Promise<{ successCount: number; failedDeletions: Array<{ fileId: string; src: string; error: Error }>; errors: Error[] }> {
+  private async processImageDeletions(toDelete: Array<{ fileId: string; src: string }>, deleteAPI?: FileDeleteAdapter): Promise<{ successCount: number; failedDeletions: Array<{ fileId: string; src: string; error: Error }>; errors: Error[] }> {
     const failedDeletions: Array<{ fileId: string; src: string; error: Error }> = [];
     const errors: Error[] = [];
-    if (!deleteAPI || toDelete.length === 0)
-      return { successCount: 0, failedDeletions, errors };
+    if (!deleteAPI || toDelete.length === 0) return { successCount: 0, failedDeletions, errors };
 
     let successCount = 0;
     for (const it of toDelete) {
@@ -278,7 +262,7 @@ export class ImageFileManager {
     return { successCount, failedDeletions, errors };
   }
 
-   private replaceBlobWithUploadedInJSON(jsonString: string, uploadResults: Map<string, { fileId: string; fileUrl: string }>): string {
+  private replaceBlobWithUploadedInJSON(jsonString: string, uploadResults: Map<string, { fileId: string; fileUrl: string }>): string {
     const json = JSON.parse(jsonString);
     const root = json.root as JSONNode;
     let count = 0;
@@ -318,9 +302,7 @@ export class ImageFileManager {
     this.uploadStatus = { isUploading: false, uploadedCount: 0, totalCount: 0, errors: [] };
 
     try {
-      const imageDiff: ImageDiff = compareWithInitial
-        ? this.calculateImageDiffInternal(editor, this.initialImageState)
-        : { toUpload: this.getFilesToUpload(editor), toDelete: [], unchanged: [] };
+      const imageDiff: ImageDiff = compareWithInitial ? this.calculateImageDiffInternal(editor, this.initialImageState) : { toUpload: this.getFilesToUpload(editor), toDelete: [], unchanged: [] };
 
       const totalOps = imageDiff.toUpload.length + imageDiff.toDelete.length;
       if (totalOps > 0 && (uploadAPI || deleteAPI)) {

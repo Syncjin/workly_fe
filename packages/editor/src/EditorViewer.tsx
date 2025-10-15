@@ -28,14 +28,7 @@ type Props = {
   contentClassName?: string;
 };
 
-export function EditorViewer({
-  namespace,
-  initialJSON,
-  theme = defaultTheme,
-  nodes = [HeadingNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, CodeNode, CodeHighlightNode, TableNode, TableRowNode, TableCellNode, ImageNode],
-  onError = (e) => console.error(e),
-  contentClassName,
-}: Props) {
+export function EditorViewer({ namespace, initialJSON, theme = defaultTheme, nodes = [HeadingNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, CodeNode, CodeHighlightNode, TableNode, TableRowNode, TableCellNode, ImageNode], onError = (e) => console.error(e), contentClassName }: Props) {
   const initialConfig = {
     namespace,
     theme,
@@ -59,11 +52,7 @@ export function EditorViewer({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <RichTextPlugin
-        contentEditable={<ContentEditable aria-readonly className={contentClassName}/>}
-        placeholder={null}
-        ErrorBoundary={LexicalErrorBoundary}
-      />
+      <RichTextPlugin contentEditable={<ContentEditable aria-readonly className={contentClassName} />} placeholder={null} ErrorBoundary={LexicalErrorBoundary} />
       <ListPlugin />
       <LinkPlugin />
       <TablePlugin />

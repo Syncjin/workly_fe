@@ -12,14 +12,7 @@ function uuid() {
 }
 
 // 지원되는 이미지 파일 형식
-const SUPPORTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg', 
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml'
-];
+const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 
 // 최대 파일 크기 (10MB)
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -46,11 +39,14 @@ export default function ImagePlugin({
 }) {
   const [editor] = useLexicalComposerContext();
 
-  const handleError = useCallback((e: unknown) => {
-    const err = e instanceof Error ? e : new Error(String(e));
-    console.error("[ImagePlugin]", err);
-    onError?.(err);
-  }, [onError]);
+  const handleError = useCallback(
+    (e: unknown) => {
+      const err = e instanceof Error ? e : new Error(String(e));
+      console.error("[ImagePlugin]", err);
+      onError?.(err);
+    },
+    [onError]
+  );
 
   useEffect(() => {
     onEditorReady?.(editor);
@@ -68,7 +64,6 @@ export default function ImagePlugin({
       0
     );
   }, [editor, handleError, onEditorReady]);
-
 
   useEffect(() => {
     return editor.registerRootListener((rootElem, prevRootElem) => {
@@ -145,6 +140,6 @@ export default function ImagePlugin({
     const hasImage = files.some((f) => f.type.startsWith("image/"));
     if (hasImage) e.preventDefault();
   }, []);
-  
+
   return null;
 }

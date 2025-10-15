@@ -53,11 +53,11 @@ const CODE_LANGUAGE_OPTION: OptionShape[] = Object.entries(CODE_LANGUAGE_FRIENDL
   text: lable,
 }));
 
- type ToolbarProps = {
-   onPickImageFile?: () => Promise<File | null>;
-   rememberFile?: (tempId: string, file: File) => void;
- };
-export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
+type ToolbarProps = {
+  onPickImageFile?: () => Promise<File | null>;
+  rememberFile?: (tempId: string, file: File) => void;
+};
+export function Toolbar({ onPickImageFile, rememberFile }: ToolbarProps) {
   const [editor] = useLexicalComposerContext();
 
   const [isBold, setBold] = useState(false);
@@ -233,7 +233,7 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
           $patchStyleText(selection, { "background-color": "yellow" });
           break;
         case "clear": {
-          editor.dispatchCommand(CLEAR_FORMAT_COMMAND, "");
+          editor.dispatchCommand(CLEAR_FORMAT_COMMAND, null);
           break;
         }
       }
@@ -241,14 +241,7 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
   };
 
   // 지원되는 이미지 파일 형식
-  const SUPPORTED_IMAGE_TYPES = [
-    'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml'
-  ];
+  const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 
   // 최대 파일 크기 (10MB)
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -258,7 +251,7 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
     if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
       return {
         isValid: false,
-        error: `지원하지 않는 파일 형식입니다. 지원 형식: ${SUPPORTED_IMAGE_TYPES.join(', ')}`
+        error: `지원하지 않는 파일 형식입니다. 지원 형식: ${SUPPORTED_IMAGE_TYPES.join(", ")}`,
       };
     }
 
@@ -266,7 +259,7 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
     if (file.size > MAX_FILE_SIZE) {
       return {
         isValid: false,
-        error: `파일 크기가 너무 큽니다. 최대 크기: ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+        error: `파일 크기가 너무 큽니다. 최대 크기: ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
       };
     }
 
@@ -280,19 +273,19 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
       input.type = "file";
       input.accept = "image/*";
       input.multiple = false;
-      
+
       // 파일 선택 완료 처리
       input.onchange = (event) => {
         const target = event.target as HTMLInputElement;
         const file = target.files?.[0] ?? null;
         resolve(file);
       };
-      
+
       // 파일 선택 취소 처리 (ESC 키나 대화상자 닫기)
       input.oncancel = () => {
         resolve(null);
       };
-      
+
       // 포커스가 다른 곳으로 이동했을 때 취소로 간주 (일정 시간 후)
       const handleFocusOut = () => {
         setTimeout(() => {
@@ -301,9 +294,9 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
           }
         }, 100);
       };
-      
-      input.addEventListener('blur', handleFocusOut, { once: true });
-      
+
+      input.addEventListener("blur", handleFocusOut, { once: true });
+
       // 파일 선택 대화상자 열기
       input.click();
     });
@@ -312,16 +305,16 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
   const addImage = async () => {
     try {
       let file: File | null = null;
-      
+
       // 커스텀 파일 선택기가 제공된 경우 사용, 그렇지 않으면 기본 대화상자 사용
       if (onPickImageFile) {
         file = await onPickImageFile();
       } else {
         file = await openDefaultFileDialog();
       }
-      
+
       if (!file) {
-        console.log('파일 선택이 취소되었습니다.');
+        console.log("파일 선택이 취소되었습니다.");
         return;
       }
 
@@ -342,17 +335,16 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
       // 이미지 삽입 명령 실행
       editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
         src: objectURL,
-        altText: file.name || '선택된 이미지',
+        altText: file.name || "선택된 이미지",
         tempId,
       });
-      
-      console.log('이미지가 성공적으로 삽입되었습니다:', file.name);
+
+      console.log("이미지가 성공적으로 삽입되었습니다:", file.name);
     } catch (error) {
-      console.error('이미지 추가 중 오류:', error);
-      alert('이미지 추가 중 오류가 발생했습니다.');
+      console.error("이미지 추가 중 오류:", error);
+      alert("이미지 추가 중 오류가 발생했습니다.");
     }
-  }
-  
+  };
 
   return (
     <div className={s.toolbar}>
@@ -451,11 +443,7 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
       />
 
       {/* Image */}
-      <button
-        className={s.btn}
-        title="Insert Image"
-        onClick={addImage}
-      >
+      <button className={s.btn} title="Insert Image" onClick={addImage}>
         <Icon name="image-add-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
 
@@ -465,4 +453,4 @@ export function Toolbar({ onPickImageFile,rememberFile }: ToolbarProps) {
     </div>
   );
 }
-export default Toolbar
+export default Toolbar;

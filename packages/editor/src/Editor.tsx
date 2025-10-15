@@ -26,13 +26,7 @@ import { IMESafeHotkeyPlugin } from "./plugins/IMESafeHotkeyPlugin";
 import YouTubePlugin from "./plugins/YoutubePlugin";
 import { lexicalTheme as defaultTheme } from "./theme.css";
 import { Toolbar } from "./Toolbar";
-import type {
-  FileDeleteAdapter,
-  FileUploadAdapter,
-  ImageDiff,
-  SubmitOptions,
-  UploadStatus
-} from "./types";
+import type { FileDeleteAdapter, FileUploadAdapter, ImageDiff, SubmitOptions, UploadStatus } from "./types";
 
 type Props = {
   namespace: string;
@@ -45,7 +39,7 @@ type Props = {
   theme?: Record<string, any>;
   nodes?: ReadonlyArray<Klass<LexicalNode>>;
   onError?: (e: Error) => void;
-  
+
   // 업로드 관련
   uploadAPI?: FileUploadAdapter; // 파일 업로드 어댑터 함수
   deleteAPI?: FileDeleteAdapter; // 파일 삭제 어댑터 함수
@@ -64,25 +58,10 @@ export type EditorRef = {
   // 필요 시만 사용
   getImageDiff: () => Promise<ImageDiff>;
 };
-export const Editor = forwardRef<EditorRef, Props>(function Editor({ 
-  namespace, 
-  initialJSON, 
-  initialHTML, 
-  onChangeJSON, 
-  onChangeHTML, 
-  placeholder = "내용을 작성하세요.", 
-  onPickImageFile, 
-  theme = defaultTheme, 
-  nodes = defaultNodes, 
-  onError = (e) => console.error(e),
-  uploadAPI,
-  deleteAPI,
-  onUploadStart,
-  onUploadProgress,
-  onUploadComplete,
-  onUploadError
-}, ref) {
-
+export const Editor = forwardRef<EditorRef, Props>(function Editor(
+  { namespace, initialJSON, initialHTML, onChangeJSON, onChangeHTML, placeholder = "내용을 작성하세요.", onPickImageFile, theme = defaultTheme, nodes = defaultNodes, onError = (e) => console.error(e), uploadAPI, deleteAPI, onUploadStart, onUploadProgress, onUploadComplete, onUploadError },
+  ref
+) {
   const editorRef = useRef<LexicalEditor | null>(null);
   const fileManagerRef = useRef<ImageFileManager>(new ImageFileManager());
 
@@ -105,7 +84,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
     },
   } as const;
 
-  // 파일 저장 
+  // 파일 저장
   const rememberFile = useCallback((tempId: string, file: File) => {
     fileManagerRef.current.rememberFile(tempId, file);
   }, []);
@@ -124,7 +103,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
     [uploadAPI, deleteAPI, onUploadStart, onUploadProgress, onUploadComplete, onUploadError]
   );
 
-   const hasUnsavedFiles = useCallback((): boolean => {
+  const hasUnsavedFiles = useCallback((): boolean => {
     const editor = editorRef.current;
     return fileManagerRef.current.hasUnsavedFiles(editor ?? undefined);
   }, []);
@@ -156,8 +135,8 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
     }),
     [submit, getCurrentJSON, hasUnsavedFiles, getUploadStatus, getImageDiff]
   );
-  
-// 초기 이미지 상태 세팅
+
+  // 초기 이미지 상태 세팅
   useEffect(() => {
     fileManagerRef.current.setInitialImageState(initialJSON);
   }, [initialJSON]);
@@ -166,10 +145,6 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
   useEffect(() => {
     return () => fileManagerRef.current.clearFileStore();
   }, []);
-
-
-
-
 
   // 콘텐츠 변경 핸들러 (빈 컨텐츠 → 빈 문자열 제공)
   const handleChange = useCallback(
@@ -180,9 +155,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
         editorRef.current?.getEditorState().read(() => {
           const root = $getRoot();
           const children = root.getChildren();
-          const isEmpty =
-            children.length === 0 ||
-            (children.length === 1 && children[0].getTextContent().trim() === "");
+          const isEmpty = children.length === 0 || (children.length === 1 && children[0].getTextContent().trim() === "");
           if (isEmpty) {
             onChangeJSON("");
             return;
@@ -203,7 +176,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className={s.editorRoot}>
-        <Toolbar onPickImageFile={onPickImageFile} rememberFile={rememberFile}/>
+        <Toolbar onPickImageFile={onPickImageFile} rememberFile={rememberFile} />
 
         <div className={s.editorSurface}>
           <RichTextPlugin contentEditable={<ContentEditable className={s.contentEditable} aria-label="에디터" spellCheck={false} />} placeholder={<div className={s.placeholder}>{placeholder}</div>} ErrorBoundary={LexicalErrorBoundary} />
@@ -219,7 +192,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor({
           <FormatClearPlugin />
           <CodeHighlightPlugin />
           <HTMLIOPlugin initialHTML={initialHTML} onExportHTML={onChangeHTML} />
-          <ImagesPlugin 
+          <ImagesPlugin
             fileManager={fileManagerRef.current}
             onError={onError}
             onEditorReady={(ed) => {

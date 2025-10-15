@@ -6,7 +6,7 @@ export interface UploadedFileInfo {
 /**
  * 파일 업로드 어댑터 함수 타입
  * 사용하는 쪽에서 다양한 API 응답을 UploadedFileInfo[]로 변환해서 전달
- * 
+ *
  * @example
  * // React Query 사용 예시
  * const uploadAdapter: FileUploadAdapter = async (files) => {
@@ -16,20 +16,20 @@ export interface UploadedFileInfo {
  *     fileUrl: item.fileUrl
  *   }));
  * };
- * 
+ *
  */
 export type FileUploadAdapter = (files: File[]) => Promise<UploadedFileInfo[]>;
 
 /**
  * 파일 삭제 어댑터 함수 타입
  * 사용하는 쪽에서 다양한 API를 호출하고 성공/실패만 반환
- * 
+ *
  * @example
  * // React Query 사용 예시
  * const deleteAdapter: FileDeleteAdapter = async (fileId) => {
  *   await fileDeleteMutation.mutateAsync(fileId);
  * };
- * 
+ *
  */
 export type FileDeleteAdapter = (fileId: string) => Promise<void>;
 

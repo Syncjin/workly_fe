@@ -12,22 +12,15 @@ type Props = {
   height?: number;
   nodeKey: string;
   isEditable?: boolean;
-  minSize?: number; 
+  minSize?: number;
 };
 
 type LoadingState = "loading" | "loaded" | "error";
 type Size = {
-  w?: number; h?: number
-}
-export function ImageView({
-  src,
-  alt,
-  width,
-  height,
-  nodeKey,
-  isEditable = true,
-  minSize = 40,
-}: Props) {
+  w?: number;
+  h?: number;
+};
+export function ImageView({ src, alt, width, height, nodeKey, isEditable = true, minSize = 40 }: Props) {
   const [editor] = useLexicalComposerContext();
 
   // 렌더 사이즈 상태
@@ -196,12 +189,7 @@ export function ImageView({
 
   // 로딩/에러 오버레이
   const showOverlay = loadingState !== "loaded";
-  const overlayContent =
-    loadingState === "loading" ? (
-      <span style={{ color: "#666", fontSize: 12 }}>이미지 로딩 중…</span>
-    ) : loadingState === "error" ? (
-      <span style={{ color: "#d32f2f", fontSize: 12 }}>이미지 로딩 실패</span>
-    ) : null;
+  const overlayContent = loadingState === "loading" ? <span style={{ color: "#666", fontSize: 12 }}>이미지 로딩 중…</span> : loadingState === "error" ? <span style={{ color: "#d32f2f", fontSize: 12 }}>이미지 로딩 실패</span> : null;
 
   const displayW = size.w ?? undefined;
   const displayH = size.h ?? undefined;
@@ -226,10 +214,7 @@ export function ImageView({
             justifyContent: "center",
             borderRadius: 4,
             backgroundColor: loadingState === "loading" ? "#f5f5f5" : "#ffeaea",
-            border:
-              loadingState === "loading"
-                ? "1px dashed #ccc"
-                : "1px solid #ffcdd2",
+            border: loadingState === "loading" ? "1px dashed #ccc" : "1px solid #ffcdd2",
             zIndex: 1,
             pointerEvents: "none",
           }}
