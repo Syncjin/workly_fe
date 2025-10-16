@@ -36,6 +36,7 @@ type Props = {
   onChangeHTML?: (html: string) => void;
   placeholder?: string;
   onPickImageFile?: () => Promise<File | null>; // 파일 선택기
+  onPickYoutubeVideo?: () => Promise<string | null>; // YouTube URL 또는 비디오 ID 선택기
   theme?: Record<string, any>;
   nodes?: ReadonlyArray<Klass<LexicalNode>>;
   onError?: (e: Error) => void;
@@ -59,7 +60,25 @@ export type EditorRef = {
   getImageDiff: () => Promise<ImageDiff>;
 };
 export const Editor = forwardRef<EditorRef, Props>(function Editor(
-  { namespace, initialJSON, initialHTML, onChangeJSON, onChangeHTML, placeholder = "내용을 작성하세요.", onPickImageFile, theme = defaultTheme, nodes = defaultNodes, onError = (e) => console.error(e), uploadAPI, deleteAPI, onUploadStart, onUploadProgress, onUploadComplete, onUploadError },
+  {
+    namespace,
+    initialJSON,
+    initialHTML,
+    onChangeJSON,
+    onChangeHTML,
+    placeholder = "내용을 작성하세요.",
+    onPickImageFile,
+    onPickYoutubeVideo,
+    theme = defaultTheme,
+    nodes = defaultNodes,
+    onError = (e) => console.error(e),
+    uploadAPI,
+    deleteAPI,
+    onUploadStart,
+    onUploadProgress,
+    onUploadComplete,
+    onUploadError,
+  },
   ref
 ) {
   const editorRef = useRef<LexicalEditor | null>(null);
@@ -176,7 +195,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className={s.editorRoot}>
-        <Toolbar onPickImageFile={onPickImageFile} rememberFile={rememberFile} />
+        <Toolbar onPickImageFile={onPickImageFile} onPickYoutubeVideo={onPickYoutubeVideo} rememberFile={rememberFile} />
 
         <div className={s.editorSurface}>
           <RichTextPlugin contentEditable={<ContentEditable className={s.contentEditable} aria-label="에디터" spellCheck={false} />} placeholder={<div className={s.placeholder}>{placeholder}</div>} ErrorBoundary={LexicalErrorBoundary} />

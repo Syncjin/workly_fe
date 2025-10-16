@@ -3,11 +3,10 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getNodeByKey } from "lexical";
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { $isImageNode } from "./ImageNode";
+import { $isYouTubeNode } from "./YoutubeNode";
 
 type Props = {
-  src: string;
-  alt?: string;
+  videoID: string;
   width?: number;
   height?: number;
   nodeKey: string;
@@ -20,7 +19,8 @@ type Size = {
   w?: number;
   h?: number;
 };
-export function ImageView({ src, alt, width, height, nodeKey, isEditable = true, minSize = 40 }: Props) {
+
+export function YouTubeView({ videoID, width, height, nodeKey, isEditable = true, minSize = 200 }: Props) {
   const [editor] = useLexicalComposerContext();
 
   // 렌더 사이즈 상태
@@ -33,8 +33,8 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
   const isResizingRef = useRef(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  // img 요소
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  // div 컨테이너 요소
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // props 크기 변경 시 내부 상태 동기화
   useLayoutEffect(() => {
@@ -42,21 +42,21 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
     initialSizeRef.current = { w: width, h: height };
   }, [width, height]);
 
-  const aspectRef = useRef<number | null>(null);
+  // YouTube 표준 16:9 종횡비
+  const aspectRef = useRef<number>(16 / 9);
 
-  // 이미지 로딩 핸들러
-  const handleImageLoad = useCallback(() => {
+  // 미디어 로딩 핸들러 (iframe 또는 이미지)
+  const handleMediaLoad = useCallback(() => {
     setLoadingState("loaded");
-    const el = imgRef.current;
-    if (el && el.naturalWidth && el.naturalHeight) {
-      aspectRef.current = el.naturalWidth / el.naturalHeight;
-    }
   }, []);
-  const handleImageError = useCallback(() => setLoadingState("error"), []);
+
+  const handleMediaError = useCallback(() => {
+    setLoadingState("error");
+  }, []);
 
   // 리사이즈
   const startPointRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const startSizeRef = useRef<{ w: number; h: number }>({ w: width ?? 0, h: height ?? 0 });
+  const startSizeRef = useRef<{ w: number; h: number }>({ w: width ?? 560, h: height ?? 315 });
   const rafRef = useRef<number | null>(null);
   const pendingSizeRef = useRef<{ w: number; h: number } | null>(null);
 
@@ -72,16 +72,23 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
       const next = pendingSizeRef.current;
+
       if (next) {
         setSize(next);
         pendingSizeRef.current = null;
+
+        // div 컨테이너에 직접 스타일 적용하여 즉시 반영
+        if (containerRef.current) {
+          containerRef.current.style.width = `${next.w}px`;
+          containerRef.current.style.height = `${next.h}px`;
+        }
       }
     });
   };
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!isEditable || loadingState !== "loaded") return;
+      if (!isEditable || loadingState === "error") return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -90,18 +97,17 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
       isResizingRef.current = true;
       setIsResizing(true);
 
-      const rect = imgRef.current?.getBoundingClientRect();
-      startPointRef.current = { x: e.clientX, y: e.clientY };
-      startSizeRef.current = {
-        w: rect?.width ?? size.w ?? 100,
-        h: rect?.height ?? size.h ?? 100,
-      };
+      // div 컨테이너 요소 사용
+      const currentElement = containerRef.current;
+      const rect = currentElement?.getBoundingClientRect();
 
-      if (!aspectRef.current) {
-        const w0 = startSizeRef.current.w || 1;
-        const h0 = startSizeRef.current.h || 1;
-        aspectRef.current = w0 / h0;
-      }
+      startPointRef.current = { x: e.clientX, y: e.clientY };
+
+      // rect가 없거나 잘못된 경우 현재 state 크기 사용
+      startSizeRef.current = {
+        w: rect?.width ?? size.w ?? 560,
+        h: rect?.height ?? size.h ?? 315,
+      };
 
       // 포인터 캡처(핸들에서 포인터 고정)
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -112,7 +118,7 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
         const dw = pe.clientX - startPointRef.current.x;
         const dh = pe.clientY - startPointRef.current.y;
 
-        const ratio = aspectRef.current || 1;
+        const ratio = aspectRef.current;
         const leadIsWidth = Math.abs(dw) >= Math.abs(dh);
 
         let newW = startSizeRef.current.w;
@@ -150,27 +156,25 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
         window.removeEventListener("pointermove", handleMove, { capture: true } as any);
         window.removeEventListener("pointerup", handleUp, { capture: true } as any);
 
-        const finalW = pendingSizeRef.current?.w ?? size.w ?? startSizeRef.current.w;
-        const finalH = pendingSizeRef.current?.h ?? size.h ?? startSizeRef.current.h;
-
+        const currentRect = containerRef.current?.getBoundingClientRect();
+        const finalW = currentRect?.width ?? startSizeRef.current.w;
+        const finalH = currentRect?.height ?? startSizeRef.current.h;
         const initialW = initialSizeRef.current.w ?? startSizeRef.current.w;
         const initialH = initialSizeRef.current.h ?? startSizeRef.current.h;
 
         const changed = finalW !== initialW || finalH !== initialH;
-
         if (!changed) return;
 
         // 에디터 노드 업데이트
         editor.update(() => {
           const node = $getNodeByKey(nodeKey);
-          if (node && $isImageNode(node)) {
+          if (node && $isYouTubeNode(node)) {
             node.setSize(finalW, finalH);
           }
         });
 
         // 다음 비교를 위해 초기값 업데이트
         initialSizeRef.current = { w: finalW, h: finalH };
-        setSize({ w: finalW, h: finalH });
       };
 
       window.addEventListener("pointermove", handleMove, { capture: true });
@@ -190,10 +194,10 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
 
   // 로딩/에러 오버레이
   const showOverlay = loadingState !== "loaded";
-  const overlayContent = loadingState === "loading" ? <span style={{ color: "#666", fontSize: 12 }}>이미지 로딩 중…</span> : loadingState === "error" ? <span style={{ color: "#d32f2f", fontSize: 12 }}>이미지 로딩 실패</span> : null;
+  const overlayContent = loadingState === "loading" ? <span style={{ color: "#666", fontSize: 12 }}>YouTube 비디오 로딩 중…</span> : loadingState === "error" ? <span style={{ color: "#d32f2f", fontSize: 12 }}>YouTube 비디오 로딩 실패</span> : null;
 
-  const displayW = size.w ?? undefined;
-  const displayH = size.h ?? undefined;
+  const displayW = size.w ?? 560;
+  const displayH = size.h ?? 315;
 
   return (
     <span
@@ -224,24 +228,42 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
         </div>
       )}
 
-      <img
-        ref={imgRef}
-        src={src}
-        alt={alt ?? ""}
-        width={displayW}
-        height={displayH}
+      {/* div 컨테이너로 감싸서 ImageView와 동일한 패턴 */}
+      <div
+        ref={containerRef}
         style={{
+          width: displayW || 560,
+          height: displayH || 315,
           maxWidth: "100%",
           display: "block",
+          position: "relative",
+          backgroundColor: "#000",
+          borderRadius: 8,
+          overflow: "hidden",
           transition: isResizing ? "none" : "transform 0.06s ease, opacity 0.12s ease",
-          opacity: loadingState === "loaded" ? 1 : 0,
         }}
-        draggable={false}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-      />
+      >
+        <iframe
+          width={displayW || 560}
+          height={displayH || 315}
+          src={`https://www.youtube-nocookie.com/embed/${videoID}`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen={true}
+          title="YouTube video"
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+            display: "block",
+            opacity: loadingState === "loaded" ? 1 : 0.8,
+            pointerEvents: isResizing ? "none" : "auto",
+          }}
+          onLoad={handleMediaLoad}
+          onError={handleMediaError}
+        />
+      </div>
 
-      {isEditable && loadingState === "loaded" && (
+      {isEditable && loadingState !== "error" && (
         <button
           type="button"
           onPointerDown={onPointerDown}

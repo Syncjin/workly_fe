@@ -14,6 +14,7 @@ import * as s from "./editor.css";
 import { CLEAR_FORMAT_COMMAND, CODE_LANGUAGE_COMMAND, INSERT_YOUTUBE_COMMAND } from "./plugins/command";
 import { INSERT_IMAGE_COMMAND } from "./plugins/ImagePlugin";
 import { DropdownColorPicker } from "./ui/DropdownColorPicker";
+import { parseYouTubeInput } from "./utils/youtubeUtils";
 
 const BLOCK_OPTION: OptionShape[] = [
   { text: "Normal", value: "paragraph" },
@@ -55,9 +56,10 @@ const CODE_LANGUAGE_OPTION: OptionShape[] = Object.entries(CODE_LANGUAGE_FRIENDL
 
 type ToolbarProps = {
   onPickImageFile?: () => Promise<File | null>;
+  onPickYoutubeVideo?: () => Promise<string | null>;
   rememberFile?: (tempId: string, file: File) => void;
 };
-export function Toolbar({ onPickImageFile, rememberFile }: ToolbarProps) {
+export function Toolbar({ onPickImageFile, onPickYoutubeVideo, rememberFile }: ToolbarProps) {
   const [editor] = useLexicalComposerContext();
 
   const [isBold, setBold] = useState(false);
@@ -302,6 +304,56 @@ export function Toolbar({ onPickImageFile, rememberFile }: ToolbarProps) {
     });
   };
 
+  // 기본 YouTube URL 입력 대화상자 구현
+  const openDefaultYouTubeDialog = (): Promise<string | null> => {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      const promptForInput = () => {
+        const message =
+          attempts === 0
+            ? "YouTube URL 또는 비디오 ID를 입력하세요:\n\n지원 형식:\n• https://www.youtube.com/watch?v=VIDEO_ID\n• https://youtu.be/VIDEO_ID\n• https://www.youtube.com/embed/VIDEO_ID\n• VIDEO_ID (11자리 영숫자)"
+            : `유효하지 않은 YouTube URL 또는 비디오 ID입니다.\n\n다시 시도해주세요 (${attempts}/${maxAttempts}):\n\n지원 형식:\n• https://www.youtube.com/watch?v=VIDEO_ID\n• https://youtu.be/VIDEO_ID\n• https://www.youtube.com/embed/VIDEO_ID\n• VIDEO_ID (11자리 영숫자)`;
+
+        const input = window.prompt(message);
+
+        if (input === null) {
+          // 사용자가 취소를 클릭한 경우
+          resolve(null);
+          return;
+        }
+
+        if (input.trim() === "") {
+          attempts++;
+          if (attempts >= maxAttempts) {
+            alert("입력이 취소되었습니다.");
+            resolve(null);
+            return;
+          }
+          promptForInput();
+          return;
+        }
+
+        const videoId = parseYouTubeInput(input.trim());
+
+        if (videoId) {
+          resolve(videoId);
+        } else {
+          attempts++;
+          if (attempts >= maxAttempts) {
+            alert("유효하지 않은 YouTube URL 또는 비디오 ID입니다. 다시 시도해주세요.");
+            resolve(null);
+            return;
+          }
+          promptForInput();
+        }
+      };
+
+      promptForInput();
+    });
+  };
+
   const addImage = async () => {
     try {
       let file: File | null = null;
@@ -343,6 +395,50 @@ export function Toolbar({ onPickImageFile, rememberFile }: ToolbarProps) {
     } catch (error) {
       console.error("이미지 추가 중 오류:", error);
       alert("이미지 추가 중 오류가 발생했습니다.");
+    }
+  };
+
+  const addYouTube = async () => {
+    try {
+      let input: string | null = null;
+
+      // 커스텀 콜백이 있으면 사용, 없으면 기본 입력 대화상자 사용
+      if (onPickYoutubeVideo) {
+        try {
+          input = await onPickYoutubeVideo();
+        } catch (error) {
+          console.error("커스텀 YouTube 선택기 오류:", error);
+          alert("YouTube 비디오 선택 중 오류가 발생했습니다.");
+          return;
+        }
+      } else {
+        input = await openDefaultYouTubeDialog();
+      }
+
+      if (!input) {
+        console.log("YouTube 비디오 선택이 취소되었습니다.");
+        return;
+      }
+
+      // YouTube URL에서 비디오 ID 추출 (커스텀 콜백의 경우 URL이나 ID 모두 가능)
+      const videoId = parseYouTubeInput(input.trim());
+
+      if (!videoId) {
+        alert("유효하지 않은 YouTube URL 또는 비디오 ID입니다.");
+        return;
+      }
+
+      // YouTube 노드 삽입 명령 실행 (기본 크기 560x315 사용)
+      editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, {
+        videoID: videoId,
+        width: 560,
+        height: 315,
+      });
+
+      console.log("YouTube 비디오가 성공적으로 삽입되었습니다:", videoId);
+    } catch (error) {
+      console.error("YouTube 비디오 추가 중 오류:", error);
+      alert("YouTube 비디오 추가 중 오류가 발생했습니다.");
     }
   };
 
@@ -447,7 +543,7 @@ export function Toolbar({ onPickImageFile, rememberFile }: ToolbarProps) {
         <Icon name="image-add-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
 
-      <button className={s.btn} title="Insert Youtube" onClick={() => editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, "-cX9Tj8RZJE")}>
+      <button className={s.btn} title="Insert Youtube" onClick={addYouTube}>
         <Icon name="youtube-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
     </div>
