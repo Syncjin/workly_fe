@@ -24,7 +24,7 @@ export interface CommentDeleteRequest {
   commentId: number;
 }
 
-export interface CommentReactionCreateRequest {
+export interface CommentReactionUpsertRequest {
   commentId: number;
   commentReaction: CommentReactionDTO;
 }
