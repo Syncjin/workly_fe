@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { badgeRecipe, sizeVariants, BadgeColor } from "./badge.css";
+import { BadgeColor, badgeRecipe, sizeVariants } from "./badge.css";
 
 type BadgeSize = keyof typeof sizeVariants;
 

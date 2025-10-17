@@ -29,12 +29,7 @@ export function useEscapeClose(enabled: boolean, onClose?: () => void) {
 }
 
 /** 오버레이 클릭 시 닫기(팝업 내부 클릭 제외) */
-export function useOutsideClose(
-  popupRef: RefLike,
-  overlayRef: RefLike,
-  enabled: boolean,
-  onClose?: () => void
-) {
+export function useOutsideClose(popupRef: RefLike, overlayRef: RefLike, enabled: boolean, onClose?: () => void) {
   useEffect(() => {
     if (!enabled) return;
     const handler = (e: MouseEvent) => {
@@ -95,11 +90,14 @@ export function useFocusTrap(open: boolean, trap: boolean, rootRef: RefLike) {
 
     const keyHandler = (e: KeyboardEvent) => {
       if (e.key !== "Tab" || list.length === 0) return;
-      const first = list[0], last = list[list.length - 1];
+      const first = list[0],
+        last = list[list.length - 1];
       if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
+        e.preventDefault();
+        last.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
+        e.preventDefault();
+        first.focus();
       }
     };
 

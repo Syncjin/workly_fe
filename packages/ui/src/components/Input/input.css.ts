@@ -44,15 +44,17 @@ export const sizeVariants = styleVariants({
   },
 });
 
-export const variantStyles = buildVariantMap(colorGroups, colorLevels, (group, level) => style({
-  backgroundColor: `var(--color-${group}-${level})`,
-  color: "#222",
-  selectors: {
-    "&:focus": {
-      borderColor: `var(--color-${group}-${level})`,
+export const variantStyles = buildVariantMap(colorGroups, colorLevels, (group, level) =>
+  style({
+    backgroundColor: `var(--color-${group}-${level})`,
+    color: "#222",
+    selectors: {
+      "&:focus": {
+        borderColor: `var(--color-${group}-${level})`,
+      },
     },
-  },
-}));
+  })
+);
 
 export const inputStatus = styleVariants({
   default: {

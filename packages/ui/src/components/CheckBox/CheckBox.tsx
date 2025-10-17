@@ -47,4 +47,3 @@ export const CheckBox: React.FC<CheckBoxProps> = ({ size = "md", checked, indete
     </span>
   );
 };
-
