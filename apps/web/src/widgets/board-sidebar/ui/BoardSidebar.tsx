@@ -29,8 +29,10 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
     const sp = new URLSearchParams(searchParams?.toString() ?? "");
     let boardId = sp.get("boardId");
     if (!boardId) {
-      const { board } = await openBoardSelect();
-      boardId = board.id;
+      const res = await openBoardSelect();
+      if (res?.board) {
+        boardId = res?.board.id;
+      }
     }
 
     if (boardId) {
