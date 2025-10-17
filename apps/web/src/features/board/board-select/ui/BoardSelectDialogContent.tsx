@@ -1,6 +1,6 @@
 "use client";
 
-import { type SelectBoard, type SelectCategory, useSelectBoardList } from "@/features/board/board-select/model";
+import { type SelectBoard, type SelectCategory, useSelectBoardList } from "@/features/board/board-select";
 import { Radio } from "@workly/ui";
 import { useMemo } from "react";
 import * as styles from "./boardSelectDialog.css";

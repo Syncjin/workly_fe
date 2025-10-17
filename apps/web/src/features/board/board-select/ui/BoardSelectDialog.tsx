@@ -1,8 +1,6 @@
 "use client";
 
-import type { SelectBoard, SelectCategory } from "@/features/board/board-select/model";
-import { BOARD_SELECT_MODAL_KEY } from "@/features/board/board-select/model/keys";
-import { BoardSelectDialogContent } from "@/features/board/board-select/ui/BoardSelectDialogContent";
+import { BOARD_SELECT_MODAL_KEY, BoardSelectDialogContent, type SelectBoard, type SelectCategory } from "@/features/board/board-select";
 import { modalClient } from "@/shared/ui/modal/client";
 import { ModalBoundary } from "@/shared/ui/modal/ModalBoundary";
 import { useModalStore } from "@/shared/ui/modal/store";

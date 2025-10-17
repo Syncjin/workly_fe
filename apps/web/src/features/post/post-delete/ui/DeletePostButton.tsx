@@ -1,6 +1,6 @@
 "use client";
 import { PERM, usePermission } from "@/entities/permission";
-import { usePostDeleteAction } from "@/features/post/post-delete/model";
+import { usePostDeleteAction } from "@/features/post/post-delete";
 import { ReactNode } from "react";
 
 export type DeletePostRenderProps = {

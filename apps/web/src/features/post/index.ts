@@ -1,14 +1,5 @@
-/**
- * Post feature exports
- *
- * Exports all post-related functionality including API functions, types, and feature components.
- */
-
-// Re-export from entities for backward compatibility
-export { postApi, postQueryKeys, usePostList } from "@/entities/post";
-export type { PostListParams } from "@/entities/post/model/types";
-
-export { PostSearch, usePostSearch } from "./post-search";
-export type { PostSearchState } from "./post-search";
-
-export { usePostCreateAction } from "./post-create";
+export * from "./post-create";
+export * from "./post-delete";
+export * from "./post-read";
+export * from "./post-search";
+export * from "./post-update";

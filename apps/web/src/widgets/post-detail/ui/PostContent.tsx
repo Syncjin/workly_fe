@@ -2,7 +2,7 @@ import { boardApi, boardQueryKeys } from "@/entities/board";
 import { Post } from "@/entities/post";
 import { DeletePostButton, DeletePostRenderProps } from "@/features/post/post-delete";
 import { usePostReadAction } from "@/features/post/post-read";
-import { UpdatePostButton, UpdatePostRenderProps } from "@/features/post/post-update/ui";
+import { UpdatePostButton, UpdatePostRenderProps } from "@/features/post/post-update";
 import { log } from "@/lib/logger";
 import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
 import { useQueryClient } from "@tanstack/react-query";
