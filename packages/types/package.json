@@ -22,7 +22,9 @@
       "types": "./dist/domain/*.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json -w",
@@ -31,7 +33,12 @@
   "devDependencies": {
     "@workly/tsconfig": "workspace:*",
     "rimraf": "^6.0.1",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@workly/eslint-config": "workspace:*",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "prettier": "catalog:"
   },
   "peerDependencies": {
     "typescript": ">=5.2.0"
