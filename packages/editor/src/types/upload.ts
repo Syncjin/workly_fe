@@ -57,7 +57,7 @@ export interface UploadConfig {
 export interface ImageDiff {
   toUpload: Array<{ tempId: string; file: File }>; // 새로 추가된 이미지
   toDelete: Array<{ fileId: string; src: string }>; // 삭제된 이미지 (fileId 포함)
-  unchanged: Array<{ fileId: string; src: string }>; // 변경되지 않은 이미지
+  unchanged: Array<{ fileId: string; src: string; width?: number; height?: number }>; // 변경되지 않은 이미지 (크기 정보 포함)
 }
 
 /**

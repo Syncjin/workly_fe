@@ -1,30 +1,14 @@
-import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
-
 import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { DecoratorBlockNode, SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
+import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 import { JSX } from "react";
-
-type YouTubeComponentProps = Readonly<{
-  className: Readonly<{
-    base: string;
-    focus: string;
-  }>;
-  format: ElementFormatType | null;
-  nodeKey: NodeKey;
-  videoID: string;
-}>;
-
-function YouTubeComponent({ className, format, nodeKey, videoID }: YouTubeComponentProps) {
-  return (
-    <BlockWithAlignableContents className={className} format={format} nodeKey={nodeKey}>
-      <iframe width="560" height="315" src={`https://www.youtube-nocookie.com/embed/${videoID}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen={true} title="YouTube video" />
-    </BlockWithAlignableContents>
-  );
-}
+import { YouTubeView } from "./YouTubeView";
 
 export type SerializedYouTubeNode = Spread<
   {
     videoID: string;
+    width?: number;
+    height?: number;
   },
   SerializedDecoratorBlockNode
 >;
@@ -40,40 +24,51 @@ function convertYoutubeElement(domNode: HTMLElement): null | DOMConversionOutput
 
 export class YouTubeNode extends DecoratorBlockNode {
   __id: string;
+  __width?: number;
+  __height?: number;
 
   static getType(): string {
     return "youtube";
   }
 
   static clone(node: YouTubeNode): YouTubeNode {
-    return new YouTubeNode(node.__id, node.__format, node.__key);
+    return new YouTubeNode(node.__id, node.__width, node.__height, node.__format, node.__key);
+  }
+
+  constructor(id: string, width?: number, height?: number, format?: ElementFormatType, key?: NodeKey) {
+    super(format, key);
+    this.__id = id;
+    this.__width = width;
+    this.__height = height;
+  }
+
+  static __containerMaxWidth?: number;
+  static setContainerMaxWidth(v?: number) {
+    YouTubeNode.__containerMaxWidth = v;
   }
 
   static importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
-    const node = $createYouTubeNode(serializedNode.videoID);
+    const node = $createYouTubeNode(serializedNode.videoID, serializedNode.width, serializedNode.height);
     node.setFormat(serializedNode.format);
     return node;
   }
 
   exportJSON(): SerializedYouTubeNode {
     return {
-      ...super.exportJSON(),
       type: "youtube",
       version: 1,
+      format: "left",
       videoID: this.__id,
+      width: this.__width,
+      height: this.__height,
     };
-  }
-
-  constructor(id: string, format?: ElementFormatType, key?: NodeKey) {
-    super(format, key);
-    this.__id = id;
   }
 
   exportDOM(): DOMExportOutput {
     const element = document.createElement("iframe");
     element.setAttribute("data-lexical-youtube", this.__id);
-    element.setAttribute("width", "560");
-    element.setAttribute("height", "315");
+    element.setAttribute("width", String(this.__width || 560));
+    element.setAttribute("height", String(this.__height || 315));
     element.setAttribute("src", `https://www.youtube-nocookie.com/embed/${this.__id}`);
     element.setAttribute("frameborder", "0");
     element.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
@@ -104,17 +99,52 @@ export class YouTubeNode extends DecoratorBlockNode {
     return this.__id;
   }
 
+  setSize(width?: number, height?: number): void {
+    const writable = this.getWritable();
+    const oldWidth = writable.__width;
+    const oldHeight = writable.__height;
+
+    // 최소 크기 200x200 적용
+    const newWidth = width && width >= 200 ? width : undefined;
+    const newHeight = height && height >= 200 ? height : undefined;
+
+    // 실제로 변경된 경우에만 업데이트
+    if (oldWidth !== newWidth || oldHeight !== newHeight) {
+      writable.__width = newWidth;
+      writable.__height = newHeight;
+      console.log(`YouTubeNode 크기 업데이트: ${oldWidth}x${oldHeight} → ${newWidth}x${newHeight}`);
+
+      // 노드 변경 사항을 에디터에 알림
+      writable.markDirty();
+    }
+  }
+
+  getWidth(): number | undefined {
+    return this.__width;
+  }
+
+  getHeight(): number | undefined {
+    return this.__height;
+  }
+
   getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
     return `https://www.youtube.com/watch?v=${this.__id}`;
   }
 
-  decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+    // 에디터의 편집 가능 상태 확인 ImageNode와 동일
+    const isEditable = editor?.isEditable() ?? true;
+    const maxW = YouTubeNode.__containerMaxWidth;
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || "",
       focus: embedBlockTheme.focus || "",
     };
-    return <YouTubeComponent className={className} format={this.__format} nodeKey={this.getKey()} videoID={this.__id} />;
+    return (
+      <BlockWithAlignableContents className={className} format={this.__format} nodeKey={this.getKey()}>
+        <YouTubeView videoID={this.__id} width={this.__width} height={this.__height} nodeKey={this.getKey()} isEditable={isEditable} minSize={200} maxSize={maxW} />
+      </BlockWithAlignableContents>
+    );
   }
 
   isInline(): false {
@@ -122,8 +152,8 @@ export class YouTubeNode extends DecoratorBlockNode {
   }
 }
 
-export function $createYouTubeNode(videoID: string): YouTubeNode {
-  return new YouTubeNode(videoID);
+export function $createYouTubeNode(videoID: string, width?: number, height?: number): YouTubeNode {
+  return new YouTubeNode(videoID, width, height);
 }
 
 export function $isYouTubeNode(node: YouTubeNode | LexicalNode | null | undefined): node is YouTubeNode {

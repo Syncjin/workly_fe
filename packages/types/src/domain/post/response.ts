@@ -25,8 +25,8 @@ export interface PostDTO {
 }
 
 export interface PostMoveResponse {
-  boardId: number;  
-  requestedCount: number;  
-  movedCount: number;  
+  boardId: number;
+  requestedCount: number;
+  movedCount: number;
   movedIds: number[];
 }

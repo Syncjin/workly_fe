@@ -27,8 +27,7 @@ const baseLayered = style({
       // 공통 상태
       selectors: {
         "&:hover": { backgroundColor: btnBgHover },
-        "&:disabled, &[data-loading]": {
-        },
+        "&:disabled, &[data-loading]": {},
         "&:focus": { outline: "none" },
         // "@media": {
         //   "(prefers-reduced-motion: reduce)": {

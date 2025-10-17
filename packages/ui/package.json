@@ -14,10 +14,14 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
-    "./overlays": { "types": "./dist/overlays/index.d.ts", "import": "./dist/overlays/index.js" }
+    "./overlays": {
+      "types": "./dist/overlays/index.d.ts",
+      "import": "./dist/overlays/index.js"
+    }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "prettier": "@workly/prettier-config",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -41,6 +45,10 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vanilla-extract/esbuild-plugin": "^2.3.18",
-    "typescript": "catalog:"
+    "@workly/eslint-config": "workspace:*",
+    "@workly/prettier-config": "workspace:*",
+    "typescript": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:"
   }
 }

@@ -25,10 +25,10 @@ export interface PostDetailRequest {
 }
 
 export interface PostUpdateRequest {
-    postId: number;
+  postId: number;
 }
 
 export interface PostMoveRequest {
-  boardId: number;  
+  boardId: number;
   postIds: number[];
 }

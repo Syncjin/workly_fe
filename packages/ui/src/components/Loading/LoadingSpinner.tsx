@@ -13,22 +13,10 @@ export interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement
   label?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = "md",
-  thickness = "normal",
-  color = "var(--color-brand-600)",
-  label = "로딩 중…",
-  className,
-  style,
-  ...rest
-}) => {
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = "md", thickness = "normal", color = "var(--color-brand-600)", label = "로딩 중…", className, style, ...rest }) => {
   // 크기/두께가 숫자면 inline 스타일, 프리셋이면 클래스 사용
-  const sizeClass =
-    typeof size === "number" ? undefined : s.size[size] ?? s.size.md;
-  const thicknessClass =
-    typeof thickness === "number"
-      ? undefined
-      : s.thickness[thickness] ?? s.thickness.normal;
+  const sizeClass = typeof size === "number" ? undefined : (s.size[size] ?? s.size.md);
+  const thicknessClass = typeof thickness === "number" ? undefined : (s.thickness[thickness] ?? s.thickness.normal);
 
   const inlineStyle: React.CSSProperties = {
     ...(typeof size === "number" ? { width: size, height: size } : null),
@@ -39,13 +27,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div className={s.wrapper} role="status" aria-live="polite" {...rest}>
-      <span
-        className={[s.spinner, sizeClass, thicknessClass, className]
-          .filter(Boolean)
-          .join(" ")}
-        style={inlineStyle}
-        aria-hidden="true"
-      />
+      <span className={[s.spinner, sizeClass, thicknessClass, className].filter(Boolean).join(" ")} style={inlineStyle} aria-hidden="true" />
       <span className={s.srOnly}>{label}</span>
     </div>
   );

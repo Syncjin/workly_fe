@@ -1,4 +1,4 @@
-import { PostListParams } from "@/features/post";
+import { PostListParams } from "@/entities/post";
 
 export const postQueryKeys = {
   all: ["posts"] as const,

@@ -5,9 +5,7 @@ import { useModal, useModalState } from "./context";
 type ModalLoader = () => Promise<{ default: React.ComponentType<any> }>;
 type LoaderRegistry = Record<string, ModalLoader>;
 
-export function ModalHost({ loaders, fallback }:{
-  loaders: LoaderRegistry; fallback?: React.ReactNode;
-}) {
+export function ModalHost({ loaders, fallback }: { loaders: LoaderRegistry; fallback?: React.ReactNode }) {
   const { resolve, cancel } = useModal();
   const { type, props } = useModalState();
 

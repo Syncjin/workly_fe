@@ -1,11 +1,16 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $insertNodeToNearestRoot } from "@lexical/utils";
-import { COMMAND_PRIORITY_EDITOR } from "lexical";
+import { $insertNodes, COMMAND_PRIORITY_EDITOR } from "lexical";
 import { JSX, useEffect } from "react";
 import { $createYouTubeNode, YouTubeNode } from "../nodes/YoutubeNode";
 import { INSERT_YOUTUBE_COMMAND } from "./command";
 
-export default function YouTubePlugin(): JSX.Element | null {
+export type InsertYouTubePayload = {
+  videoID: string;
+  width?: number;
+  height?: number;
+};
+
+export default function YouTubePlugin({ contentMaxWidth }: { contentMaxWidth?: number }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -13,17 +18,27 @@ export default function YouTubePlugin(): JSX.Element | null {
       throw new Error("YouTubePlugin: YouTubeNode not registered on editor");
     }
 
-    return editor.registerCommand<string>(
+    return editor.registerCommand<InsertYouTubePayload | string>(
       INSERT_YOUTUBE_COMMAND,
       (payload) => {
-        const youTubeNode = $createYouTubeNode(payload);
-        $insertNodeToNearestRoot(youTubeNode);
+        let youTubeNode: YouTubeNode;
 
+        if (typeof payload === "string") {
+          youTubeNode = $createYouTubeNode(payload, 560, 315);
+        } else {
+          youTubeNode = $createYouTubeNode(payload.videoID, payload.width || 560, payload.height || 315);
+        }
+
+        $insertNodes([youTubeNode]);
         return true;
       },
       COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
+
+  useEffect(() => {
+    YouTubeNode.setContainerMaxWidth(contentMaxWidth);
+  }, [contentMaxWidth]);
 
   return null;
 }

@@ -47,4 +47,3 @@ export const Radio: React.FC<RadioProps> = ({ size = "md", checked, defaultCheck
     </span>
   );
 };
-

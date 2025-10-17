@@ -3,8 +3,7 @@
  *
  */
 
-import { PostCreateRequest, PostUpdateRequest } from "@workly/types";
-
+import type { PostCreateRequest, PostUpdateRequest } from "@workly/types";
 export type { PostDTO as Post, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@workly/types/domain";
 
 export type PostCreateParams = {

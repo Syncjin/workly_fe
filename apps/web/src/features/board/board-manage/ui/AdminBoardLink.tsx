@@ -13,16 +13,16 @@ type AdminBoardLinkProps = Omit<React.ComponentProps<typeof Link>, "href"> & {
 };
 
 export function AdminBoardLink({ className, children = "관리" }: AdminBoardLinkProps) {
-  const { isPermitted, isLoading, isError } = useBoardManagePermission();
+  const { isPermitted, isPending, isError } = useBoardManagePermission();
 
   const onClick = useCallback(
     (e: MouseEvent<HTMLAnchorElement>) => {
-      if (isLoading || isError || !isPermitted) e.preventDefault();
+      if (isPending || isError || !isPermitted) e.preventDefault();
     },
-    [isLoading, isError, isPermitted]
+    [isPending, isError, isPermitted]
   );
 
-  const disabled = isLoading || isError || !isPermitted;
+  const disabled = isPending || isError || !isPermitted;
 
   return (
     <PermissionGate perm={PERM.BOARD_MANAGE} fallback={null}>

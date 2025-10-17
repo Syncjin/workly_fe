@@ -1,8 +1,8 @@
 export interface FileRequest {
-    files: File[];
+  files: File[];
 }
 export interface FileDownloadRequest {
-    fileId: string;
+  fileId: string;
 }
 
 export type FileDeleteRequest = FileDownloadRequest;

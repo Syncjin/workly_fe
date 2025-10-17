@@ -4,7 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./next": "./next.mjs"
+    "./next": "./next.mjs",
+    "./types": "./types.mjs",
+    "./editor": "./editor.mjs",
+    "./api": "./api.mjs",
+    "./ui": "./ui.mjs"
   },
   "peerDependencies": {
     "eslint": "catalog:",

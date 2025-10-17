@@ -17,6 +17,7 @@ import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ImageNode } from "./nodes/ImageNode";
+import { YouTubeNode } from "./nodes/YoutubeNode";
 import { lexicalTheme as defaultTheme } from "./theme.css";
 
 type Props = {
@@ -28,7 +29,14 @@ type Props = {
   contentClassName?: string;
 };
 
-export function EditorViewer({ namespace, initialJSON, theme = defaultTheme, nodes = [HeadingNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, CodeNode, CodeHighlightNode, TableNode, TableRowNode, TableCellNode, ImageNode], onError = (e) => console.error(e), contentClassName }: Props) {
+export function EditorViewer({
+  namespace,
+  initialJSON,
+  theme = defaultTheme,
+  nodes = [HeadingNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, CodeNode, CodeHighlightNode, TableNode, TableRowNode, TableCellNode, ImageNode, YouTubeNode],
+  onError = (e) => console.error(e),
+  contentClassName,
+}: Props) {
   const initialConfig = {
     namespace,
     theme,

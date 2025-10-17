@@ -5,9 +5,7 @@
  * 적절한 캐싱 전략과 함께 공유 useApiQuery 훅을 사용합니다.
  */
 
-import type { Post, PostDeleteRequest, PostDetailRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@/entities/post/model";
-import { PostCreateParams, PostUpdateParams } from "@/entities/post/model/types";
-import { postApi, postQueryKeys } from "@/features/post";
+import { postApi, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";

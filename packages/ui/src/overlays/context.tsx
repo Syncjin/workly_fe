@@ -4,10 +4,7 @@ import type { ModalClient, ModalState } from "./types";
 
 const Ctx = createContext<ModalClient | null>(null);
 
-export function ModalProvider({ client, children }:{
-  client: ModalClient;
-  children: React.ReactNode;
-}) {
+export function ModalProvider({ client, children }: { client: ModalClient; children: React.ReactNode }) {
   return <Ctx.Provider value={client}>{children}</Ctx.Provider>;
 }
 

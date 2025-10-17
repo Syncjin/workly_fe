@@ -17,8 +17,13 @@
     "@workly/tsconfig": "workspace:^",
     "typescript": "catalog:",
     "tsup": "^8.3.0",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "@workly/eslint-config": "workspace:*",
+    "@workly/prettier-config": "workspace:*",
+    "eslint": "catalog:",
+    "prettier": "catalog:"
   },
+  "prettier": "@workly/prettier-config",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

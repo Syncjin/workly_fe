@@ -34,4 +34,3 @@ export const CheckBoxField: React.FC<CheckBoxFieldProps> = ({ label, description
     )}
   </div>
 );
-

@@ -42,21 +42,13 @@ const PopupRoot: FC<PopupProps> = (props) => {
   const getFocusable = useCallback(() => {
     const el = popupRef.current;
     if (!el) return [];
-    return Array.from(
-      el.querySelectorAll(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
-      )
-    ) as HTMLElement[];
+    return Array.from(el.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])')) as HTMLElement[];
   }, []);
 
   // 외부 ref + 내부 ref 동기화
-  const handleRefCallback = useImperativePopupRef(
-    ref,
-    getPopup,
-    getOverlay,
-    getFocusable,
-    (node) => { popupRef.current = node; }
-  );
+  const handleRefCallback = useImperativePopupRef(ref, getPopup, getOverlay, getFocusable, (node) => {
+    popupRef.current = node;
+  });
 
   const portal = usePortalContainer();
   useEscapeClose(closeOnEscape && open, onClose);
@@ -94,11 +86,7 @@ const PopupRoot: FC<PopupProps> = (props) => {
 
   if (!visible || !portal) return null;
 
-  const overlayClasses = cx(
-    styles.overlay({ variant: variant as PopupVariant }),
-    classes?.overlay,
-    variant === "modal" ? className : undefined
-  );
+  const overlayClasses = cx(styles.overlay({ variant: variant as PopupVariant }), classes?.overlay, variant === "modal" ? className : undefined);
 
   const popupClasses = cx(
     styles.popupRecipe({
@@ -123,17 +111,7 @@ const PopupRoot: FC<PopupProps> = (props) => {
           if (e.target === e.currentTarget && closeOnOutsideClick) onClose?.();
         }}
       >
-        <div
-          ref={handleRefCallback}
-          className={popupClasses}
-          role={role}
-          aria-modal={variant === "modal" ? true : undefined}
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy}
-          aria-describedby={ariaDescribedBy}
-          data-slot="popup"
-          style={{ animationDuration: `${animationDuration}ms` }}
-        >
+        <div ref={handleRefCallback} className={popupClasses} role={role} aria-modal={variant === "modal" ? true : undefined} aria-label={ariaLabel} aria-labelledby={ariaLabelledBy} aria-describedby={ariaDescribedBy} data-slot="popup" style={{ animationDuration: `${animationDuration}ms` }}>
           {children}
         </div>
       </div>
