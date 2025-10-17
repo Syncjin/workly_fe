@@ -1,27 +1,27 @@
-/**
- * 이미지 파일 관리 클래스
- *
- * Editor 컴포넌트에서 이미지 파일 관련 로직을 분리합니다.
- */
-
 import type { LexicalEditor } from "lexical";
 import type { FileDeleteAdapter, FileUploadAdapter, ImageDiff, SubmitOptions, UploadStatus } from "../types/upload";
-import { walkNodes, type JSONNode } from "../utils/walkNodes";
+import { walkNodes } from "../utils/walkNodes";
+
+type ImageData = { fileId: string; src: string; tempId?: string; width?: number; height?: number };
 
 export class ImageFileManager {
+  private editor: LexicalEditor | null = null;
   private fileStore = new Map<string, File>();
-  private initialImageState = new Map<string, string>();
+  private initialImageState = new Map<string, { src: string; width?: number; height?: number }>();
   private isSubmitting = false;
-  private uploadStatus: UploadStatus = {
-    isUploading: false,
-    uploadedCount: 0,
-    totalCount: 0,
-    errors: [],
-  };
+  private uploadStatus: UploadStatus = { isUploading: false, uploadedCount: 0, totalCount: 0, errors: [] };
 
-  /**
-   * 파일을 저장소에 저장
-   */
+  // 기본 메서드들
+  attach(editor: LexicalEditor) {
+    if (this.editor !== editor) {
+      this.editor = editor;
+    }
+  }
+
+  detach() {
+    this.editor = null;
+  }
+
   rememberFile(tempId: string, file: File): void {
     this.fileStore.set(tempId, file);
   }
@@ -30,260 +30,168 @@ export class ImageFileManager {
     return this.fileStore.get(tempId) ?? null;
   }
 
+  resetState(): void {
+    this.fileStore.clear();
+    this.initialImageState.clear();
+  }
+
   clearFileStore(): void {
     this.fileStore.clear();
   }
 
-  getStatus(): {
-    totalFiles: number;
-    totalSize: number;
-    files: Array<{ tempId: string; fileName: string; size: number }>;
-  } {
-    const files: Array<{ tempId: string; fileName: string; size: number }> = [];
-    let totalSize = 0;
+  cleanupUnusedFiles(): void {
+    if (!this.editor) return;
 
-    this.fileStore.forEach((file, tempId) => {
-      files.push({ tempId, fileName: file.name, size: file.size });
-      totalSize += file.size;
-    });
-    return { totalFiles: files.length, totalSize, files };
-  }
+    const currentImages = this.extractImages(this.getCurrentJSON());
+    const activeTempIds = new Set<string>();
 
-  /**
-   * 초기 이미지 상태 주입, 조회
-   */
-  async setInitialImageState(initialJSON?: string): Promise<void> {
-    if (!initialJSON) {
-      this.initialImageState.clear();
-      return;
-    }
-
-    const images = this.extractImagesFromJSON(initialJSON);
-    const map = new Map<string, string>();
-    images.forEach((img) => {
-      if (img.fileId && img.src) map.set(img.fileId, img.src);
-    });
-    this.initialImageState = map;
-  }
-
-  getInitialImageState(): Map<string, string> {
-    return new Map(this.initialImageState);
-  }
-
-  /**
-   * 현재 업로드 상태 반환
-   */
-  getUploadStatus(): UploadStatus {
-    return {
-      ...this.uploadStatus,
-      isUploading: this.uploadStatus.isUploading || this.isSubmitting,
-    };
-  }
-
-  /**
-   * 현재 에디터 상태를 JSON으로 반환
-   */
-  getCurrentJSON(editor: LexicalEditor): string {
-    const state = editor.getEditorState();
-    return JSON.stringify(state.toJSON());
-  }
-
-  private getActiveTempIdsFromJSONRoot(root: JSONNode): Set<string> {
-    const tempIds = new Set<string>();
-    walkNodes(root, (n) => {
-      if (n.type === "image" && typeof n.tempId === "string" && typeof n.src === "string") {
-        if (n.src.startsWith("blob:")) tempIds.add(n.tempId);
+    // 현재 사용 중인 tempId 수집
+    currentImages.forEach((img) => {
+      if (img.src.startsWith("blob:") && img.tempId) {
+        activeTempIds.add(img.tempId);
       }
     });
-    return tempIds;
-  }
 
-  cleanupUnusedFiles(editor: LexicalEditor): void {
-    const json = editor.getEditorState().toJSON();
-    const root = (json as any).root as JSONNode;
-    const activeTempIds = this.getActiveTempIdsFromJSONRoot(root);
-
+    // 사용하지 않는 파일 제거
     const toDelete: string[] = [];
-    this.fileStore.forEach((_file, tempId) => {
-      if (!activeTempIds.has(tempId)) toDelete.push(tempId);
+    this.fileStore.forEach((_, tempId) => {
+      if (!activeTempIds.has(tempId)) {
+        toDelete.push(tempId);
+      }
     });
-    toDelete.forEach((id) => this.fileStore.delete(id));
+
+    toDelete.forEach((tempId) => this.fileStore.delete(tempId));
   }
 
-  /**
-   * 업로드가 필요한 파일 목록 제공 - 실제 사용 중인 파일만 반환
-   */
-  getFilesToUpload(editor?: LexicalEditor): Array<{ tempId: string; file: File }> {
-    if (editor) this.cleanupUnusedFiles(editor);
-    const active = editor ? this.getActiveTempIdsFromJSONRoot((editor.getEditorState().toJSON() as any).root) : null;
+  getCurrentJSON(): string {
+    if (!this.editor) throw new Error("Editor not attached");
+    return JSON.stringify(this.editor.getEditorState().toJSON());
+  }
 
-    const list: Array<{ tempId: string; file: File }> = [];
-    this.fileStore.forEach((file, tempId) => {
-      if (!active || active.has(tempId)) list.push({ tempId, file });
+  getUploadStatus(): UploadStatus {
+    return { ...this.uploadStatus, isUploading: this.uploadStatus.isUploading || this.isSubmitting };
+  }
+
+  hasUnsavedFiles(): boolean {
+    return this.getFilesToUpload().length > 0;
+  }
+
+  // 초기 상태 설정
+  async setInitialImageState(initialJSON?: string): Promise<void> {
+    this.initialImageState.clear();
+    if (!initialJSON) return;
+
+    const images = this.extractImages(initialJSON);
+    images.forEach((img) => {
+      if (img.fileId && img.src) {
+        this.initialImageState.set(img.fileId, { src: img.src, width: img.width, height: img.height });
+      }
     });
-    return list;
   }
 
-  hasUnsavedFiles(editor?: LexicalEditor): boolean {
-    return this.getFilesToUpload(editor).length > 0;
-  }
-
-  /**
-   * 이미지 추출해서 Imagenode json으로 치환
-   */
-  private extractImagesFromJSON(initialJSON: string): Array<{ fileId: string; src: string; tempId?: string }> {
+  // 이미지 추출 (통합)
+  private extractImages(jsonString: string): ImageData[] {
     try {
-      const parsed = JSON.parse(initialJSON);
-      const root = parsed?.root as JSONNode;
-      const arr: Array<{ fileId: string; src: string; tempId?: string }> = [];
-      walkNodes(root, (n) => {
-        if (n.type === "image" && typeof n.src === "string" && !n.src.startsWith("blob:") && n.fileId) {
-          arr.push({ fileId: n.fileId, src: n.src, tempId: n.tempId || undefined });
+      const json = JSON.parse(jsonString);
+      const images: ImageData[] = [];
+
+      walkNodes(json.root, (n) => {
+        if (n.type !== "image" || typeof n.src !== "string") return;
+
+        if (n.src.startsWith("blob:")) {
+          // 새 이미지
+          const fid = typeof n.tempId === "string" ? n.tempId : n.src;
+          images.push({
+            fileId: fid,
+            src: n.src,
+            tempId: n.tempId,
+            width: n.width > 0 ? n.width : undefined,
+            height: n.height > 0 ? n.height : undefined,
+          });
+        } else if (n.fileId) {
+          // 기존 이미지
+          images.push({
+            fileId: n.fileId,
+            src: n.src,
+            tempId: n.tempId || undefined,
+            width: n.width > 0 ? n.width : undefined,
+            height: n.height > 0 ? n.height : undefined,
+          });
+        } else {
+          // fileId 복구 시도
+          const fileId = this.extractFileIdFromSrc(n.src);
+          if (fileId) {
+            images.push({
+              fileId,
+              src: n.src,
+              tempId: n.tempId || undefined,
+              width: n.width > 0 ? n.width : undefined,
+              height: n.height > 0 ? n.height : undefined,
+            });
+          }
         }
       });
-      return arr;
+
+      return images;
     } catch {
       return [];
     }
   }
 
-  private extractImagesFromCurrentState(editor: LexicalEditor): Array<{ fileId: string; src: string; tempId?: string }> {
-    const current = editor.getEditorState().toJSON();
-    const root = (current as any).root as JSONNode;
-    const arr: Array<{ fileId: string; src: string; tempId?: string }> = [];
-    walkNodes(root, (n) => {
-      if (n.type !== "image" || typeof n.src !== "string") return;
-      if (n.src.startsWith("blob:")) {
-        // 새로 추가된 이미지
-        const fid = typeof n.tempId === "string" ? n.tempId : n.src;
-        arr.push({ fileId: fid, src: n.src, tempId: n.tempId });
-      } else if (n.fileId) {
-        // 기존 이미지
-        arr.push({ fileId: n.fileId, src: n.src, tempId: n.tempId || undefined });
-      }
-    });
-    return arr;
+  private extractFileIdFromSrc(src: string): string | null {
+    const match = src.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+    return match ? match[1] : null;
   }
 
-  /**
-   * image 추가,삭제된 다른점이 있는지 확인 계산
-   */
-  private calculateImageDiffInternal(editor: LexicalEditor, initialImageState: Map<string, string>): ImageDiff {
-    const currentImages = this.extractImagesFromCurrentState(editor);
+  // 업로드할 파일 목록
+  getFilesToUpload(): Array<{ tempId: string; file: File }> {
+    if (!this.editor) return [];
+
+    const currentImages = this.extractImages(this.getCurrentJSON());
+    const result: Array<{ tempId: string; file: File }> = [];
+
+    currentImages.forEach((img) => {
+      if (img.src.startsWith("blob:") && img.tempId) {
+        const file = this.getFileByTempId(img.tempId);
+        if (file) result.push({ tempId: img.tempId, file });
+      }
+    });
+
+    return result;
+  }
+
+  // 이미지 차이 계산
+  async getImageDiff(): Promise<ImageDiff> {
+    const currentImages = this.extractImages(this.getCurrentJSON());
+    const currentIds = new Set<string>();
 
     const toUpload: Array<{ tempId: string; file: File }> = [];
     const toDelete: Array<{ fileId: string; src: string }> = [];
-    const unchanged: Array<{ fileId: string; src: string }> = [];
+    const unchanged: Array<{ fileId: string; src: string; width?: number; height?: number }> = [];
 
-    const currentIds = new Set<string>();
-
-    for (const img of currentImages) {
+    // 현재 이미지 처리
+    currentImages.forEach((img) => {
       if (img.src.startsWith("blob:") && img.tempId) {
-        const f = this.getFileByTempId(img.tempId);
-        if (f) toUpload.push({ tempId: img.tempId, file: f });
-      } else {
+        const file = this.getFileByTempId(img.tempId);
+        if (file) toUpload.push({ tempId: img.tempId, file });
+      } else if (img.fileId) {
         currentIds.add(img.fileId);
-        unchanged.push({ fileId: img.fileId, src: img.src });
+        unchanged.push({ fileId: img.fileId, src: img.src, width: img.width, height: img.height });
       }
-    }
+    });
 
-    initialImageState.forEach((src, fileId) => {
-      if (!currentIds.has(fileId)) toDelete.push({ fileId, src });
+    // 삭제된 이미지 찾기
+    this.initialImageState.forEach((data, fileId) => {
+      if (!currentIds.has(fileId)) {
+        toDelete.push({ fileId, src: data.src });
+      }
     });
 
     return { toUpload, toDelete, unchanged };
   }
 
-  async getImageDiff(editor: LexicalEditor): Promise<ImageDiff> {
-    return this.calculateImageDiffInternal(editor, this.initialImageState);
-  }
-
-  private async processImageUploads(
-    toUpload: Array<{ tempId: string; file: File }>,
-    uploadAPI?: FileUploadAdapter
-  ): Promise<{
-    successCount: number;
-    uploadResults: Map<string, { fileId: string; fileUrl: string }>;
-    failedUploads: Array<{ tempId: string; file: File; error: Error }>;
-    errors: Error[];
-  }> {
-    const uploadResults = new Map<string, { fileId: string; fileUrl: string }>();
-    const failedUploads: Array<{ tempId: string; file: File; error: Error }> = [];
-    const errors: Error[] = [];
-
-    if (!uploadAPI || toUpload.length === 0) {
-      return { successCount: 0, uploadResults, failedUploads, errors };
-    }
-
-    try {
-      // 업로드 어댑터가 tempId까지 돌려주면 더 안전하지만,
-      // 기존 계약: files[] -> same order 결과
-      const files = toUpload.map((x) => x.file);
-      const res = await uploadAPI(files);
-
-      let successCount = 0;
-      for (let i = 0; i < toUpload.length; i++) {
-        const { tempId, file } = toUpload[i];
-        const item = res[i];
-        if (item?.fileId && item?.fileUrl) {
-          uploadResults.set(tempId, { fileId: item.fileId, fileUrl: item.fileUrl });
-          successCount++;
-        } else {
-          const e = new Error(`Invalid upload result for tempId=${tempId}`);
-          failedUploads.push({ tempId, file, error: e });
-          errors.push(e);
-        }
-      }
-      return { successCount, uploadResults, failedUploads, errors };
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      toUpload.forEach(({ tempId, file }) => failedUploads.push({ tempId, file, error: e }));
-      errors.push(e);
-      return { successCount: 0, uploadResults, failedUploads, errors };
-    }
-  }
-
-  private async processImageDeletions(toDelete: Array<{ fileId: string; src: string }>, deleteAPI?: FileDeleteAdapter): Promise<{ successCount: number; failedDeletions: Array<{ fileId: string; src: string; error: Error }>; errors: Error[] }> {
-    const failedDeletions: Array<{ fileId: string; src: string; error: Error }> = [];
-    const errors: Error[] = [];
-    if (!deleteAPI || toDelete.length === 0) return { successCount: 0, failedDeletions, errors };
-
-    let successCount = 0;
-    for (const it of toDelete) {
-      try {
-        await deleteAPI(it.fileId);
-        successCount++;
-      } catch (err) {
-        const e = err instanceof Error ? err : new Error(String(err));
-        failedDeletions.push({ ...it, error: e });
-        errors.push(e);
-      }
-    }
-    return { successCount, failedDeletions, errors };
-  }
-
-  private replaceBlobWithUploadedInJSON(jsonString: string, uploadResults: Map<string, { fileId: string; fileUrl: string }>): string {
-    const json = JSON.parse(jsonString);
-    const root = json.root as JSONNode;
-    let count = 0;
-
-    walkNodes(root, (n) => {
-      if (n.type === "image" && n.tempId && typeof n.tempId === "string") {
-        const hit = uploadResults.get(n.tempId);
-        if (hit) {
-          n.src = hit.fileUrl;
-          n.fileId = hit.fileId;
-          n.tempId = null; // 제거
-          count++;
-        }
-      }
-    });
-
-    return JSON.stringify(json);
-  }
-
+  // 메인 submit 메서드
   async submit(
-    editor: LexicalEditor,
     uploadAPI?: FileUploadAdapter,
     deleteAPI?: FileDeleteAdapter,
     options?: SubmitOptions,
@@ -294,72 +202,82 @@ export class ImageFileManager {
       onUploadError?: (error: Error) => void;
     }
   ): Promise<string> {
-    if (!editor) throw new Error("에디터가 초기화되지 않았습니다.");
-    if (this.isSubmitting) throw new Error("이미 submit이 진행 중입니다.");
+    if (this.isSubmitting) throw new Error("Already submitting");
 
-    const { compareWithInitial = true } = options || {};
     this.isSubmitting = true;
     this.uploadStatus = { isUploading: false, uploadedCount: 0, totalCount: 0, errors: [] };
 
     try {
-      const imageDiff: ImageDiff = compareWithInitial ? this.calculateImageDiffInternal(editor, this.initialImageState) : { toUpload: this.getFilesToUpload(editor), toDelete: [], unchanged: [] };
+      const { compareWithInitial = true } = options || {};
+      const imageDiff = compareWithInitial ? await this.getImageDiff() : { toUpload: this.getFilesToUpload(), toDelete: [], unchanged: [] };
 
       const totalOps = imageDiff.toUpload.length + imageDiff.toDelete.length;
-      if (totalOps > 0 && (uploadAPI || deleteAPI)) {
+      if (totalOps > 0) {
         callbacks?.onUploadStart?.();
-        this.uploadStatus = { ...this.uploadStatus, isUploading: true, totalCount: totalOps };
+        this.uploadStatus.isUploading = true;
+        this.uploadStatus.totalCount = totalOps;
       }
 
       let done = 0;
 
-      // 삭제
+      // 삭제 처리
       if (imageDiff.toDelete.length > 0 && deleteAPI) {
-        const del = await this.processImageDeletions(imageDiff.toDelete, deleteAPI);
-        done += del.successCount;
-        callbacks?.onUploadProgress?.({ uploaded: done, total: totalOps });
-        this.uploadStatus = {
-          ...this.uploadStatus,
-          uploadedCount: done,
-          errors: [...this.uploadStatus.errors, ...del.errors],
-        };
-      }
-
-      // 업로드
-      let uploadResults = new Map<string, { fileId: string; fileUrl: string }>();
-      if (imageDiff.toUpload.length > 0 && uploadAPI) {
-        const up = await this.processImageUploads(imageDiff.toUpload, uploadAPI);
-        done += up.successCount;
-        callbacks?.onUploadProgress?.({ uploaded: done, total: totalOps });
-        this.uploadStatus = {
-          ...this.uploadStatus,
-          uploadedCount: done,
-          errors: [...this.uploadStatus.errors, ...up.errors],
-        };
-        if (up.failedUploads.length > 0) {
-          const e = new Error(`이미지 업로드 실패: ${up.failedUploads.length}개`);
-          callbacks?.onUploadError?.(e);
-          throw e;
+        for (const item of imageDiff.toDelete) {
+          try {
+            await deleteAPI(item.fileId);
+            done++;
+          } catch (err) {
+            this.uploadStatus.errors.push(err instanceof Error ? err : new Error(String(err)));
+          }
         }
-        uploadResults = up.uploadResults;
+        callbacks?.onUploadProgress?.({ uploaded: done, total: totalOps });
       }
 
-      // 최종 JSON 생성 (치환 필요 시 교체)
-      const currentJSON = this.getCurrentJSON(editor);
-      let finalJSON = currentJSON;
+      // 업로드 처리
+      const uploadResults = new Map<string, { fileId: string; fileUrl: string }>();
+      if (imageDiff.toUpload.length > 0 && uploadAPI) {
+        try {
+          const files = imageDiff.toUpload.map((x) => x.file);
+          const results = await uploadAPI(files);
+
+          imageDiff.toUpload.forEach(({ tempId }, i) => {
+            const result = results[i];
+            if (result?.fileId && result?.fileUrl) {
+              uploadResults.set(tempId, { fileId: result.fileId, fileUrl: result.fileUrl });
+              done++;
+            }
+          });
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.uploadStatus.errors.push(error);
+          callbacks?.onUploadError?.(error);
+          throw error;
+        }
+        callbacks?.onUploadProgress?.({ uploaded: done, total: totalOps });
+      }
+
+      // JSON 생성 및 변환
+      let finalJSON = this.getCurrentJSON();
       if (uploadResults.size > 0) {
-        finalJSON = this.replaceBlobWithUploadedInJSON(currentJSON, uploadResults);
+        const json = JSON.parse(finalJSON);
+        walkNodes(json.root, (n) => {
+          if (n.type === "image" && n.tempId && typeof n.tempId === "string") {
+            const result = uploadResults.get(n.tempId);
+            if (result) {
+              n.src = result.fileUrl;
+              n.fileId = result.fileId;
+              n.tempId = null;
+            }
+          }
+        });
+        finalJSON = JSON.stringify(json);
       }
 
-      if (totalOps > 0 && (uploadAPI || deleteAPI)) callbacks?.onUploadComplete?.();
+      if (totalOps > 0) callbacks?.onUploadComplete?.();
       return finalJSON;
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      this.uploadStatus = { ...this.uploadStatus, isUploading: false, errors: [...this.uploadStatus.errors, e] };
-      callbacks?.onUploadError?.(e);
-      throw e;
     } finally {
       this.isSubmitting = false;
-      this.uploadStatus = { ...this.uploadStatus, isUploading: false };
+      this.uploadStatus.isUploading = false;
     }
   }
 }

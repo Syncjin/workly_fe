@@ -2,7 +2,7 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getNodeByKey } from "lexical";
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { $isImageNode } from "./ImageNode";
 
 type Props = {
@@ -13,198 +13,139 @@ type Props = {
   nodeKey: string;
   isEditable?: boolean;
   minSize?: number;
+  maxSize?: number;
 };
 
-type LoadingState = "loading" | "loaded" | "error";
-type Size = {
-  w?: number;
-  h?: number;
-};
-export function ImageView({ src, alt, width, height, nodeKey, isEditable = true, minSize = 40 }: Props) {
+type Size = { w?: number; h?: number };
+
+export function ImageView({ src, alt, width, height, nodeKey, isEditable = true, minSize = 40, maxSize }: Props) {
   const [editor] = useLexicalComposerContext();
-
-  // 렌더 사이즈 상태
   const [size, setSize] = useState<Size>({ w: width, h: height });
-  const initialSizeRef = useRef<Size>({ w: width, h: height });
-
-  const [loadingState, setLoadingState] = useState<LoadingState>("loading");
-
-  // 리사이징 중 여부
-  const isResizingRef = useRef(false);
+  const [loadingState, setLoadingState] = useState<"loading" | "loaded" | "error">("loading");
   const [isResizing, setIsResizing] = useState(false);
 
-  // img 요소
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initialSizeRef = useRef<Size>({ w: width, h: height });
+  const aspectRef = useRef<number | null>(null);
+  const isResizingRef = useRef(false);
 
-  // props 크기 변경 시 내부 상태 동기화
+  // Props 변경 시 상태 동기화
   useLayoutEffect(() => {
     setSize({ w: width, h: height });
     initialSizeRef.current = { w: width, h: height };
   }, [width, height]);
 
-  const aspectRef = useRef<number | null>(null);
-
-  // 이미지 로딩 핸들러
+  // 이미지 로딩 완료 시 자동 크기 설정
   const handleImageLoad = useCallback(() => {
     setLoadingState("loaded");
     const el = imgRef.current;
-    if (el && el.naturalWidth && el.naturalHeight) {
-      aspectRef.current = el.naturalWidth / el.naturalHeight;
+    if (!el || width !== undefined || height !== undefined) return;
+
+    aspectRef.current = el.naturalWidth / el.naturalHeight;
+    let finalW = el.naturalWidth;
+    let finalH = el.naturalHeight;
+
+    if (maxSize && finalW > maxSize) {
+      finalW = maxSize;
+      finalH = finalW / aspectRef.current;
     }
-  }, []);
-  const handleImageError = useCallback(() => setLoadingState("error"), []);
 
-  // 리사이즈
-  const startPointRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const startSizeRef = useRef<{ w: number; h: number }>({ w: width ?? 0, h: height ?? 0 });
-  const rafRef = useRef<number | null>(null);
-  const pendingSizeRef = useRef<{ w: number; h: number } | null>(null);
+    const roundedW = Math.round(finalW);
+    const roundedH = Math.round(finalH);
 
-  const flushRaf = () => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-  };
+    editor.update(
+      () => {
+        const node = $getNodeByKey(nodeKey);
+        if (node && $isImageNode(node)) {
+          node.setSize(roundedW, roundedH);
+        }
+      },
+      { discrete: true }
+    );
 
-  const scheduleRaf = () => {
-    if (rafRef.current !== null) return;
-    rafRef.current = requestAnimationFrame(() => {
-      rafRef.current = null;
-      const next = pendingSizeRef.current;
-      if (next) {
-        setSize(next);
-        pendingSizeRef.current = null;
-      }
-    });
-  };
+    setSize({ w: roundedW, h: roundedH });
+    initialSizeRef.current = { w: roundedW, h: roundedH };
+  }, [editor, nodeKey, width, height, maxSize]);
 
-  const onPointerDown = useCallback(
+  // 리사이즈 핸들러
+  const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (!isEditable || loadingState !== "loaded") return;
 
       e.preventDefault();
       e.stopPropagation();
 
-      // 활성화
       isResizingRef.current = true;
       setIsResizing(true);
 
-      const rect = imgRef.current?.getBoundingClientRect();
-      startPointRef.current = { x: e.clientX, y: e.clientY };
-      startSizeRef.current = {
-        w: rect?.width ?? size.w ?? 100,
-        h: rect?.height ?? size.h ?? 100,
-      };
+      const rect = containerRef.current?.getBoundingClientRect();
+      const startPoint = { x: e.clientX, y: e.clientY };
+      const startSize = { w: rect?.width ?? size.w ?? 40, h: rect?.height ?? size.h ?? 40 };
 
       if (!aspectRef.current) {
-        const w0 = startSizeRef.current.w || 1;
-        const h0 = startSizeRef.current.h || 1;
-        aspectRef.current = w0 / h0;
+        aspectRef.current = startSize.w / startSize.h;
       }
 
-      // 포인터 캡처(핸들에서 포인터 고정)
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
       const handleMove = (pe: PointerEvent) => {
         if (!isResizingRef.current) return;
 
-        const dw = pe.clientX - startPointRef.current.x;
-        const dh = pe.clientY - startPointRef.current.y;
-
+        const dw = pe.clientX - startPoint.x;
+        const dh = pe.clientY - startPoint.y;
         const ratio = aspectRef.current || 1;
-        const leadIsWidth = Math.abs(dw) >= Math.abs(dh);
 
-        let newW = startSizeRef.current.w;
-        let newH = startSizeRef.current.h;
+        let newW = startSize.w + (Math.abs(dw) >= Math.abs(dh) ? dw : dh * ratio);
+        newW = Math.max(minSize, newW);
+        if (maxSize) newW = Math.min(maxSize, newW);
 
-        if (leadIsWidth) {
-          newW = startSizeRef.current.w + dw;
-          newH = newW / ratio;
-        } else {
-          newH = startSizeRef.current.h + dh;
-          newW = newH * ratio;
+        const newH = newW / ratio;
+        const roundedSize = { w: Math.round(newW), h: Math.round(newH) };
+
+        setSize(roundedSize);
+        if (containerRef.current) {
+          containerRef.current.style.width = `${roundedSize.w}px`;
+          containerRef.current.style.height = `${roundedSize.h}px`;
         }
-
-        // 최소 크기 적용 (한 변 기준 → 다른 변은 비율로 보정)
-        if (newW < minSize) {
-          newW = minSize;
-          newH = newW / ratio;
-        }
-        if (newH < minSize) {
-          newH = minSize;
-          newW = newH * ratio;
-        }
-
-        // 반올림 및 적용
-        pendingSizeRef.current = { w: Math.round(newW), h: Math.round(newH) };
-        scheduleRaf();
       };
 
-      const handleUp = (pe: PointerEvent) => {
-        // 정리
+      const handleUp = () => {
         isResizingRef.current = false;
         setIsResizing(false);
-        flushRaf();
 
-        window.removeEventListener("pointermove", handleMove, { capture: true } as any);
-        window.removeEventListener("pointerup", handleUp, { capture: true } as any);
+        window.removeEventListener("pointermove", handleMove, { capture: true });
+        window.removeEventListener("pointerup", handleUp, { capture: true });
 
-        const finalW = pendingSizeRef.current?.w ?? size.w ?? startSizeRef.current.w;
-        const finalH = pendingSizeRef.current?.h ?? size.h ?? startSizeRef.current.h;
+        const rect = containerRef.current?.getBoundingClientRect();
+        const finalW = rect?.width ?? startSize.w;
+        const finalH = rect?.height ?? startSize.h;
+        const initialW = initialSizeRef.current.w ?? startSize.w;
+        const initialH = initialSizeRef.current.h ?? startSize.h;
 
-        const initialW = initialSizeRef.current.w ?? startSizeRef.current.w;
-        const initialH = initialSizeRef.current.h ?? startSizeRef.current.h;
-
-        const changed = finalW !== initialW || finalH !== initialH;
-
-        if (!changed) return;
-
-        // 에디터 노드 업데이트
-        editor.update(() => {
-          const node = $getNodeByKey(nodeKey);
-          if (node && $isImageNode(node)) {
-            node.setSize(finalW, finalH);
-          }
-        });
-
-        // 다음 비교를 위해 초기값 업데이트
-        initialSizeRef.current = { w: finalW, h: finalH };
-        setSize({ w: finalW, h: finalH });
+        if (finalW !== initialW || finalH !== initialH) {
+          editor.update(() => {
+            const node = $getNodeByKey(nodeKey);
+            if (node && $isImageNode(node)) {
+              node.setSize(finalW, finalH);
+            }
+          });
+          initialSizeRef.current = { w: finalW, h: finalH };
+        }
       };
 
       window.addEventListener("pointermove", handleMove, { capture: true });
       window.addEventListener("pointerup", handleUp, { capture: true });
     },
-    [editor, isEditable, loadingState, minSize, nodeKey, size.w, size.h]
+    [editor, isEditable, loadingState, minSize, maxSize, nodeKey, size]
   );
 
-  useEffect(() => {
-    return () => {
-      flushRaf();
-      isResizingRef.current = false;
-      window.removeEventListener("pointermove", () => {});
-      window.removeEventListener("pointerup", () => {});
-    };
-  }, []);
-
-  // 로딩/에러 오버레이
+  const displayW = size.w;
+  const displayH = size.h;
   const showOverlay = loadingState !== "loaded";
-  const overlayContent = loadingState === "loading" ? <span style={{ color: "#666", fontSize: 12 }}>이미지 로딩 중…</span> : loadingState === "error" ? <span style={{ color: "#d32f2f", fontSize: 12 }}>이미지 로딩 실패</span> : null;
-
-  const displayW = size.w ?? undefined;
-  const displayH = size.h ?? undefined;
 
   return (
-    <span
-      style={{
-        display: "inline-block",
-        position: "relative",
-        userSelect: isResizing ? "none" : "auto",
-        lineHeight: 0,
-      }}
-    >
-      {/* 스켈레톤/에러 오버레이 */}
+    <span style={{ display: "inline-block", position: "relative", userSelect: isResizing ? "none" : "auto", lineHeight: 0 }}>
       {showOverlay && (
         <div
           style={{
@@ -220,33 +161,43 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
             pointerEvents: "none",
           }}
         >
-          {overlayContent}
+          <span style={{ color: loadingState === "loading" ? "#666" : "#d32f2f", fontSize: 12 }}>{loadingState === "loading" ? "이미지 로딩 중…" : "이미지 로딩 실패"}</span>
         </div>
       )}
 
-      <img
-        ref={imgRef}
-        src={src}
-        alt={alt ?? ""}
-        width={displayW}
-        height={displayH}
+      <div
+        ref={containerRef}
         style={{
+          width: displayW,
+          height: displayH,
           maxWidth: "100%",
           display: "block",
+          position: "relative",
           transition: isResizing ? "none" : "transform 0.06s ease, opacity 0.12s ease",
-          opacity: loadingState === "loaded" ? 1 : 0,
         }}
-        draggable={false}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-      />
+      >
+        <img
+          ref={imgRef}
+          src={src}
+          alt={alt ?? ""}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+            opacity: loadingState === "loaded" ? 1 : 0,
+            objectFit: "contain",
+          }}
+          draggable={false}
+          onLoad={handleImageLoad}
+          onError={() => setLoadingState("error")}
+        />
+      </div>
 
       {isEditable && loadingState === "loaded" && (
         <button
           type="button"
-          onPointerDown={onPointerDown}
+          onPointerDown={handlePointerDown}
           title="드래그하여 크기 조정"
-          aria-label="드래그하여 크기 조정"
           style={{
             position: "absolute",
             right: -6,
@@ -259,7 +210,7 @@ export function ImageView({ src, alt, width, height, nodeKey, isEditable = true,
             borderRadius: 2,
             boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
             opacity: isResizing ? 1 : 0.8,
-            touchAction: "none", // 터치 환경 드래그 제스처와 충돌 방지
+            touchAction: "none",
           }}
         />
       )}

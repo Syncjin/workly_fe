@@ -18,12 +18,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __height?: number;
   __tempId: string | null;
 
-  static getType() {
+  static getType(): string {
     return "image";
   }
   static clone(n: ImageNode) {
-    const node = new ImageNode({ src: n.__src, altText: n.__altText, width: n.__width, height: n.__height, tempId: n.__tempId }, n.__key);
-    return node;
+    return new ImageNode({ src: n.__src, altText: n.__altText, width: n.__width, height: n.__height, tempId: n.__tempId }, n.__key);
   }
 
   constructor({ src, altText = "", width, height, tempId }: InsertImagePayload, key?: NodeKey) {
@@ -33,6 +32,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__width = width;
     this.__height = height;
     this.__tempId = tempId !== undefined ? tempId : null;
+  }
+
+  static __containerMaxWidth?: number;
+  static setContainerMaxWidth(v?: number) {
+    ImageNode.__containerMaxWidth = v;
   }
 
   // 직렬화/역직렬화
@@ -47,15 +51,23 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   exportJSON() {
-    return {
+    const json: any = {
       type: "image",
       version: 1,
       src: this.__src,
       altText: this.__altText,
-      width: this.__width,
-      height: this.__height,
       tempId: this.__tempId,
     };
+
+    // width와 height는 undefined가 아닐 때만 포함
+    if (this.__width !== undefined) {
+      json.width = this.__width;
+    }
+    if (this.__height !== undefined) {
+      json.height = this.__height;
+    }
+
+    return json;
   }
 
   createDOM(config: EditorConfig): HTMLElement {
@@ -71,12 +83,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   decorate(editor: LexicalEditor): JSX.Element {
     // 에디터의 편집 가능 상태 확인
     const isEditable = editor?.isEditable() ?? true;
-
-    return <ImageView src={this.__src} alt={this.__altText} width={this.__width} height={this.__height} nodeKey={this.getKey()} isEditable={isEditable} />;
+    const maxW = ImageNode.__containerMaxWidth;
+    return <ImageView src={this.__src} alt={this.__altText} width={this.__width} height={this.__height} nodeKey={this.getKey()} isEditable={isEditable} maxSize={maxW} />;
   }
 
   // 리사이즈용 API
-  setSize(width?: number, height?: number) {
+  setSize(width?: number, height?: number): void {
     const writable = this.getWritable() as ImageNode;
     const oldWidth = writable.__width;
     const oldHeight = writable.__height;
@@ -89,10 +101,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     if (oldWidth !== newWidth || oldHeight !== newHeight) {
       writable.__width = newWidth;
       writable.__height = newHeight;
-      console.log(`ImageNode 크기 업데이트: ${oldWidth}x${oldHeight} → ${newWidth}x${newHeight}`);
+
+      // 에디터 상태 변경 알림
+      writable.markDirty();
+      console.log(`ImageNode 크기 업데이트 성공: ${oldWidth}x${oldHeight} → ${newWidth}x${newHeight}`);
     }
   }
 
+  getTextContent(): string {
+    if (this.__altText?.trim() !== "") {
+      return this.__altText?.trim();
+    }
+    return "[image]";
+  }
   setSrc(src: string) {
     const writable = this.getWritable() as ImageNode;
     writable.__src = src;

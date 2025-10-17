@@ -10,7 +10,7 @@ export type InsertYouTubePayload = {
   height?: number;
 };
 
-export default function YouTubePlugin(): JSX.Element | null {
+export default function YouTubePlugin({ contentMaxWidth }: { contentMaxWidth?: number }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -35,6 +35,10 @@ export default function YouTubePlugin(): JSX.Element | null {
       COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
+
+  useEffect(() => {
+    YouTubeNode.setContainerMaxWidth(contentMaxWidth);
+  }, [contentMaxWidth]);
 
   return null;
 }

@@ -2,7 +2,7 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $insertNodes, createCommand } from "lexical";
 import { useCallback, useEffect } from "react";
-import { $createImageNode, type InsertImagePayload } from "../nodes/ImageNode";
+import { $createImageNode, ImageNode, type InsertImagePayload } from "../nodes/ImageNode";
 import { ImageFileManager } from "./ImageFileManager";
 
 export const INSERT_IMAGE_COMMAND = createCommand<InsertImagePayload>("INSERT_IMAGE_COMMAND");
@@ -31,11 +31,11 @@ function validateImageFile(file: File): { isValid: boolean; error?: string } {
 export default function ImagePlugin({
   fileManager, // 파일 매니저 인스턴스
   onError, // 오류 처리 콜백
-  onEditorReady, // 에디터 준비 완료 콜백
+  contentMaxWidth,
 }: {
   fileManager?: ImageFileManager;
   onError?: (error: Error) => void;
-  onEditorReady?: (editor: any) => void;
+  contentMaxWidth?: number;
 }) {
   const [editor] = useLexicalComposerContext();
 
@@ -49,11 +49,16 @@ export default function ImagePlugin({
   );
 
   useEffect(() => {
-    onEditorReady?.(editor);
+    fileManager?.attach(editor);
+    return () => fileManager?.detach();
+  }, [editor, fileManager]);
+
+  useEffect(() => {
     return editor.registerCommand(
       INSERT_IMAGE_COMMAND,
       (payload) => {
         try {
+          console.log("payload", payload);
           $insertNodes([$createImageNode(payload)]);
           return true;
         } catch (e) {
@@ -63,7 +68,7 @@ export default function ImagePlugin({
       },
       0
     );
-  }, [editor, handleError, onEditorReady]);
+  }, [editor, handleError]);
 
   useEffect(() => {
     return editor.registerRootListener((rootElem, prevRootElem) => {
@@ -78,7 +83,7 @@ export default function ImagePlugin({
         rootElem.addEventListener("dragover", onDragOver as EventListener);
       }
     });
-  }, [editor, fileManager, handleError]);
+  }, [editor, handleError]);
 
   const handleIncomingImage = useCallback(
     (file: File, fallbackAlt: string) => {
@@ -141,5 +146,8 @@ export default function ImagePlugin({
     if (hasImage) e.preventDefault();
   }, []);
 
+  useEffect(() => {
+    ImageNode.setContainerMaxWidth(contentMaxWidth);
+  }, [contentMaxWidth]);
   return null;
 }

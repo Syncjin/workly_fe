@@ -21,12 +21,12 @@ import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import FormatClearPlugin from "./plugins/FormatClearPlugin";
 import { HTMLIOPlugin } from "./plugins/HTMLIOPlugin";
 import { ImageFileManager } from "./plugins/ImageFileManager";
-import ImagesPlugin from "./plugins/ImagePlugin";
+import ImagePlugin from "./plugins/ImagePlugin";
 import { IMESafeHotkeyPlugin } from "./plugins/IMESafeHotkeyPlugin";
 import YouTubePlugin from "./plugins/YoutubePlugin";
 import { lexicalTheme as defaultTheme } from "./theme.css";
 import { Toolbar } from "./Toolbar";
-import type { FileDeleteAdapter, FileUploadAdapter, ImageDiff, SubmitOptions, UploadStatus } from "./types";
+import type { FileDeleteAdapter, FileUploadAdapter, SubmitOptions } from "./types";
 
 type Props = {
   namespace: string;
@@ -40,6 +40,7 @@ type Props = {
   theme?: Record<string, any>;
   nodes?: ReadonlyArray<Klass<LexicalNode>>;
   onError?: (e: Error) => void;
+  contentMaxWidth?: number;
 
   // 업로드 관련
   uploadAPI?: FileUploadAdapter; // 파일 업로드 어댑터 함수
@@ -53,11 +54,6 @@ type Props = {
 export type EditorRef = {
   submit: (options?: SubmitOptions) => Promise<string>;
   getCurrentJSON: () => string;
-  hasUnsavedFiles: () => boolean;
-  getUploadStatus: () => UploadStatus;
-
-  // 필요 시만 사용
-  getImageDiff: () => Promise<ImageDiff>;
 };
 export const Editor = forwardRef<EditorRef, Props>(function Editor(
   {
@@ -72,6 +68,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
     theme = defaultTheme,
     nodes = defaultNodes,
     onError = (e) => console.error(e),
+    contentMaxWidth,
     uploadAPI,
     deleteAPI,
     onUploadStart,
@@ -81,20 +78,19 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
   },
   ref
 ) {
-  const editorRef = useRef<LexicalEditor | null>(null);
   const fileManagerRef = useRef<ImageFileManager>(new ImageFileManager());
-
   const initialConfig = {
     namespace,
     theme,
     nodes,
     onError,
-    editorState: (editor: any) => {
+    editorState: (editor: LexicalEditor) => {
       if (!initialJSON) return;
       try {
         const parsed = JSON.parse(initialJSON);
         editor.setEditorState(editor.parseEditorState(parsed));
-      } catch {
+      } catch (err) {
+        console.log("parsed err", err);
         editor.update(() => {
           const root = $getRoot();
           if (root.isEmpty()) root.append($createParagraphNode());
@@ -109,10 +105,8 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
   }, []);
 
   const submit = useCallback(
-    async (options?: SubmitOptions): Promise<string> => {
-      const editor = editorRef.current;
-      if (!editor) throw new Error("에디터가 없음");
-      return fileManagerRef.current.submit(editor, uploadAPI, deleteAPI, options, {
+    async (options?: SubmitOptions) => {
+      return fileManagerRef.current.submit(uploadAPI, deleteAPI, options, {
         onUploadStart,
         onUploadProgress,
         onUploadComplete,
@@ -122,25 +116,8 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
     [uploadAPI, deleteAPI, onUploadStart, onUploadProgress, onUploadComplete, onUploadError]
   );
 
-  const hasUnsavedFiles = useCallback((): boolean => {
-    const editor = editorRef.current;
-    return fileManagerRef.current.hasUnsavedFiles(editor ?? undefined);
-  }, []);
-
-  const getUploadStatus = useCallback((): UploadStatus => {
-    return fileManagerRef.current.getUploadStatus();
-  }, []);
-
-  const getImageDiff = useCallback(async (): Promise<ImageDiff> => {
-    const editor = editorRef.current;
-    if (!editor) throw new Error("에디터가 없음");
-    return fileManagerRef.current.getImageDiff(editor);
-  }, []);
-
   const getCurrentJSON = useCallback((): string => {
-    const editor = editorRef.current;
-    if (!editor) throw new Error("에디터가 없음");
-    return fileManagerRef.current.getCurrentJSON(editor);
+    return fileManagerRef.current.getCurrentJSON();
   }, []);
 
   useImperativeHandle(
@@ -148,11 +125,8 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
     () => ({
       submit,
       getCurrentJSON,
-      hasUnsavedFiles,
-      getUploadStatus,
-      getImageDiff,
     }),
-    [submit, getCurrentJSON, hasUnsavedFiles, getUploadStatus, getImageDiff]
+    [submit, getCurrentJSON]
   );
 
   // 초기 이미지 상태 세팅
@@ -169,12 +143,12 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
   const handleChange = useCallback(
     (editorState: any) => {
       if (!onChangeJSON) return;
-
       try {
-        editorRef.current?.getEditorState().read(() => {
+        editorState.read(() => {
           const root = $getRoot();
           const children = root.getChildren();
           const isEmpty = children.length === 0 || (children.length === 1 && children[0].getTextContent().trim() === "");
+
           if (isEmpty) {
             onChangeJSON("");
             return;
@@ -185,9 +159,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
         onChangeJSON(JSON.stringify(editorState));
       }
 
-      // 약간 지연 후 미사용 파일 정리
-      const ed = editorRef.current;
-      if (ed) setTimeout(() => fileManagerRef.current.cleanupUnusedFiles(ed), 120);
+      setTimeout(() => fileManagerRef.current.cleanupUnusedFiles(), 120);
     },
     [onChangeJSON]
   );
@@ -197,7 +169,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
       <div className={s.editorRoot}>
         <Toolbar onPickImageFile={onPickImageFile} onPickYoutubeVideo={onPickYoutubeVideo} rememberFile={rememberFile} />
 
-        <div className={s.editorSurface}>
+        <div className={s.editorSurface} style={{ width: contentMaxWidth }}>
           <RichTextPlugin contentEditable={<ContentEditable className={s.contentEditable} aria-label="에디터" spellCheck={false} />} placeholder={<div className={s.placeholder}>{placeholder}</div>} ErrorBoundary={LexicalErrorBoundary} />
           <HistoryPlugin />
           <ListPlugin />
@@ -211,14 +183,8 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
           <FormatClearPlugin />
           <CodeHighlightPlugin />
           <HTMLIOPlugin initialHTML={initialHTML} onExportHTML={onChangeHTML} />
-          <ImagesPlugin
-            fileManager={fileManagerRef.current}
-            onError={onError}
-            onEditorReady={(ed) => {
-              editorRef.current = ed;
-            }}
-          />
-          <YouTubePlugin />
+          <ImagePlugin fileManager={fileManagerRef.current} onError={onError} contentMaxWidth={contentMaxWidth} />
+          <YouTubePlugin contentMaxWidth={contentMaxWidth} />
         </div>
       </div>
     </LexicalComposer>

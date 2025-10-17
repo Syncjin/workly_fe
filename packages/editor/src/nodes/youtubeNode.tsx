@@ -35,6 +35,18 @@ export class YouTubeNode extends DecoratorBlockNode {
     return new YouTubeNode(node.__id, node.__width, node.__height, node.__format, node.__key);
   }
 
+  constructor(id: string, width?: number, height?: number, format?: ElementFormatType, key?: NodeKey) {
+    super(format, key);
+    this.__id = id;
+    this.__width = width;
+    this.__height = height;
+  }
+
+  static __containerMaxWidth?: number;
+  static setContainerMaxWidth(v?: number) {
+    YouTubeNode.__containerMaxWidth = v;
+  }
+
   static importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
     const node = $createYouTubeNode(serializedNode.videoID, serializedNode.width, serializedNode.height);
     node.setFormat(serializedNode.format);
@@ -45,17 +57,11 @@ export class YouTubeNode extends DecoratorBlockNode {
     return {
       type: "youtube",
       version: 1,
+      format: "left",
       videoID: this.__id,
       width: this.__width,
       height: this.__height,
     };
-  }
-
-  constructor(id: string, width?: number, height?: number, format?: ElementFormatType, key?: NodeKey) {
-    super(format, key);
-    this.__id = id;
-    this.__width = width;
-    this.__height = height;
   }
 
   exportDOM(): DOMExportOutput {
@@ -128,6 +134,7 @@ export class YouTubeNode extends DecoratorBlockNode {
   decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
     // 에디터의 편집 가능 상태 확인 ImageNode와 동일
     const isEditable = editor?.isEditable() ?? true;
+    const maxW = YouTubeNode.__containerMaxWidth;
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || "",
@@ -135,7 +142,7 @@ export class YouTubeNode extends DecoratorBlockNode {
     };
     return (
       <BlockWithAlignableContents className={className} format={this.__format} nodeKey={this.getKey()}>
-        <YouTubeView videoID={this.__id} width={this.__width} height={this.__height} nodeKey={this.getKey()} isEditable={isEditable} minSize={200} />
+        <YouTubeView videoID={this.__id} width={this.__width} height={this.__height} nodeKey={this.getKey()} isEditable={isEditable} minSize={200} maxSize={maxW} />
       </BlockWithAlignableContents>
     );
   }

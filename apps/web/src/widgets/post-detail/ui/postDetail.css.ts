@@ -35,7 +35,7 @@ export const content = style({
 });
 
 export const editorViewer = style({
-  maxWidth: 920,
+  maxWidth: 960,
   margin: "0 auto",
   overflow: "auto",
   wordWrap: "break-word",
@@ -43,6 +43,8 @@ export const editorViewer = style({
   whiteSpace: "normal",
   display: "block",
   position: "relative",
+  boxSizing: "content-box",
+  padding: "0 16px",
 });
 
 export const footer = style({

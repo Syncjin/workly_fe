@@ -4,7 +4,7 @@ export const editorRoot = style({
   border: "1px solid #e5e7eb",
   borderRadius: 16,
   overflow: "hidden",
-  background: "#fff",
+  background: "#f4f6fa",
 });
 
 export const toolbar = style({
@@ -66,6 +66,9 @@ export const option = style({
 export const editorSurface = style({
   padding: 16,
   position: "relative",
+  margin: "0 auto",
+  background: "#fff",
+  boxSizing: "content-box",
 });
 
 export const contentEditable = style({

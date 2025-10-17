@@ -45,7 +45,7 @@ export const EditorBody = ({ post }: { post?: Post }) => {
       <ArticleWriteActions editor={editorRef} />
       <BoardSelector />
       <div className={styles.editor.container}>
-        <Editor ref={editorRef} namespace="post-editor" placeholder="내용을 입력하세요…" onChangeJSON={setJson} initialJSON={post?.content} uploadAPI={uploadAPI} deleteAPI={deleteAPI} />
+        <Editor ref={editorRef} namespace="post-editor" placeholder="내용을 입력하세요." onChangeJSON={setJson} initialJSON={post?.content} uploadAPI={uploadAPI} deleteAPI={deleteAPI} contentMaxWidth={960} />
       </div>
     </div>
   );
