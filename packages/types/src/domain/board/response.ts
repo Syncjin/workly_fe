@@ -1,4 +1,3 @@
-
 export interface BoardDTO {
   boardId: number;
   boardName: string;

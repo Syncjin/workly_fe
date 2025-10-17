@@ -3,7 +3,6 @@ export interface UserLoginRequest {
   password: string;
 }
 
-
 export type UserRole = "ROLE_ADMIN" | "ROLE_USER";
 
 export interface UserDTO {
