@@ -23,7 +23,11 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@workly/tsconfig": "workspace:*",
+    "@workly/eslint-config": "workspace:*",
+    "@workly/prettier-config": "workspace:*",
     "typescript": "catalog:",
-    "@workly/tsconfig": "workspace:*"
+    "eslint": "catalog:",
+    "prettier": "catalog:"
   }
 }
