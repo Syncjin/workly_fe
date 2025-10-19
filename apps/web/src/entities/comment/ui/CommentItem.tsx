@@ -21,12 +21,12 @@ const useItem = () => {
 
 function Profile() {
   const { comment } = useItem();
-  return <Avatar showDot size="md" />;
+  return comment.user.profile ? <Avatar src={comment.user.profile} size="md" /> : <Avatar showDot size="md" />;
 }
 
 function Author() {
   const { comment } = useItem();
-  return <span className={styles.author}>이름</span>;
+  return <span className={styles.author}>{comment.user.name}</span>;
 }
 
 function Date() {
@@ -68,7 +68,7 @@ function ContentSlot({ children }: { children?: React.ReactNode }) {
 }
 
 function FooterSlot({ children }: { children?: React.ReactNode }) {
-  return <div className={styles.footer}>{children ?? <ReplyButton />}</div>;
+  return <div className={styles.footer}>{children}</div>;
 }
 
 function RightSlot({ children }: { children?: React.ReactNode }) {

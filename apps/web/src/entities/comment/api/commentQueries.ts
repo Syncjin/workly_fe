@@ -2,12 +2,12 @@ import { commentApi } from "@/entities/comment/api";
 import { Comment, CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentListParams, commentQueryKeys, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, Reaction } from "@/entities/comment/model";
 import { useApiMutation, useApiQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
-import type { ApiError, ApiResponse } from "@workly/types/common";
+import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
-export const useCommentList = <TSelected = ApiResponse<Comment[]>>(params: CommentListParams, options?: Omit<UseQueryOptions<ApiResponse<Comment[]>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+export const useCommentList = <TSelected = ApiResponse<Pagination<Comment>>>(params: CommentListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Comment>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = commentQueryKeys.list(params);
 
-  return useApiQuery<Comment[], TSelected>(queryKey, () => commentApi.getCommentList(params), {
+  return useApiQuery<Pagination<Comment>, TSelected>(queryKey, () => commentApi.getCommentList(params), {
     ...options,
   });
 };

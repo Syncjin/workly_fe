@@ -1,3 +1,4 @@
+import { CommentCreate } from "@/features/comment/comment-create";
 import { CommentActionHeader } from "@/widgets/comment-thread/ui";
 import { CommentList } from "@/widgets/comment-thread/ui/CommentList";
 import { PostDetailContainer } from "@/widgets/post-detail";
@@ -14,6 +15,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       <PostDetailContainer postId={id} />
       <CommentActionHeader />
       <CommentList postId={id} />
+      <CommentCreate postId={id} />
     </>
   );
 }

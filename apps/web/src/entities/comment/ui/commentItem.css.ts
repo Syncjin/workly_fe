@@ -34,6 +34,8 @@ export const header = style({
   display: "flex",
   alignItems: "center",
   position: "relative",
+  gap: 8,
+  alignContent: "center",
 });
 
 export const contentArea = style({
@@ -49,8 +51,10 @@ export const footer = style({
 export const container = style({
   position: "relative",
   padding: "16px 0",
+  display: "flex",
+  flexDirection: "row",
 });
 
 export const main = style({
-  margin: "0 0 0 56px",
+  margin: "0 0 0 12px",
 });

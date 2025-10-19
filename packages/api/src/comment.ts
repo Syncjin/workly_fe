@@ -1,12 +1,17 @@
-import type { ApiResponse } from "@workly/types/common";
+import type { ApiResponse, Pagination } from "@workly/types/common";
 import type { CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentDTO, CommentListParams, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, ReactionDTO } from "@workly/types/domain";
+import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 
 export function createCommentApi(http: HttpClient) {
   return {
     /** 댓글 목록 조회 */
-    getCommentList: async (params?: CommentListParams): Promise<ApiResponse<CommentDTO[]>> => {
-      return http.get<CommentDTO[]>(`/posts/${params?.postId}/comments`);
+    getCommentList: async (params?: CommentListParams): Promise<ApiResponse<Pagination<CommentDTO>>> => {
+      const query = qs({
+        page: params?.page,
+        size: params?.size,
+      });
+      return http.get<Pagination<CommentDTO>>(`/posts/${params?.postId}/comments${query}`);
     },
     /** 댓글 단건 조회 */
     getCommentDetail: async (params: CommentDetailRequest): Promise<ApiResponse<CommentDTO>> => {
