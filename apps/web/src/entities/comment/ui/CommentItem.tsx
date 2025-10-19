@@ -1,3 +1,5 @@
+"use client";
+
 import { Comment } from "@/entities/comment/model";
 import { formatYMDHM } from "@/shared/lib";
 import { Avatar, Button, cx } from "@workly/ui";

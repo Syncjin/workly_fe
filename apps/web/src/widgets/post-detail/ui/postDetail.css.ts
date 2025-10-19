@@ -4,7 +4,6 @@ export const container = style({
   width: "100%",
   display: "flex",
   flexDirection: "column",
-  height: "100%",
   minWidth: 960,
 });
 
