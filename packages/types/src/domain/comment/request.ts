@@ -1,5 +1,4 @@
-import type { PageParams } from "@workly/types/common/index";
-import type { CommentReactionDTO } from "@workly/types/domain/comment/response";
+import type { CommentReactionDTO, PageParams } from "@workly/types";
 
 export interface CommentListParams extends PageParams {
   postId: number;

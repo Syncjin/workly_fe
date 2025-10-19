@@ -1,5 +1,4 @@
-import type { ApiResponse, Pagination } from "@workly/types/common";
-import type { CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentDTO, CommentListParams, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, ReactionDTO } from "@workly/types/domain";
+import type { ApiResponse, CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentDTO, CommentListParams, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, Pagination, ReactionDTO } from "@workly/types";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 

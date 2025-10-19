@@ -4,7 +4,7 @@
  * Auth 인증 관련
  */
 
-import type { UserLoginRequest as UserLoginRequestDTO, UserLoginResponse as UserLoginResponseDTO } from "@workly/types/domain";
+import type { UserLoginRequest as UserLoginRequestDTO, UserLoginResponse as UserLoginResponseDTO } from "@workly/types";
 
 export interface UserLoginRequest extends UserLoginRequestDTO {}
 

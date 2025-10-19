@@ -1,5 +1,4 @@
-import type { ApiResponse, Pagination } from "@workly/types/common";
-import type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest, PostUpdateRequest } from "@workly/types/domain";
+import type { ApiResponse, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest, PostUpdateRequest } from "@workly/types";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 

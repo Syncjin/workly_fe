@@ -3,8 +3,15 @@
  *
  */
 
-import type { PostCreateRequest, PostUpdateRequest } from "@workly/types";
-export type { PostDTO as Post, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@workly/types/domain";
+import { FileInfo } from "@/entities/file";
+import { User } from "@/entities/users";
+import type { PostCreateRequest, PostDTO, PostUpdateRequest } from "@workly/types";
+export type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@workly/types";
+
+export type Post = Omit<PostDTO, "user" | "fileInfos"> & {
+  user: User;
+  fileInfos: FileInfo;
+};
 
 export type PostCreateParams = {
   post: PostCreateRequest;

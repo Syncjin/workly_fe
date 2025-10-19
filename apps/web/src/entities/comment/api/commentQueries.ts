@@ -2,7 +2,7 @@ import { commentApi } from "@/entities/comment/api";
 import { Comment, CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentListParams, commentQueryKeys, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, Reaction } from "@/entities/comment/model";
 import { useApiMutation, useApiQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
-import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
+import type { ApiError, ApiResponse, Pagination } from "@workly/types";
 
 export const useCommentList = <TSelected = ApiResponse<Pagination<Comment>>>(params: CommentListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Comment>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = commentQueryKeys.list(params);

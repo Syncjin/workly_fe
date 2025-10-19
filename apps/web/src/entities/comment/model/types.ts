@@ -3,11 +3,14 @@
  *
  */
 
+import { User } from "@/entities/users";
+import { CommentDTO } from "@workly/types";
+
 export type {
-  CommentDTO as Comment,
   CommentCreateRequest,
   CommentDeleteRequest,
   CommentDetailRequest,
+  CommentDTO,
   CommentListParams,
   CommentReactionDTO as CommentReaction,
   CommentReactionDeleteRequest,
@@ -15,4 +18,8 @@ export type {
   CommentReactionUpsertRequest,
   CommentUpdateRequest,
   ReactionDTO as Reaction,
-} from "@workly/types/domain";
+} from "@workly/types";
+
+export type Comment = Omit<CommentDTO, "user"> & {
+  user: User;
+};
