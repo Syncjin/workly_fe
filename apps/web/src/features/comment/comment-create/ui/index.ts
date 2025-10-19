@@ -1,1 +1,1 @@
-export { CommentCreateForm } from "./CommentCreateForm";
+export { CommentCreate } from "./CommentCreate";
