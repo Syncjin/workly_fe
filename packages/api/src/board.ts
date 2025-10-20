@@ -1,5 +1,4 @@
-import type { ApiResponse } from "@workly/types/common";
-import type { BoardDetailParams, BoardDTO, BoardParams } from "@workly/types/domain";
+import type { ApiResponse, BoardDetailParams, BoardDTO, BoardParams } from "@workly/types";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 

@@ -1,5 +1,7 @@
-import { useClickOutside } from "@workly/utils";
+"use client";
+
 import React, { createContext, useContext, useRef, useState } from "react";
+import { useClickOutside } from "../../hooks";
 import { cx } from "../../theme/classes";
 import Icon from "../Icon";
 import * as styles from "./select.css";

@@ -1,16 +1,46 @@
-import { commentApi } from "@/entities/comment/api";
-import { Comment, CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentListParams, commentQueryKeys, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, Reaction } from "@/entities/comment/model";
-import { useApiMutation, useApiQuery } from "@/shared/api/hooks";
-import type { UseQueryOptions } from "@tanstack/react-query";
-import type { ApiError, ApiResponse } from "@workly/types/common";
+import {
+  Comment,
+  commentApi,
+  CommentCreateRequest,
+  CommentDeleteRequest,
+  CommentDetailRequest,
+  CommentListInfiniteParams,
+  CommentListParams,
+  commentQueryKeys,
+  CommentReactionDeleteRequest,
+  CommentReactionParams,
+  CommentReactionUpsertRequest,
+  CommentUpdateRequest,
+  PageData,
+  Reaction,
+} from "@/entities/comment";
+import { ApiInfiniteOptions, useApiInfiniteQuery, useApiMutation, useApiQuery } from "@/shared/api/hooks";
+import type { InfiniteData, UseQueryOptions } from "@tanstack/react-query";
+import type { ApiError, ApiResponse, Pagination } from "@workly/types";
 
-export const useCommentList = <TSelected = ApiResponse<Comment[]>>(params: CommentListParams, options?: Omit<UseQueryOptions<ApiResponse<Comment[]>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+export const useCommentList = <TSelected = ApiResponse<Pagination<Comment>>>(params: CommentListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Comment>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = commentQueryKeys.list(params);
 
-  return useApiQuery<Comment[], TSelected>(queryKey, () => commentApi.getCommentList(params), {
+  return useApiQuery<Pagination<Comment>, TSelected>(queryKey, () => commentApi.getCommentList(params), {
     ...options,
   });
 };
+
+export function useCommentListInfinite<TSelected = InfiniteData<ApiResponse<PageData>>>(
+  params: CommentListInfiniteParams,
+  options?: Omit<ApiInfiniteOptions<PageData, TSelected, ReturnType<typeof commentQueryKeys.infinite>, number>, "queryKey" | "queryFn" | "getNextPageParam" | "initialPageParam">
+) {
+  return useApiInfiniteQuery<PageData, TSelected, ReturnType<typeof commentQueryKeys.infinite>, number>({
+    queryKey: commentQueryKeys.infinite(params),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => commentApi.getCommentList({ ...params, page: pageParam }),
+    getNextPageParam: (lastPage) => {
+      const p = lastPage.data;
+      return p?.hasNext ? p.nextPage : undefined;
+    },
+    ...options,
+  });
+}
 
 export const useCommentDetail = <TSelected = ApiResponse<Comment>>(params: CommentDetailRequest, options?: Omit<UseQueryOptions<ApiResponse<Comment>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = commentQueryKeys.detail(params.commentId);

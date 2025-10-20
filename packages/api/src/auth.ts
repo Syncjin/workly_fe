@@ -1,5 +1,4 @@
-import type { ApiResponse } from "@workly/types/common";
-import type { UserLoginRequest, UserLoginResponse } from "@workly/types/domain";
+import type { ApiResponse, UserLoginRequest, UserLoginResponse } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createAuthApi(http: HttpClient) {

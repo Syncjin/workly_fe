@@ -1,17 +1,16 @@
 "use client";
-import { PERM, usePermission } from "@/entities/permission";
+import { PERM, useCan } from "@/entities/permission";
 import { ReactNode } from "react";
 
 export type UpdatePostRenderProps = {
-  isPermitted: boolean;
   isPending: boolean;
   isError: boolean;
 };
 
-export function UpdatePostButton({ children }: { children: (props: UpdatePostRenderProps) => ReactNode }) {
-  const { isPermitted, isPending, isError } = usePermission(PERM.POST_EDIT);
+export function UpdatePostButton({ children, ownerId }: { children: (props: UpdatePostRenderProps) => ReactNode; ownerId: string }) {
+  const { allowed, isPending, isError } = useCan(PERM.POST_EDIT, { ownerId, requireOwnership: true });
 
-  if (!isPermitted) return null;
+  if (!allowed) return null;
 
-  return <>{children({ isPermitted, isPending, isError })}</>;
+  return <>{children({ isPending, isError })}</>;
 }

@@ -1,7 +1,14 @@
 import { log } from "@/lib/logger";
-import type { QueryFunctionContext, UseMutationOptions, UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import type { InfiniteData, QueryFunctionContext, QueryKey, UseInfiniteQueryOptions, UseMutationOptions, UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import type { ApiError, ApiResponse } from "@workly/types/common";
+
+export type ApiInfiniteOptions<
+  TData, // 실제 데이터 (ex. Pagination<Comment>)
+  TSelected = InfiniteData<ApiResponse<TData>>, // select 결과 타입(기본: InfiniteData<ApiResponse<TData>>)
+  TQueryKey extends QueryKey = QueryKey,
+  TPageParam = unknown,
+> = UseInfiniteQueryOptions<ApiResponse<TData>, ApiError, TSelected, TQueryKey, TPageParam>;
 
 // GET 요청 훅
 export function useApiQuery<T, TSelected = ApiResponse<T>>(queryKey: readonly unknown[], queryFn: (ctx: QueryFunctionContext) => Promise<ApiResponse<T>>, options?: Omit<UseQueryOptions<ApiResponse<T>, ApiError, TSelected>, "queryKey" | "queryFn">) {
@@ -18,6 +25,10 @@ export function useApiSuspenseQuery<T, TSelected = ApiResponse<T>>(queryKey: rea
     queryFn,
     ...options,
   });
+}
+
+export function useApiInfiniteQuery<TData, TSelected = InfiniteData<ApiResponse<TData>>, TQueryKey extends QueryKey = QueryKey, TPageParam = unknown>(options: ApiInfiniteOptions<TData, TSelected, TQueryKey, TPageParam>) {
+  return useInfiniteQuery(options);
 }
 
 // 요청 훅

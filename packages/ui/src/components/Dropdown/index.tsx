@@ -1,7 +1,7 @@
 "use client";
 
-import { useClickOutside } from "@workly/utils";
 import React, { createContext, useContext, useRef, useState } from "react";
+import { useClickOutside } from "../../hooks";
 import { cx } from "../../theme/classes";
 import * as styles from "./dropdown.css";
 
@@ -21,6 +21,7 @@ interface DropdownProps {
   onOpenChange?: (open: boolean) => void;
   classes?: DropdownClassNames;
   className?: string;
+  align: "start" | "end";
 }
 
 interface DropdownContextValue {
@@ -28,11 +29,12 @@ interface DropdownContextValue {
   toggle: () => void;
   close: () => void;
   classes?: DropdownClassNames;
+  align: "start" | "end";
 }
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
 
-export const Dropdown = ({ children, open: controlledOpen, onOpenChange, classes, className }: DropdownProps) => {
+export const Dropdown = ({ children, open: controlledOpen, onOpenChange, classes, className, align = "start" }: DropdownProps) => {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -45,7 +47,7 @@ export const Dropdown = ({ children, open: controlledOpen, onOpenChange, classes
   useClickOutside(ref, close);
 
   return (
-    <DropdownContext.Provider value={{ open, toggle, close, classes }}>
+    <DropdownContext.Provider value={{ open, toggle, close, classes, align }}>
       <div className={cx(styles.dropdownContainer, classes?.root, className)} ref={ref} data-slot="root">
         {children}
       </div>
@@ -78,7 +80,7 @@ const Menu = ({ children, className, ...divProps }: React.HTMLAttributes<HTMLDiv
   const ctx = useContext(DropdownContext);
   if (!ctx?.open) return null;
   return (
-    <div {...divProps} className={cx(styles.dropdownMenu, ctx.classes?.menu, className)} role="menu" data-slot="menu">
+    <div {...divProps} className={cx(styles.dropdownMenu, ctx.align === "end" && styles.menuAlignEnd, ctx.classes?.menu, className)} role="menu" data-slot="menu">
       {children}
     </div>
   );

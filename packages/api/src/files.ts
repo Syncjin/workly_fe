@@ -1,5 +1,4 @@
-import type { ApiResponse } from "@workly/types/common";
-import type { FileDeleteRequest, FileDownloadDTO, FileDownloadRequest, FileInfoDTO, FileRequest } from "@workly/types/domain";
+import type { ApiResponse, FileDeleteRequest, FileDownloadDTO, FileDownloadRequest, FileInfoDTO, FileRequest } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createFileApi(http: HttpClient) {

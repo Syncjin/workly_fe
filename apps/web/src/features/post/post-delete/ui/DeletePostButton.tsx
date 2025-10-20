@@ -1,24 +1,23 @@
 "use client";
-import { PERM, usePermission } from "@/entities/permission";
+import { PERM, useCan } from "@/entities/permission";
 import { usePostDeleteAction } from "@/features/post/post-delete";
 import { ReactNode } from "react";
 
 export type DeletePostRenderProps = {
   run: () => Promise<void>;
   isPending: boolean;
-  isPermitted: boolean;
 };
 
-export function DeletePostButton({ postIds, children }: { postIds: number[]; children: (props: DeletePostRenderProps) => ReactNode }) {
-  const { isPermitted } = usePermission(PERM.POST_DELETE);
+export function DeletePostButton({ postIds, children, ownerId }: { postIds: number[]; children: (props: DeletePostRenderProps) => ReactNode; ownerId: string }) {
+  const { allowed } = useCan(PERM.POST_DELETE, { ownerId, requireOwnership: true });
   const { run, isPending } = usePostDeleteAction();
 
+  if (!allowed) return null;
+
   async function handle() {
-    if (!isPermitted || postIds.length === 0 || isPending) return;
+    if (!allowed || postIds.length === 0 || isPending) return;
     await run(postIds);
   }
 
-  if (!isPermitted) return null;
-
-  return <>{children({ run: handle, isPending, isPermitted })}</>;
+  return <>{children({ run: handle, isPending })}</>;
 }
