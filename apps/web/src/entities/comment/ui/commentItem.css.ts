@@ -3,7 +3,7 @@ import { style } from "@vanilla-extract/css";
 export const right = style({
   position: "absolute",
   right: 0,
-  top: 0,
+  top: 16,
 });
 
 export const author = style({
@@ -53,8 +53,24 @@ export const container = style({
   padding: "16px 0",
   display: "flex",
   flexDirection: "row",
+  selectors: {
+    "&:first-child": {
+      borderTop: "1px solid var(--color-gray-100)",
+    },
+
+    "&:not(:first-child)::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 50,
+      right: 0,
+      height: 1,
+      background: "var(--color-gray-100)",
+    },
+  },
 });
 
 export const main = style({
   margin: "0 0 0 12px",
+  width: "100%",
 });

@@ -80,10 +80,12 @@ type RootProps = React.PropsWithChildren<
   CtxValue & {
     as?: "li" | "div";
     className?: string;
+    right?: React.ReactNode;
+    footer?: React.ReactNode;
   }
 >;
 
-function Root({ as = "li", className, children, ...ctx }: RootProps) {
+function Root({ as = "li", className, children, right, footer, ...ctx }: RootProps) {
   const Comp: any = as;
   return (
     <Ctx.Provider value={ctx}>
@@ -95,9 +97,9 @@ function Root({ as = "li", className, children, ...ctx }: RootProps) {
             <div className={styles.main}>
               <HeaderSlot />
               <ContentSlot />
-              <FooterSlot />
+              {footer && <FooterSlot>{footer}</FooterSlot>}
             </div>
-            <RightSlot />
+            {right && <RightSlot>{right}</RightSlot>}
           </>
         )}
       </Comp>
