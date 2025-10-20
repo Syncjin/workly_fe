@@ -1,3 +1,3 @@
-import { PERM, usePermission } from "@/entities/permission";
+import { PERM, useCan } from "@/entities/permission";
 
-export const useBoardManagePermission = () => usePermission(PERM.BOARD_MANAGE);
+export const useBoardManagePermission = () => useCan(PERM.BOARD_MANAGE);

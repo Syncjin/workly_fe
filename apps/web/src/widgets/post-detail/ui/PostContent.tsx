@@ -16,12 +16,10 @@ const PostContent = (post: Post) => {
   const router = useRouter();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
-
   const { run } = usePostReadAction();
 
   const renderOnDelete = useCallback(
-    ({ run, isPending, isPermitted }: DeletePostRenderProps) => {
-      if (!isPermitted) return null;
+    ({ run, isPending }: DeletePostRenderProps) => {
       const disabled = isPending;
 
       const onClick = async () => {
@@ -58,8 +56,8 @@ const PostContent = (post: Post) => {
   );
 
   const renderOnUpdate = useCallback(
-    ({ isPermitted, isPending, isError }: UpdatePostRenderProps) => {
-      const disabled = !isPermitted || isPending || isError;
+    ({ isPending, isError }: UpdatePostRenderProps) => {
+      const disabled = isPending || isError;
 
       const onClick = useCallback(() => {
         const sp = new URLSearchParams(searchParams?.toString() ?? "");
@@ -89,8 +87,10 @@ const PostContent = (post: Post) => {
         <>
           <EditorViewer namespace="post-viewer" initialJSON={post?.content ?? null} contentClassName={styles.editorViewer} />
           <div className={styles.actionArea}>
-            <UpdatePostButton>{renderOnUpdate}</UpdatePostButton>
-            <DeletePostButton postIds={[post.postId]}>{renderOnDelete}</DeletePostButton>
+            <UpdatePostButton ownerId={post.user.userId}>{renderOnUpdate}</UpdatePostButton>
+            <DeletePostButton ownerId={post.user.userId} postIds={[post.postId]}>
+              {renderOnDelete}
+            </DeletePostButton>
           </div>
         </>
       )}
