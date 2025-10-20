@@ -1,1 +1,1 @@
-export { usePermission } from "./usePermission";
+export { useCan, useIsOwner, usePermission, useRole } from "./usePermission";
