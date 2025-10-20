@@ -14,8 +14,8 @@ export interface CommentDTO {
   user: UserDTO;
   postId: number;
   createdDateTime: string; //작성일
-  updatedDateTime: string; //수정일
-  deletedDateTime: string; //삭제일
-  reactions: ReactionDTO;
-  myReaction: CommentReactionDTO; //댓글 리액션 종류
+  updatedDateTime?: string; //수정일
+  deletedDateTime?: string; //삭제일
+  reactions?: ReactionDTO;
+  myReaction?: CommentReactionDTO; //댓글 리액션 종류
 }

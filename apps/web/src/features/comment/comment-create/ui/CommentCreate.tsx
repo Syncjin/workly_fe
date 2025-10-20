@@ -1,14 +1,14 @@
 "use client";
 import { commentSchema, useCommentCreateAction } from "@/features/comment/comment-create";
-import { Button, Textarea } from "@workly/ui";
-import { ChangeEvent, useCallback, useState } from "react";
+import { Button, Icon, Textarea } from "@workly/ui";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import * as styles from "./commentCreate.css";
 
 export const CommentCreate = ({ postId }: { postId: number }) => {
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const { run } = useCommentCreateAction();
+  const { run, isPending } = useCommentCreateAction();
 
   const onCreateComment = useCallback(async () => {
     const parsed = commentSchema.safeParse({ postId, content });
@@ -20,10 +20,7 @@ export const CommentCreate = ({ postId }: { postId: number }) => {
     }
     setError(null);
 
-    // 2) 전송 (여기선 예시로 콘솔, 실제로는 mutate(parsed.data))
-    // mutate(parsed.data, { onSuccess: () => setContent("") });
-    console.log("create comment payload:", parsed.data);
-    run(parsed.data);
+    await run(parsed.data);
     setContent("");
   }, [postId, content]);
 
@@ -31,10 +28,18 @@ export const CommentCreate = ({ postId }: { postId: number }) => {
     setContent(e.currentTarget.value);
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Shift + Enter는 줄바꿈을 허용
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Enter 키의 기본 동작(줄바꿈)을 막음
+      onCreateComment();
+    }
+  };
+
   return (
     <div className={styles.textareaBox}>
-      <Textarea name="comment" className={styles.textarea} placeholder="댓글을 입력하세요." value={content} onChange={contentOnChange} aria-invalid={!!error} aria-describedby={error ? "comment-error" : undefined} />
-      <Button size="sm" className={styles.createBtn} color="brand-600" onClick={onCreateComment} type="button">
+      <Textarea name="comment" className={styles.textarea} placeholder="댓글을 입력하세요." value={content} onChange={contentOnChange} onKeyDown={handleKeyDown} disabled={isPending} aria-invalid={!!error} aria-describedby={error ? "comment-error" : undefined} />
+      <Button size="sm" className={styles.createBtn} color="brand-600" onClick={onCreateComment} type="button" loading={isPending} loadingIcon={<Icon name="loader-2-line" color="#fff" />}>
         입력
       </Button>
     </div>
