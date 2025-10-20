@@ -1,6 +1,7 @@
 "use client";
+import { CommentEditor } from "@/entities/comment";
 import { commentSchema, useCommentCreateAction } from "@/features/comment/comment-create";
-import { Button, Icon, Textarea } from "@workly/ui";
+import { Button, Icon } from "@workly/ui";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import * as styles from "./commentCreate.css";
 
@@ -29,19 +30,20 @@ export const CommentCreate = ({ postId }: { postId: number }) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Shift + Enter는 줄바꿈을 허용
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault(); // Enter 키의 기본 동작(줄바꿈)을 막음
+      e.preventDefault();
       onCreateComment();
     }
   };
 
   return (
-    <div className={styles.textareaBox}>
-      <Textarea name="comment" className={styles.textarea} placeholder="댓글을 입력하세요." value={content} onChange={contentOnChange} onKeyDown={handleKeyDown} disabled={isPending} aria-invalid={!!error} aria-describedby={error ? "comment-error" : undefined} />
-      <Button size="sm" className={styles.createBtn} color="brand-600" onClick={onCreateComment} type="button" loading={isPending} loadingIcon={<Icon name="loader-2-line" color="#fff" />}>
-        입력
-      </Button>
-    </div>
+    <CommentEditor.Root value={content} onChange={contentOnChange} onKeyDown={handleKeyDown} isPending={isPending} error={error}>
+      <CommentEditor.Editor />
+      <CommentEditor.ActionSlot>
+        <Button size="sm" className={styles.createBtn} color="brand-600" onClick={onCreateComment} type="button" loading={isPending} loadingIcon={<Icon name="loader-2-line" color="#fff" />}>
+          입력
+        </Button>
+      </CommentEditor.ActionSlot>
+    </CommentEditor.Root>
   );
 };
