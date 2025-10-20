@@ -61,7 +61,6 @@ export const iconSlot = style({
       height: "2em",
       alignItems: "center",
       justifyContent: "center",
-      flexShrink: 0,
     },
   },
 });
@@ -105,7 +104,12 @@ const spin = keyframes({
 export const spin1s = style({
   "@layer": {
     [components]: {
-      display: "inline-block",
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+      transformOrigin: "center center",
       animation: `${spin} 1s linear infinite`,
       "@media": { "(prefers-reduced-motion: reduce)": { animation: "none" } },
     },
