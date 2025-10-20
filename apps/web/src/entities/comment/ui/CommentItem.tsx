@@ -21,7 +21,10 @@ const useItem = () => {
 
 function Profile() {
   const { comment } = useItem();
-  return comment.user.profile ? <Avatar src={comment.user.profile} size="md" /> : <Avatar showDot size="md" />;
+  if (comment.user.profile && comment.user.profile !== "프로필 이미지가 없습니다. 이미지를 등록해주세요.") {
+    return <Avatar src={comment.user.profile} size={"md"} />;
+  }
+  return <Avatar size="md" />;
 }
 
 function Author() {
@@ -93,7 +96,7 @@ function Root({ as = "li", className, children, right, footer, ...ctx }: RootPro
         {/* 기본 레이아웃 제공 */}
         {children ?? (
           <>
-            <Avatar />
+            <Profile />
             <div className={styles.main}>
               <HeaderSlot />
               <ContentSlot />

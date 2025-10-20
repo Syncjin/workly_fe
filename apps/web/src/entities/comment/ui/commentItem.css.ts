@@ -42,6 +42,7 @@ export const contentArea = style({
   padding: "8px 16px 0 0",
   wordWrap: "break-word",
   wordBreak: "break-word",
+  flex: 1,
 });
 
 export const footer = style({
