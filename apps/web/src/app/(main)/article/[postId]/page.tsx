@@ -1,4 +1,5 @@
 import { CommentCreate } from "@/features/comment/comment-create";
+import { CommentThreadProvider } from "@/widgets/comment-thread/model";
 import { CommentActionHeader } from "@/widgets/comment-thread/ui";
 import { CommentList } from "@/widgets/comment-thread/ui/CommentList";
 import { PostDetailContainer } from "@/widgets/post-detail";
@@ -13,9 +14,11 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   return (
     <>
       <PostDetailContainer postId={id} />
-      <CommentActionHeader />
-      <CommentList postId={id} />
-      <CommentCreate postId={id} />
+      <CommentThreadProvider>
+        <CommentActionHeader />
+        <CommentList postId={id} />
+        <CommentCreate postId={id} />
+      </CommentThreadProvider>
     </>
   );
 }
