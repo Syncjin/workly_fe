@@ -2,23 +2,43 @@
 
 import { Comment, CommentItem, useCommentListInfinite } from "@/entities/comment";
 import * as itemStyles from "@/entities/comment/ui/commentItem.css";
+import { DeleteCommentButton, useCommentDeleteAction, type DeleteCommentRenderProps } from "@/features/comment/comment-delete";
 import { CommentUpdate, UpdateCommentButton, UpdateCommentRenderProps } from "@/features/comment/comment-update";
+import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
 import { useCommentThreadActions } from "@/widgets/comment-thread/model";
 import { Button, Dropdown, Icon } from "@workly/ui";
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import * as styles from "./commentList.css";
 
 const RightMenu = ({ comment, setEditingId }: { comment: Comment; setEditingId: Dispatch<SetStateAction<number | null>> }) => {
+  const { run } = useCommentDeleteAction();
   const renderOnUpdate = useCallback(
     ({ isPending, isError }: UpdateCommentRenderProps) => {
       const disabled = isPending || isError;
 
       const onClick = useCallback(() => {
-        console.log("comment edit", comment);
         setEditingId(comment.commentId);
       }, [comment]);
 
       return <Dropdown.Item text="수정" onClick={onClick} />;
+    },
+    [comment]
+  );
+
+  const renderOnDelete = useCallback(
+    ({ isPending, isError }: DeleteCommentRenderProps) => {
+      const disabled = isPending || isError;
+
+      const onClick = useCallback(async () => {
+        const res = await openConfirm({ header: "댓글 삭제", title: "댓글을 삭제하시겠습니까?" });
+        if (res && comment.commentId && comment.postId) {
+          openLoadingOverlay();
+          await run({ commentId: comment.commentId, postId: comment.postId });
+          closeLoadingOverlay();
+        }
+      }, [comment]);
+
+      return <Dropdown.Item text="삭제" onClick={onClick} />;
     },
     [comment]
   );
@@ -32,7 +52,7 @@ const RightMenu = ({ comment, setEditingId }: { comment: Comment; setEditingId: 
       </Dropdown.Trigger>
       <Dropdown.Menu>
         <UpdateCommentButton ownerId={comment.user.userId}>{renderOnUpdate}</UpdateCommentButton>
-        <Dropdown.Item text="삭제" onClick={() => console.log("settings")} />
+        <DeleteCommentButton ownerId={comment.user.userId}>{renderOnDelete}</DeleteCommentButton>
       </Dropdown.Menu>
     </Dropdown>
   );
@@ -65,7 +85,7 @@ export const CommentList = ({ postId }: { postId: number }) => {
 
   useEffect(() => {
     const totalCnt = data?.pages?.[0]?.data?.totalItems;
-    if (totalCnt) {
+    if (totalCnt || totalCnt === 0) {
       setCommentCnt(totalCnt);
     }
   }, [data]);
