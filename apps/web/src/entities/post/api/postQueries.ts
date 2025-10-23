@@ -5,7 +5,7 @@
  * 적절한 캐싱 전략과 함께 공유 useApiQuery 훅을 사용합니다.
  */
 
-import { postApi, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
+import { postApi, PostLikeRequest, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
@@ -52,6 +52,10 @@ export const usePostUpdate = () => {
 
 export const usePostMove = () => {
   return useApiMutation<PostMoveResponse, PostMoveRequest>((params) => postApi.patchPostsMove(params), {});
+};
+
+export const usePostLike = () => {
+  return useApiMutation<Post, PostLikeRequest>((params) => postApi.postPostsLike(params), {});
 };
 
 export const usePostDetailSuspense = <TSelected = ApiResponse<Post>>(params: PostDetailRequest, options?: Omit<UseQueryOptions<ApiResponse<Post>, ApiError, TSelected>, "queryKey" | "queryFn">) => {

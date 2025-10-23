@@ -1,4 +1,4 @@
-import type { ApiResponse, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest, PostUpdateRequest } from "@workly/types";
+import type { ApiResponse, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostLikeRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest, PostUpdateRequest } from "@workly/types";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 
@@ -45,6 +45,10 @@ export function createPostApi(http: HttpClient) {
       fd.append("post", new Blob([JSON.stringify(post)], { type: "application/json" }));
       (files ?? []).forEach((f) => fd.append("files", f));
       return http.postMultipart<PostDTO>(`/posts`, fd);
+    },
+    /** 게시글 좋아요 */
+    postPostsLike: (params: PostLikeRequest): Promise<ApiResponse<PostDTO>> => {
+      return http.post<PostDTO>(`/posts/${params.postId}/likes`);
     },
   };
 }
