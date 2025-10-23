@@ -99,7 +99,7 @@ export const CommentList = ({ postId }: { postId: number }) => {
       {items.map((comment) => {
         const isEditing = editingId === comment.commentId;
         if (!isEditing) {
-          return <CommentItem.Root key={comment.commentId} comment={comment} right={<RightMenu comment={comment} setEditingId={setEditingId} />} />;
+          return <CommentItem.Root key={comment.commentId} comment={comment} right={<RightMenu comment={comment} setEditingId={setEditingId} />} footer={<CommentItem.ReactionButton />} />;
         }
         return (
           <CommentItem.Root key={comment.commentId} comment={comment}>

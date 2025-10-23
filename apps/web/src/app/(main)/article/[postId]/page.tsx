@@ -15,7 +15,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
     <>
       <PostDetailContainer postId={id} />
       <CommentThreadProvider>
-        <CommentActionHeader />
+        <CommentActionHeader postId={id} />
         <CommentList postId={id} />
         <CommentCreate postId={id} />
       </CommentThreadProvider>

@@ -5,7 +5,7 @@ import { Button, Icon } from "@workly/ui";
 import { useCallback } from "react";
 import * as styles from "./commentActionHeader.css";
 
-export const CommentActionHeader = () => {
+export const CommentActionHeader = ({ postId }: { postId: number }) => {
   const reactionOnClick = useCallback(() => {}, []);
   const replyOnClick = useCallback(() => {}, []);
   const { commentCnt } = useCommentThreadState();
