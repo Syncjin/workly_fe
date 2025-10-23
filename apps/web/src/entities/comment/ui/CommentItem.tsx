@@ -1,9 +1,10 @@
 "use client";
 
-import { Comment } from "@/entities/comment/model";
+import { Comment, DEFAULT_REACTIONS, ReactionType } from "@/entities/comment";
+import { ReactionPopup, type ReactionPopupOpeners } from "@/features/comment/comment-reaction-upsert";
 import { formatYMDHM } from "@/shared/lib";
-import { Avatar, Button, cx } from "@workly/ui";
-import { createContext, useContext } from "react";
+import { Avatar, Button, cx, Icon } from "@workly/ui";
+import { createContext, useContext, useRef } from "react";
 import * as styles from "./commentItem.css";
 
 /** Context */
@@ -11,6 +12,7 @@ type CtxValue = {
   comment: Comment;
   active?: boolean;
   replyOnClick?: (comment: Comment) => void;
+  reactionOnClick?: (comment: Comment) => void;
 };
 const Ctx = createContext<CtxValue | null>(null);
 const useItem = () => {
@@ -41,6 +43,43 @@ function Date() {
 function Content() {
   const { comment } = useItem();
   return <p className={styles.content}>{comment.content}</p>;
+}
+
+function ReactionButton() {
+  const { comment } = useItem();
+  const reactionPopupRef = useRef<ReactionPopupOpeners>(null);
+
+  const handleReactionClick = () => {
+    reactionPopupRef.current?.open(comment);
+  };
+
+  const activeReactions = DEFAULT_REACTIONS.filter((reaction: ReactionType) => {
+    const count = comment?.reactions?.[reaction.type as keyof typeof comment.reactions];
+    return count && count > 0;
+  });
+
+  return (
+    <div className={styles.reactionList}>
+      {activeReactions.map((reaction: ReactionType) => {
+        const count = comment?.reactions?.[reaction.type as keyof typeof comment.reactions];
+        const isMyReaction = comment?.myReaction === reaction.type;
+
+        return (
+          <button key={reaction.type} onClick={handleReactionClick} className={`${styles.reactionBtn} ${isMyReaction ? styles.reactionBtnActive : ""}`} title={`${reaction.label} ${count}개`}>
+            <span className={styles.reactionEmoji}>{reaction.emoji}</span>
+            <span className={styles.reactionCount}>{count}</span>
+          </button>
+        );
+      })}
+
+      <div className={styles.reactionButtonWrapper}>
+        <button onClick={handleReactionClick} className={styles.reactionBtn} title="반응 추가">
+          <Icon name="emotion-happy-line" color="var(--color-gray-700)" />
+        </button>
+        <ReactionPopup ref={reactionPopupRef} />
+      </div>
+    </div>
+  );
 }
 
 function ReplyButton() {
@@ -117,6 +156,7 @@ export const CommentItem = {
   Date,
   Content,
   ReplyButton,
+  ReactionButton,
   HeaderSlot,
   ContentSlot,
   FooterSlot,

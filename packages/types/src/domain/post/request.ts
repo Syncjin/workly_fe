@@ -32,3 +32,7 @@ export interface PostMoveRequest {
   boardId: number;
   postIds: number[];
 }
+
+export interface PostLikeRequest {
+  postId: number;
+}

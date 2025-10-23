@@ -51,7 +51,9 @@ export function useVisibility(open: boolean, animationMs: number) {
 
   useEffect(() => {
     if (open) {
-      setVisible(true);
+      requestAnimationFrame(() => {
+        setVisible(true);
+      });
       return;
     }
     if (visible) {
