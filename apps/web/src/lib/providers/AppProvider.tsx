@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/lib/providers/AuthProvider";
+import { SidebarProvider } from "@/lib/providers/SidebarProvider";
 import { modalClient } from "@/shared/ui/modal/client";
 import type { LoaderRegistry } from "@workly/ui/overlays";
 import { ModalHost, ModalProvider } from "@workly/ui/overlays";
@@ -18,7 +19,9 @@ const loaders: LoaderRegistry = {
 export default function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <ModalProvider client={modalClient}>
-      <AuthProvider fallback={null}>{children}</AuthProvider>
+      <SidebarProvider>
+        <AuthProvider fallback={null}>{children}</AuthProvider>
+      </SidebarProvider>
 
       <ModalHost loaders={loaders} fallback={<div style={{ padding: 12 }}>Loading…</div>} />
     </ModalProvider>
