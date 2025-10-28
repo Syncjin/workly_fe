@@ -25,7 +25,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@vanilla-extract/css": "catalog:",
@@ -45,10 +47,19 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vanilla-extract/esbuild-plugin": "^2.3.18",
+    "@vanilla-extract/vite-plugin": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
     "@workly/eslint-config": "workspace:*",
     "@workly/prettier-config": "workspace:*",
+    "@workly/tsconfig": "workspace:*",
     "typescript": "catalog:",
     "eslint": "catalog:",
-    "prettier": "catalog:"
+    "prettier": "catalog:",
+    "vitest": "catalog:",
+    "jsdom": "^20.0.3",
+    "vite-tsconfig-paths": "catalog:"
   }
 }

@@ -18,6 +18,9 @@ export * from "./components/Radio";
 export * from "./components/Select";
 export { default as Skeleton } from "./components/Skeleton";
 
+// Overlays
+export * from "./overlays";
+
 export { cx } from "./theme/classes";
 export { colorGroups, colorLevels, type ColorGroup, type ColorLevel, type ColorVariant } from "./theme/colorTokens";
 export { buildVariantMap } from "./theme/colorVariants";
