@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { EditorViewer } from "@workly/editor";
 import { Button } from "@workly/ui";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useCallback, useEffect } from "react";
+import { startTransition, useCallback, useEffect, useRef } from "react";
 import * as styles from "./postDetail.css";
 
 const PostContent = (post: Post) => {
@@ -17,6 +17,7 @@ const PostContent = (post: Post) => {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const { run } = usePostReadAction();
+  const hasExecutedRead = useRef(false);
 
   const renderOnDelete = useCallback(
     ({ run, isPending }: DeletePostRenderProps) => {
@@ -78,8 +79,20 @@ const PostContent = (post: Post) => {
   );
 
   useEffect(() => {
-    if (!post.isRead) run([post.postId]);
-  }, []);
+    if (post.isRead || hasExecutedRead.current) return;
+
+    hasExecutedRead.current = true;
+
+    const timer = setTimeout(() => {
+      run([post.postId]);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [post.isRead, post.postId]);
+
+  useEffect(() => {
+    hasExecutedRead.current = false;
+  }, [post.postId]);
 
   return (
     <div className={styles.content}>
