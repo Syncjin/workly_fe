@@ -17,6 +17,7 @@ export * from "./components/Popup";
 export * from "./components/Radio";
 export * from "./components/Select";
 export { default as Skeleton } from "./components/Skeleton";
+export * from "./components/Tooltip";
 
 // Overlays
 export * from "./overlays";
