@@ -17,6 +17,10 @@ export * from "./components/Popup";
 export * from "./components/Radio";
 export * from "./components/Select";
 export { default as Skeleton } from "./components/Skeleton";
+export * from "./components/Tooltip";
+
+// Overlays
+export * from "./overlays";
 
 export { cx } from "./theme/classes";
 export { colorGroups, colorLevels, type ColorGroup, type ColorLevel, type ColorVariant } from "./theme/colorTokens";

@@ -37,7 +37,10 @@ const Icon: React.FC<IconProps> = ({ name, size = 20, color = "currentColor", cl
           setLoading(false);
         }
       } catch (error) {
-        console.warn(`Failed to load icon: ${name}`, error);
+        // 테스트 환경에서는 경고를 출력하지 않음
+        if (process.env.NODE_ENV !== "test") {
+          console.warn(`Failed to load icon: ${name}`, error);
+        }
         if (mounted) {
           setSvgComponent(null);
           setLoading(false);

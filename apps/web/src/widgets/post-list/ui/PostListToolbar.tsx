@@ -49,17 +49,23 @@ export const PostListToolbar = React.memo(() => {
   }, [clearVisible, postIds, postSelectRead]);
 
   const renderOnDelete = useCallback(
-    ({ run, isPending, isPermitted }: DeletePostRenderProps) => {
-      if (!isPermitted) return null;
+    ({ run, isPending }: DeletePostRenderProps) => {
       const disabled = !hasSelectedItems || isPending;
 
       const onClick = async () => {
         if (disabled) return;
+
+        if (postIds.length === 0) {
+          log.warn("삭제할 게시글이 선택되지 않음", { op: "DeleteToolbarButton" });
+          return;
+        }
+
         try {
           await run();
           clearVisible();
+          log.info("게시글 삭제 완료", { postIds, count: postIds.length, op: "DeleteToolbarButton" });
         } catch (e) {
-          log.error("휴지통 이동 처리 실패", { error: e, op: "DeleteToolbarButton" });
+          log.error("휴지통 이동 처리 실패", { error: e, postIds, op: "DeleteToolbarButton" });
         }
       };
 
@@ -69,7 +75,7 @@ export const PostListToolbar = React.memo(() => {
         </Button>
       );
     },
-    [hasSelectedItems]
+    [hasSelectedItems, clearVisible, postIds]
   );
 
   return (
