@@ -1,1 +1,1 @@
-export { DeletePostButton, type DeletePostRenderProps } from "./DeletePostButton";
+export { DeletePostButton, type DeletePostButtonProps, type DeletePostRenderProps } from "./DeletePostButton";
