@@ -2,9 +2,11 @@
 
 import { PostSearch, usePostSearch } from "@/features/post";
 import { DeletePostButton, type DeletePostRenderProps } from "@/features/post/post-delete";
+import { MovePostButton, MovePostRenderProps } from "@/features/post/post-move";
 import { usePostReadAction } from "@/features/post/post-read";
 import { useSearchParamsManager } from "@/features/post/post-search";
 import { log } from "@/lib/logger";
+import { openBoardSelect, openConfirm } from "@/shared/ui/modal/openers";
 import { usePageSelectionMeta, useSelectedPostIdsOnPage, useSelectionActions } from "@/widgets/post-list/model/SelectionStore";
 import { Button, CheckBox } from "@workly/ui";
 import { useSearchParams } from "next/navigation";
@@ -61,6 +63,8 @@ export const PostListToolbar = React.memo(() => {
         }
 
         try {
+          const res = await openConfirm({ header: "게시글 삭제", title: "게시글을 삭제하시겠습니까?" });
+          if (!res) return;
           await run();
           clearVisible();
           log.info("게시글 삭제 완료", { postIds, count: postIds.length, op: "DeleteToolbarButton" });
@@ -78,6 +82,38 @@ export const PostListToolbar = React.memo(() => {
     [hasSelectedItems, clearVisible, postIds]
   );
 
+  const renderOnMove = useCallback(
+    ({ run, isPending }: MovePostRenderProps) => {
+      const disabled = !hasSelectedItems || isPending;
+
+      const onClick = async () => {
+        if (disabled) return;
+
+        if (postIds.length === 0) {
+          log.warn("이동할 게시글이 선택되지 않음", { op: "MoveToolbarButton" });
+          return;
+        }
+
+        try {
+          const res = await openBoardSelect();
+          const boardId = res?.board?.id;
+          if (!boardId) return;
+          await run(boardId);
+          clearVisible();
+        } catch (e) {
+          log.error("게시글 이동 처리 실패", { error: e, postIds, op: "MoveToolbarButton" });
+        }
+      };
+
+      return (
+        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={onClick}>
+          이동
+        </Button>
+      );
+    },
+    [hasSelectedItems, clearVisible, postIds]
+  );
+
   return (
     <div className={toolbar.container}>
       <div className={toolbar.leftArea}>
@@ -86,9 +122,7 @@ export const PostListToolbar = React.memo(() => {
           읽음
         </Button>
         <DeletePostButton postIds={postIds}>{renderOnDelete}</DeletePostButton>
-        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems}>
-          이동
-        </Button>
+        <MovePostButton postIds={postIds}>{renderOnMove}</MovePostButton>
         <PostSearch search={search} onSearch={onSearch} />
       </div>
     </div>
