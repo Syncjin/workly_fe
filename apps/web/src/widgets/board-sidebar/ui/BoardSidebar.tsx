@@ -5,7 +5,7 @@ import { useSidebar } from "@/lib/providers/SidebarProvider";
 import { openBoardSelect } from "@/shared/ui/modal/openers";
 import { Button, Icon, Tooltip } from "@workly/ui";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import React, { startTransition, useCallback, useMemo, useState } from "react";
 import { SidebarBoard, useSidebarBoardsSuspense } from "../model/useSidebarBoard";
 import CollapsedBoardTree from "./CollapsedBoardTree";
 import CollapsibleBoardTree from "./CollapsibleBoardTree";
@@ -20,8 +20,7 @@ interface BoardSidebarProps {
 export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   const headerId = "all-boards-header";
   const panelId = "all-boards-panel";
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isCollapsedBoardListVisible, setIsCollapsedBoardListVisible] = useState(false);
+  const [isBoardListVisible, setIsBoardListVisible] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -66,38 +65,18 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
     </span>
   );
 
-  const toggle = useCallback(() => {
-    setIsExpanded((prev) => !prev);
+  const toggleBoardList = useCallback(() => {
+    setIsBoardListVisible((prev) => !prev);
   }, []);
 
-  const toggleCollapsedBoardList = useCallback(() => {
-    setIsCollapsedBoardListVisible((prev) => !prev);
-  }, []);
-
-  useEffect(() => {
-    if (!isCollapsed) {
-      setIsCollapsedBoardListVisible(false);
-    }
-  }, [isCollapsed]);
-
-  const onHeaderKeyDown = useCallback(
+  const onBoardListKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLButtonElement>) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        toggle();
+        toggleBoardList();
       }
     },
-    [toggle]
-  );
-
-  const onCollapsedBoardKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        toggleCollapsedBoardList();
-      }
-    },
-    [toggleCollapsedBoardList]
+    [toggleBoardList]
   );
 
   const onSelectBoard = useCallback(
@@ -138,30 +117,28 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
         // 축소 상태: 게시판 아이콘과 개별 게시판 목록 표시
         <div className={styles.collapsedBoardArea}>
           <Tooltip content="전체 게시판" position="right">
-            <button type="button" onClick={toggleCollapsedBoardList} onKeyDown={onCollapsedBoardKeyDown} aria-expanded={isCollapsedBoardListVisible} aria-label={isCollapsedBoardListVisible ? "전체 게시판 목록 숨기기" : "전체 게시판 목록 보기"} className={styles.collapsedBoardIcon}>
+            <button type="button" onClick={toggleBoardList} onKeyDown={onBoardListKeyDown} aria-expanded={isBoardListVisible} aria-label={isBoardListVisible ? "전체 게시판 목록 숨기기" : "전체 게시판 목록 보기"} className={styles.collapsedBoardIcon}>
               <Icon name="list-unordered" size={{ width: 20, height: 20 }} />
             </button>
           </Tooltip>
 
-          {/* 축소된 상태에서 개별 게시판 목록 표시 */}
-          {isCollapsedBoardListVisible && (
+          {isBoardListVisible && (
             <div className={styles.collapsedBoardList}>
               <CollapsedBoardTree data={data} activeBoardId={activeBoardId} onSelectBoard={onSelectBoard} />
             </div>
           )}
         </div>
       ) : (
-        // 확장 상태: 전체 게시판 영역 표시
         <div className={styles.expandedContent}>
           <div className={styles.boardManageRow}>
-            <button type="button" onClick={() => toggle()} onKeyDown={onHeaderKeyDown} aria-expanded={isExpanded} data-state={isExpanded ? "open" : "closed"} data-role="board-manage" className={treeStyles.headerButton({ open: isExpanded })}>
-              <Chevron open={isExpanded} />
+            <button type="button" onClick={() => toggleBoardList()} onKeyDown={onBoardListKeyDown} aria-expanded={isBoardListVisible} data-state={isBoardListVisible ? "open" : "closed"} data-role="board-manage" className={treeStyles.headerButton({ open: isBoardListVisible })}>
+              <Chevron open={isBoardListVisible} />
               {!isCollapsed && <span className={styles.boardManageText}>전체 게시판</span>}
             </button>
 
             <AdminBoardLink className={styles.boardManageBtn}>관리</AdminBoardLink>
           </div>
-          <div id={panelId} role="region" aria-labelledby={headerId} hidden={!isExpanded}>
+          <div id={panelId} role="region" aria-labelledby={headerId} hidden={!isBoardListVisible}>
             <CollapsibleBoardTree data={data} activeBoardId={activeBoardId} onSelectBoard={onSelectBoard} defaultExpandedCategoryIds={defaultExpandedCategoryIds} />
           </div>
         </div>
