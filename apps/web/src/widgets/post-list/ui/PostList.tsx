@@ -65,7 +65,7 @@ export const PostList = React.memo(() => {
         return <PostRow key={post.postId} post={post} onToggle={toggle} handlePostClick={handlePostClick} />;
       })}
 
-      {posts && data && <Pagination pagination={data} onPageChange={handlePageChange} />}
+      {posts.length > 0 && data && data.totalPages > 1 && <Pagination pagination={data} onPageChange={handlePageChange} />}
     </div>
   );
 });
