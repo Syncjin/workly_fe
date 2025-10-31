@@ -6,7 +6,6 @@ export const baseBadge = {
   borderRadius: "16px",
   fontWeight: 500,
   cursor: "pointer",
-  fontFamily: "Pretendard, sans-serif",
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",

@@ -14,7 +14,6 @@ const baseLayered = style({
       borderRadius: "8px",
       fontWeight: 600,
       cursor: "pointer",
-      fontFamily: "Pretendard, sans-serif",
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",

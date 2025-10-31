@@ -5,8 +5,12 @@
 
 import { FileInfo } from "@/entities/file";
 import { User } from "@/entities/users";
-import type { PostCreateRequest, PostDTO, PostUpdateRequest } from "@workly/types";
-export type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostLikeRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@workly/types";
+import type { PostListParams as BasePostListParams, PostCreateRequest, PostDTO, PostUpdateRequest } from "@workly/types";
+export type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostLikeRequest, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@workly/types";
+
+export interface PostListParams extends BasePostListParams {
+  filter?: "all" | "unread";
+}
 
 export type Post = Omit<PostDTO, "user" | "fileInfos"> & {
   user: User;

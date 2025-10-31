@@ -1,3 +1,5 @@
+"use client";
+
 import type { PostListParams } from "@/entities/post";
 import { postApi, postQueryKeys } from "@/entities/post";
 import { log } from "@/lib/logger";

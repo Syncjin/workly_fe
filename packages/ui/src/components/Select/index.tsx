@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useClickOutside } from "../../hooks";
 import { cx } from "../../theme/classes";
 import Icon from "../Icon";
@@ -101,14 +101,18 @@ const SelectRoot = ({ value, onChange, placeholder, children, options, searchabl
       }}
     >
       <div className={cx(styles.selectContainer, classes?.root, className)} ref={ref} data-slot="root">
-        <Trigger />
-        {children ?? <Menu />}
+        {children ?? (
+          <>
+            <Trigger />
+            <Menu />
+          </>
+        )}
       </div>
     </SelectContext.Provider>
   );
 };
 
-const Trigger: React.FC<{ className?: string } & React.HTMLAttributes<HTMLDivElement>> = ({ className, ...divProps }) => {
+const Trigger: React.FC<{ className?: string; children?: React.ReactNode } & React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...divProps }) => {
   const ctx = useContext(SelectContext);
   if (!ctx) throw new Error("Select.Trigger 필수");
   const { selected, isOpen, toggle, search, setSearch, searchable, placeholder, classes } = ctx;
@@ -126,7 +130,9 @@ const Trigger: React.FC<{ className?: string } & React.HTMLAttributes<HTMLDivEle
       aria-haspopup="listbox"
       aria-expanded={isOpen}
     >
-      {isOpen && searchable ? (
+      {children ? (
+        children
+      ) : isOpen && searchable ? (
         <input type="text" placeholder={placeholder} value={search} onChange={(e) => setSearch(e.target.value)} className={cx(styles.searchInput, classes?.searchInput)} onClick={(e) => e.stopPropagation()} />
       ) : selected ? (
         <div className={cx(styles.optionContent({ visualType: selected.visualType }), classes?.optionContent)}>
@@ -139,19 +145,37 @@ const Trigger: React.FC<{ className?: string } & React.HTMLAttributes<HTMLDivEle
       ) : (
         <span className={cx(styles.placeholder, classes?.placeholder)}>{placeholder}</span>
       )}
-      <Icon name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"} size={{ width: 20, height: 20 }} color="gray-500" />
+      {!children && <Icon name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"} size={{ width: 20, height: 20 }} color="gray-500" />}
     </div>
   );
 };
 
 const Menu: React.FC<{ className?: string } & React.HTMLAttributes<HTMLDivElement>> = ({ className, ...divProps }) => {
   const ctx = useContext(SelectContext);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ctx?.isOpen || !menuRef.current) return;
+
+    const menu = menuRef.current;
+    const rect = menu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+
+    if (rect.right > viewportWidth) {
+      menu.style.left = "auto";
+      menu.style.right = "0";
+    } else if (rect.left < 0) {
+      menu.style.left = "0";
+      menu.style.right = "auto";
+    }
+  }, [ctx?.isOpen]);
+
   if (!ctx?.isOpen) return null;
 
   const { filteredOptions, searchable, search, classes } = ctx;
 
   return (
-    <div {...divProps} className={cx(styles.menu, classes?.menu, className)} role="listbox" data-slot="menu">
+    <div {...divProps} ref={menuRef} className={cx(styles.menu, classes?.menu, className)} role="listbox" data-slot="menu">
       {filteredOptions.length > 0 ? filteredOptions.map((opt) => <Option key={opt.value} {...opt} />) : searchable && search.trim() !== "" ? <div className={cx(styles.empty, classes?.empty)}>검색 결과가 없습니다</div> : null}
     </div>
   );

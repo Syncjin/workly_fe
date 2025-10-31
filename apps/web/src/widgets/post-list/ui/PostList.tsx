@@ -2,9 +2,11 @@
 
 import type { Post } from "@/entities/post";
 import { PostListItem } from "@/entities/post";
-import { usePostListParamsFromURL } from "@/widgets/post-list/model";
+import { usePostFilterManager } from "@/features/post/post-filter";
+import { usePostListParamsFromURL } from "@/widgets/post-list";
 import { useIsSelected, useSelectionActions, useSyncVisibleIds } from "@/widgets/post-list/model/SelectionStore";
 import { PostListSkeleton } from "@/widgets/post-list/ui/loading/PostListSkeleton";
+import { PostListEmptyState } from "@/widgets/post-list/ui/PostListEmptyState";
 import { Pagination } from "@workly/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { memo, useCallback, useMemo } from "react";
@@ -14,8 +16,9 @@ export const PostList = React.memo(() => {
   const { data, isLoading } = usePostListParamsFromURL();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { filter, setFilter } = usePostFilterManager();
 
-  const posts: Post[] = useMemo(() => (Array.isArray(data?.items) ? (data.items as Post[]) : []), [data.items]);
+  const posts: Post[] = useMemo(() => (Array.isArray(data?.items) ? (data.items as Post[]) : []), [data?.items]);
   const visibleIds = useMemo(() => posts.map((p) => p.postId), [posts]);
 
   useSyncVisibleIds(visibleIds);
@@ -36,8 +39,24 @@ export const PostList = React.memo(() => {
     router.push(`/article/${item.postId}`);
   }, []);
 
+  const handleShowAll = useCallback(() => {
+    setFilter("all");
+  }, [setFilter]);
+
   if (isLoading) {
     return <PostListSkeleton rows={10} />;
+  }
+
+  const isEmpty = posts.length === 0;
+  const isUnreadFilter = filter === "unread";
+  const showEmptyState = isEmpty && isUnreadFilter;
+
+  if (showEmptyState) {
+    return (
+      <div className={styles.listView}>
+        <PostListEmptyState type="no-unread-posts" onShowAll={handleShowAll} />
+      </div>
+    );
   }
 
   return (
@@ -46,7 +65,7 @@ export const PostList = React.memo(() => {
         return <PostRow key={post.postId} post={post} onToggle={toggle} handlePostClick={handlePostClick} />;
       })}
 
-      {posts && <Pagination pagination={data} onPageChange={handlePageChange} />}
+      {posts && data && <Pagination pagination={data} onPageChange={handlePageChange} />}
     </div>
   );
 });

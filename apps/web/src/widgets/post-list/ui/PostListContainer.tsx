@@ -1,10 +1,4 @@
-import { SelectionStoreProvider } from "@/widgets/post-list/model/SelectionStore";
-import { usePostListScopeFromURL } from "@/widgets/post-list/model/usePostListScopeFromUrl";
-import { BoardHeader } from "@/widgets/post-list/ui/BoardHeader";
-import { BoardHeaderBoundary } from "@/widgets/post-list/ui/BoardHeaderBoundary";
-import { PostList } from "@/widgets/post-list/ui/PostList";
-import { PostListBoundary } from "@/widgets/post-list/ui/PostListBoundary";
-import { PostListToolbar } from "@/widgets/post-list/ui/PostListToolbar";
+import { BoardHeader, BoardHeaderBoundary, PostList, PostListBoundary, PostListToolbar, SelectionStoreProvider, usePostListScopeFromURL } from "@/widgets/post-list";
 import * as styles from "./postList.css";
 
 export const PostListContainer = () => {

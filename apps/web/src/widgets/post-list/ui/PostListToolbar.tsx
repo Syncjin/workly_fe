@@ -17,6 +17,8 @@ export const PostListToolbar = React.memo(() => {
   const searchParams = useSearchParams();
   const search = usePostSearch(searchParams?.get("keyword") || undefined);
   const { updateSearchParams } = useSearchParamsManager();
+  const { pageSize, setPageSize } = usePageSizeManager();
+  const { filter, setFilter } = usePostFilterManager();
 
   const { isAllCheck, isIndeterminateOnPage, totalSelected } = usePageSelectionMeta();
   const { selectAllVisible, clearVisible } = useSelectionActions();
@@ -74,7 +76,7 @@ export const PostListToolbar = React.memo(() => {
       };
 
       return (
-        <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={isPending || undefined} onClick={onClick}>
+        <Button variant="border" size="sm" color="gray-300" disabled={disabled} loading={isPending || undefined} onClick={onClick}>
           삭제
         </Button>
       );
@@ -118,12 +120,16 @@ export const PostListToolbar = React.memo(() => {
     <div className={toolbar.container}>
       <div className={toolbar.leftArea}>
         <CheckBox aria-label="select all post" checked={isAllCheck} indeterminate={isIndeterminateOnPage} onChange={onAllCheckChange} />
-        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={handleOnRead}>
+        <Button variant="border" size="sm" color="gray-300" disabled={!hasSelectedItems} onClick={handleOnRead}>
           읽음
         </Button>
         <DeletePostButton postIds={postIds}>{renderOnDelete}</DeletePostButton>
         <MovePostButton postIds={postIds}>{renderOnMove}</MovePostButton>
         <PostSearch search={search} onSearch={onSearch} />
+      </div>
+      <div className={toolbar.rightArea}>
+        <PageSizeSelector value={pageSize} onChange={setPageSize} />
+        <PostFilterDropdown value={filter} onChange={setFilter} />
       </div>
     </div>
   );
