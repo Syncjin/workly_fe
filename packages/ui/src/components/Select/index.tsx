@@ -154,7 +154,6 @@ const Menu: React.FC<{ className?: string } & React.HTMLAttributes<HTMLDivElemen
   const ctx = useContext(SelectContext);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // 메뉴 위치 자동 조정 - Hook은 항상 최상단에서 호출
   useEffect(() => {
     if (!ctx?.isOpen || !menuRef.current) return;
 
@@ -162,13 +161,10 @@ const Menu: React.FC<{ className?: string } & React.HTMLAttributes<HTMLDivElemen
     const rect = menu.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
 
-    // 오른쪽으로 벗어나는 경우
     if (rect.right > viewportWidth) {
       menu.style.left = "auto";
       menu.style.right = "0";
-    }
-    // 왼쪽으로 벗어나는 경우
-    else if (rect.left < 0) {
+    } else if (rect.left < 0) {
       menu.style.left = "0";
       menu.style.right = "auto";
     }
