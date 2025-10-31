@@ -2,13 +2,12 @@
 
 import { PostSearch, usePostSearch } from "@/features/post";
 import { DeletePostButton, type DeletePostRenderProps } from "@/features/post/post-delete";
-import { PageSizeSelector, PostFilterDropdown, usePageSizeManager, usePostFilterManager } from "@/features/post/post-filter";
 import { MovePostButton, MovePostRenderProps } from "@/features/post/post-move";
 import { usePostReadAction } from "@/features/post/post-read";
 import { useSearchParamsManager } from "@/features/post/post-search";
 import { log } from "@/lib/logger";
 import { openBoardSelect, openConfirm } from "@/shared/ui/modal/openers";
-import { usePageSelectionMeta, useSelectedPostIdsOnPage, useSelectionActions } from "@/widgets/post-list";
+import { usePageSelectionMeta, useSelectedPostIdsOnPage, useSelectionActions } from "@/widgets/post-list/model/SelectionStore";
 import { Button, CheckBox } from "@workly/ui";
 import { useSearchParams } from "next/navigation";
 import React, { useCallback } from "react";
@@ -109,7 +108,7 @@ export const PostListToolbar = React.memo(() => {
       };
 
       return (
-        <Button variant="border" size="sm" color="gray-300" disabled={!hasSelectedItems} onClick={onClick}>
+        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={onClick}>
           이동
         </Button>
       );

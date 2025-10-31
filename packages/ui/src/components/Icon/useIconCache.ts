@@ -2,13 +2,6 @@ import type { IconName } from "@workly/icons";
 import React from "react";
 import { iconCache, type IconLoadingState } from "./IconCache";
 
-// 모듈 레벨에서 서버 스냅샷 캐싱 - 참조 안정성을 위해 상수로 정의
-const SERVER_SNAPSHOT: IconLoadingState = {
-  isLoading: false,
-  error: false,
-  component: null,
-};
-
 export interface UseIconCacheResult {
   component: React.ComponentType<React.SVGProps<SVGSVGElement>> | null;
   isLoading: boolean;
@@ -28,7 +21,11 @@ export function useIconCache(name: IconName): UseIconCacheResult {
   }, [name]);
 
   const getServerSnapshot = React.useCallback(() => {
-    return SERVER_SNAPSHOT;
+    return {
+      isLoading: false,
+      error: false,
+      component: null,
+    } as IconLoadingState;
   }, []);
 
   const subscribe = React.useCallback(
