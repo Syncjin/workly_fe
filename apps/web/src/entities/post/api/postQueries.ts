@@ -5,9 +5,10 @@
  * 적절한 캐싱 전략과 함께 공유 useApiQuery 훅을 사용합니다.
  */
 
-import { postApi, PostLikeRequest, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
+import { postApi, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
+import type { PostLikeRequest } from "@workly/types";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
 /**
@@ -62,6 +63,14 @@ export const usePostDetailSuspense = <TSelected = ApiResponse<Post>>(params: Pos
   const queryKey = postQueryKeys.detail(params.postId);
 
   return useApiSuspenseQuery<Post, TSelected>(queryKey, () => postApi.getPostsDetail(params), {
+    ...options,
+  });
+};
+
+export const usePostUnreadList = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = postQueryKeys.unreadList(params);
+
+  return useApiQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPostsUnread(params), {
     ...options,
   });
 };

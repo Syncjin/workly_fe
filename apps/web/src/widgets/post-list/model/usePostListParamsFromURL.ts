@@ -1,4 +1,4 @@
-import { type PostListParams, usePostListSuspense } from "@/entities/post";
+import { type PostListParams, usePostListSuspense, usePostUnreadList } from "@/entities/post";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
@@ -11,7 +11,8 @@ export const usePostListParamsFromURL = () => {
     const boardId = searchParams?.get("boardId") ? Number(searchParams.get("boardId")) : undefined;
     const categoryId = searchParams?.get("categoryId") ? Number(searchParams.get("categoryId")) : undefined;
     const page = searchParams?.get("page") ? Number(searchParams.get("page")) : 1;
-    const size = searchParams?.get("size") ? Number(searchParams.get("size")) : 10;
+    const size = searchParams?.get("size") ? Number(searchParams.get("size")) : 20;
+    const filter = (searchParams?.get("filter") as "all" | "unread") || "all";
 
     return {
       keyword,
@@ -19,11 +20,23 @@ export const usePostListParamsFromURL = () => {
       categoryId,
       page,
       size,
+      filter,
     };
   }, [searchParams]);
 
-  return usePostListSuspense(params, {
+  const isUnreadFilter = params.filter === "unread";
+
+  const allPostsQuery = usePostListSuspense(params, {
     select: (resp) => resp.data,
     placeholderData: keepPreviousData,
+    enabled: !isUnreadFilter,
   });
+
+  const unreadPostsQuery = usePostUnreadList(params, {
+    select: (resp) => resp.data,
+    placeholderData: keepPreviousData,
+    enabled: isUnreadFilter,
+  });
+
+  return isUnreadFilter ? unreadPostsQuery : allPostsQuery;
 };

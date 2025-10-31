@@ -2,12 +2,13 @@
 
 import { PostSearch, usePostSearch } from "@/features/post";
 import { DeletePostButton, type DeletePostRenderProps } from "@/features/post/post-delete";
+import { PageSizeSelector, PostFilterDropdown, usePageSizeManager, usePostFilterManager } from "@/features/post/post-filter";
 import { MovePostButton, MovePostRenderProps } from "@/features/post/post-move";
 import { usePostReadAction } from "@/features/post/post-read";
 import { useSearchParamsManager } from "@/features/post/post-search";
 import { log } from "@/lib/logger";
 import { openBoardSelect, openConfirm } from "@/shared/ui/modal/openers";
-import { usePageSelectionMeta, useSelectedPostIdsOnPage, useSelectionActions } from "@/widgets/post-list/model/SelectionStore";
+import { usePageSelectionMeta, useSelectedPostIdsOnPage, useSelectionActions } from "@/widgets/post-list";
 import { Button, CheckBox } from "@workly/ui";
 import { useSearchParams } from "next/navigation";
 import React, { useCallback } from "react";
@@ -17,6 +18,8 @@ export const PostListToolbar = React.memo(() => {
   const searchParams = useSearchParams();
   const search = usePostSearch(searchParams?.get("keyword") || undefined);
   const { updateSearchParams } = useSearchParamsManager();
+  const { pageSize, setPageSize } = usePageSizeManager();
+  const { filter, setFilter } = usePostFilterManager();
 
   const { isAllCheck, isIndeterminateOnPage, totalSelected } = usePageSelectionMeta();
   const { selectAllVisible, clearVisible } = useSelectionActions();
@@ -74,7 +77,7 @@ export const PostListToolbar = React.memo(() => {
       };
 
       return (
-        <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={isPending || undefined} onClick={onClick}>
+        <Button variant="border" size="sm" color="gray-300" disabled={disabled} loading={isPending || undefined} onClick={onClick}>
           삭제
         </Button>
       );
@@ -106,7 +109,7 @@ export const PostListToolbar = React.memo(() => {
       };
 
       return (
-        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={onClick}>
+        <Button variant="border" size="sm" color="gray-300" disabled={!hasSelectedItems} onClick={onClick}>
           이동
         </Button>
       );
@@ -118,12 +121,16 @@ export const PostListToolbar = React.memo(() => {
     <div className={toolbar.container}>
       <div className={toolbar.leftArea}>
         <CheckBox aria-label="select all post" checked={isAllCheck} indeterminate={isIndeterminateOnPage} onChange={onAllCheckChange} />
-        <Button variant="border" size="md" color="gray-300" disabled={!hasSelectedItems} onClick={handleOnRead}>
+        <Button variant="border" size="sm" color="gray-300" disabled={!hasSelectedItems} onClick={handleOnRead}>
           읽음
         </Button>
         <DeletePostButton postIds={postIds}>{renderOnDelete}</DeletePostButton>
         <MovePostButton postIds={postIds}>{renderOnMove}</MovePostButton>
         <PostSearch search={search} onSearch={onSearch} />
+      </div>
+      <div className={toolbar.rightArea}>
+        <PageSizeSelector value={pageSize} onChange={setPageSize} />
+        <PostFilterDropdown value={filter} onChange={setFilter} />
       </div>
     </div>
   );

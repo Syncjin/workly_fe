@@ -1,6 +1,5 @@
 "use client";
-import { PostListContainer } from "@/widgets/post-list/ui/PostListContainer";
-import { PostMain } from "@/widgets/post-list/ui/PostMain";
+import { PostListContainer, PostMain } from "@/widgets/post-list";
 import { useSearchParams } from "next/navigation";
 import { memo, useMemo } from "react";
 
