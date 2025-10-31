@@ -50,5 +50,17 @@ export function createPostApi(http: HttpClient) {
     postPostsLike: (params: PostLikeRequest): Promise<ApiResponse<PostDTO>> => {
       return http.post<PostDTO>(`/posts/${params.postId}/likes`);
     },
+
+    /** 게시글 안읽은 목록  */
+    getPostsUnread: async (params?: PostListParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
+      const query = qs({
+        keyword: params?.keyword,
+        boardId: params?.boardId,
+        categoryId: params?.categoryId,
+        page: params?.page,
+        size: params?.size,
+      });
+      return http.get<Pagination<PostDTO>>(`/posts/unread${query}`);
+    },
   };
 }
