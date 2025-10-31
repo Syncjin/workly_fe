@@ -1,3 +1,5 @@
+"use client";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
@@ -6,7 +8,7 @@ export const usePageSizeManager = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const currentPageSize = parseInt(searchParams?.get("size") || "20", 10);
+  const currentPageSize = parseInt(searchParams?.get("size") || "10", 10);
 
   const setPageSize = useCallback(
     (size: number) => {

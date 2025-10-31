@@ -3,7 +3,7 @@
 import type { Post } from "@/entities/post";
 import { PostListItem } from "@/entities/post";
 import { usePostFilterManager } from "@/features/post/post-filter";
-import { usePostListParamsFromURL } from "@/widgets/post-list/model";
+import { usePostListParamsFromURL } from "@/widgets/post-list";
 import { useIsSelected, useSelectionActions, useSyncVisibleIds } from "@/widgets/post-list/model/SelectionStore";
 import { PostListSkeleton } from "@/widgets/post-list/ui/loading/PostListSkeleton";
 import { PostListEmptyState } from "@/widgets/post-list/ui/PostListEmptyState";

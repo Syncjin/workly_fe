@@ -1,3 +1,5 @@
+"use client";
+
 import { type PostListParams, usePostListSuspense, usePostUnreadList } from "@/entities/post";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
