@@ -6,6 +6,10 @@ export interface PostListParams extends PageParams {
   keyword?: string;
 }
 
+export interface PostMustReadListParams extends PageParams {
+  boardId?: number;
+}
+
 export interface PostReadRequest {
   postIds: number[];
 }
@@ -35,4 +39,8 @@ export interface PostMoveRequest {
 
 export interface PostLikeRequest {
   postId: number;
+}
+
+export interface PostRestoreRequest {
+  postIds: number[];
 }

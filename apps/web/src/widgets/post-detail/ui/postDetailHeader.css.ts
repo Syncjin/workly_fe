@@ -14,6 +14,7 @@ export const titleArea = style({
   display: "flex",
   flexDirection: "row",
   padding: "18px 0 13px",
+  justifyContent: "space-between",
 });
 globalStyle(`${titleArea} h3`, {
   fontSize: 24,

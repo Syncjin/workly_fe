@@ -1,4 +1,4 @@
-import type { ApiResponse, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostLikeRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostReadRequest, PostUpdateRequest } from "@workly/types";
+import type { ApiResponse, PageParams, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostLikeRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostMustReadListParams, PostReadRequest, PostRestoreRequest, PostUpdateRequest } from "@workly/types";
 import { qs } from "@workly/utils";
 import type { HttpClient } from "./http";
 
@@ -61,6 +61,63 @@ export function createPostApi(http: HttpClient) {
         size: params?.size,
       });
       return http.get<Pagination<PostDTO>>(`/posts/unread${query}`);
+    },
+
+    /** 게시글 휴지통 목록  */
+    getPostsTrash: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
+      const query = qs({
+        page: params?.page,
+        size: params?.size,
+      });
+      return http.get<Pagination<PostDTO>>(`/posts/trash${query}`);
+    },
+
+    /** 게시글 내 작성 목록  */
+    getPostsMyPosts: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
+      const query = qs({
+        page: params?.page,
+        size: params?.size,
+      });
+      return http.get<Pagination<PostDTO>>(`/posts/myPosts${query}`);
+    },
+
+    /** 게시글 필독 목록  */
+    getPostsMustRead: async (params?: PostMustReadListParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
+      const query = qs({
+        boardId: params?.boardId,
+        page: params?.page,
+        size: params?.size,
+      });
+      return http.get<Pagination<PostDTO>>(`/posts/must-read${query}`);
+    },
+
+    /** 게시글 스크랩 목록  */
+    getPostsBookmarks: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
+      const query = qs({
+        page: params?.page,
+        size: params?.size,
+      });
+      return http.get<Pagination<PostDTO>>(`/posts/bookmarks${query}`);
+    },
+
+    /** 게시글 휴지통 복원 */
+    postPostsRestore: (body: PostRestoreRequest): Promise<ApiResponse<any>> => {
+      return http.post<any>(`/posts/restore`, body);
+    },
+
+    /** 게시글 휴지통 비우기. 전체 영구 삭제 */
+    deletePostsTrash: (): Promise<ApiResponse<any>> => {
+      return http.delete<any>(`/posts/trash`);
+    },
+
+    /** 게시글 스크랩 업데이트 */
+    postPostsBookmarks: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
+      return http.post<PostDTO>(`/posts/${params.postId}/bookmarks`);
+    },
+
+    /** 게시글 필독 설정 */
+    postPostsMustRead: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
+      return http.post<PostDTO>(`/posts/${params.postId}/must-read`);
     },
   };
 }

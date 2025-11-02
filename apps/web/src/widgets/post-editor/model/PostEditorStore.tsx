@@ -13,12 +13,16 @@ export type PostEditorState = {
   title: string;
   json: string;
   post?: Post;
+  isMustRead: boolean;
+  mustReadChanged: boolean;
   setCategory: (v?: SelectCategory) => void;
   setBoard: (v?: SelectBoard) => void;
   setBoardId: (id?: number) => void;
   setTitle: (v: string) => void;
   setJson: (v: string) => void;
   setPost: (v?: Post) => void;
+  setMustRead: (value: boolean) => void;
+  setMustReadChanged: (value: boolean) => void;
   reset: () => void;
 };
 
@@ -29,13 +33,27 @@ function makeStore() {
     boardId: undefined,
     title: "",
     json: "",
+    isMustRead: false,
+    mustReadChanged: false,
     setCategory: (v) => set({ category: v }),
     setBoard: (v) => set({ board: v }),
     setBoardId: (id) => set({ boardId: id }),
     setTitle: (v) => set({ title: v }),
     setJson: (v) => set({ json: v }),
     setPost: (v) => set({ post: v }),
-    reset: () => set({ category: undefined, board: undefined, boardId: undefined, title: "", json: "", post: undefined }),
+    setMustRead: (value) => set({ isMustRead: value }),
+    setMustReadChanged: (value) => set({ mustReadChanged: value }),
+    reset: () =>
+      set({
+        category: undefined,
+        board: undefined,
+        boardId: undefined,
+        title: "",
+        json: "",
+        post: undefined,
+        isMustRead: false,
+        mustReadChanged: false,
+      }),
   }));
 }
 
@@ -60,6 +78,8 @@ export const usePostEditorState = () => {
   const title = usePostEditorStore((s) => s.title);
   const json = usePostEditorStore((s) => s.json);
   const post = usePostEditorStore((s) => s.post);
+  const isMustRead = usePostEditorStore((s) => s.isMustRead);
+  const mustReadChanged = usePostEditorStore((s) => s.mustReadChanged);
 
   return React.useMemo(
     () => ({
@@ -69,8 +89,10 @@ export const usePostEditorState = () => {
       title,
       json,
       post,
+      isMustRead,
+      mustReadChanged,
     }),
-    [category, board, boardId, title, json, post]
+    [category, board, boardId, title, json, post, isMustRead, mustReadChanged]
   );
 };
 
@@ -82,6 +104,8 @@ export const usePostEditorActions = () => {
   const setTitle = usePostEditorStore((s) => s.setTitle);
   const setJson = usePostEditorStore((s) => s.setJson);
   const setPost = usePostEditorStore((s) => s.setPost);
+  const setMustRead = usePostEditorStore((s) => s.setMustRead);
+  const setMustReadChanged = usePostEditorStore((s) => s.setMustReadChanged);
   const reset = usePostEditorStore((s) => s.reset);
-  return { setCategory, setBoard, setBoardId, setTitle, setJson, setPost, reset };
+  return { setCategory, setBoard, setBoardId, setTitle, setJson, setPost, setMustRead, setMustReadChanged, reset };
 };

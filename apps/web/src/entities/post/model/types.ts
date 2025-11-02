@@ -6,7 +6,8 @@
 import { FileInfo } from "@/entities/file";
 import { User } from "@/entities/users";
 import type { PostListParams as BasePostListParams, PostCreateRequest, PostDTO, PostUpdateRequest } from "@workly/types";
-export type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostLikeRequest, PostMoveRequest, PostMoveResponse, PostReadRequest } from "@workly/types";
+export type { PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostLikeRequest, PostMoveRequest, PostMoveResponse, PostMustReadListParams, PostReadRequest, PostRestoreRequest } from "@workly/types";
+export type { PageParams } from "@workly/types/common";
 
 export interface PostListParams extends BasePostListParams {
   filter?: "all" | "unread";

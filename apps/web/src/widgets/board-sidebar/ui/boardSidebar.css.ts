@@ -120,10 +120,6 @@ export const collapsedBoardIcon = style({
       background: "var(--color-gray-200)",
       color: "var(--color-gray-900)",
     },
-    "&:focus": {
-      outline: "2px solid var(--color-brand-500)",
-      outlineOffset: "2px",
-    },
   },
 });
 
@@ -152,6 +148,8 @@ export const createBtnContainer = style({
 export const collapsedBoardList = style({
   width: "100%",
   marginTop: "8px",
+  display: "flex",
+  justifyContent: "center",
 });
 
 export const hiddenText = style({
@@ -188,4 +186,22 @@ export const collapsedCreateBtn = style({
       minWidth: "36px",
     },
   },
+});
+
+export const navContainer = style({
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+});
+
+export const collapsedTrashBin = style({
+  padding: "0 12px",
+  display: "flex",
+  justifyContent: "center",
+  marginTop: "8px",
+});
+
+export const trashBinContainer = style({
+  padding: "4px 8px",
 });

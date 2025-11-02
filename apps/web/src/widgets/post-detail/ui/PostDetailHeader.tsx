@@ -1,7 +1,8 @@
 import { Post } from "@/entities/post";
+import { usePostBookmarkAction } from "@/features/post";
 import { formatYMDHM } from "@/shared/lib/format/date/formatters";
-import { Avatar } from "@workly/ui";
-import { useMemo } from "react";
+import { Avatar, Button, Icon } from "@workly/ui";
+import { useCallback, useMemo, useState } from "react";
 import * as styles from "./postDetailHeader.css";
 
 const PostDetailHeader = (post: Post) => {
@@ -12,11 +13,23 @@ const PostDetailHeader = (post: Post) => {
     return <Avatar className={styles.avatar} size={"lg"} />;
   }, [post.user.profile]);
 
+  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
+  const { run } = usePostBookmarkAction();
+
+  const bookmarkOnClick = useCallback(async () => {
+    if (!post.postId) return;
+    const result = await run(post.postId);
+    console.log("result", result);
+    setIsBookmarked(result?.data.isBookmarked);
+  }, [post.postId]);
+
   return (
     <div className={styles.container}>
       <div className={styles.titleArea}>
         <h3>{post.title}</h3>
-        <div className={styles.checkStar}></div>
+        <Button variant="ghost" color="gray-700" onClick={bookmarkOnClick} size="sm">
+          <Icon name="star-line" color={isBookmarked ? "var(--color-brand-500)" : "var(--color-gray-500)"} />
+        </Button>
       </div>
       <div className={styles.headerArea}>
         {avatar}
