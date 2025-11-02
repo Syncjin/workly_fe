@@ -1,13 +1,15 @@
 "use client";
 
-import { PageParams, Post, PostListItem, useMustReadPostsSuspense } from "@/entities/post";
-import { Pagination } from "@workly/ui";
+import { PageParams, Post, PostListItem, useBookmarkedPostsSuspense } from "@/entities/post";
+import { usePostBookmarkAction } from "@/features/post";
+import { formatDayOrTime } from "@/shared/lib";
+import { Button, Icon, Pagination } from "@workly/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useMemo } from "react";
-import { MustReadEmptyState } from "./MustReadEmptyState";
-import * as styles from "./mustReadList.css";
+import { BookmarksEmptyState } from "./BookmarksEmptyState";
+import * as styles from "./bookmarksList.css";
 
-export const MustReadList = () => {
+export const BookmarksList = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -18,8 +20,8 @@ export const MustReadList = () => {
     }),
     [searchParams]
   );
-
-  const { data, isLoading } = useMustReadPostsSuspense(params);
+  const { run } = usePostBookmarkAction();
+  const { data, isLoading } = useBookmarkedPostsSuspense(params);
 
   const posts: Post[] = useMemo(() => (Array.isArray(data?.data?.items) ? (data.data.items as Post[]) : []), [data?.data?.items]);
 
@@ -39,6 +41,14 @@ export const MustReadList = () => {
     [router]
   );
 
+  const bookmarkOnClick = useCallback(
+    async (item: Post) => {
+      if (!item.postId) return;
+      const result = await run(item.postId);
+    },
+    [router]
+  );
+
   if (isLoading) {
     return null; // 스켈레톤은 Boundary에서 처리
   }
@@ -48,7 +58,7 @@ export const MustReadList = () => {
   if (isEmpty) {
     return (
       <div className={styles.listView}>
-        <MustReadEmptyState />
+        <BookmarksEmptyState />
       </div>
     );
   }
@@ -56,7 +66,7 @@ export const MustReadList = () => {
   return (
     <div className={styles.listView}>
       {posts.map((post) => {
-        return <MustReadRow key={post.postId} post={post} handlePostClick={handlePostClick} />;
+        return <BookmarkRow key={post.postId} post={post} handlePostClick={handlePostClick} bookmarkOnClick={bookmarkOnClick} />;
       })}
 
       {posts.length > 0 && data?.data && data.data.totalPages > 1 && <Pagination pagination={data.data} onPageChange={handlePageChange} />}
@@ -64,18 +74,31 @@ export const MustReadList = () => {
   );
 };
 
-MustReadList.displayName = "MustReadList";
+BookmarksList.displayName = "BookmarksList";
 
-const MustReadRow = memo(({ post, handlePostClick }: { post: Post; handlePostClick: (item: Post) => void }) => {
+const BookmarkRow = memo(({ post, handlePostClick, bookmarkOnClick }: { post: Post; handlePostClick: (item: Post) => void; bookmarkOnClick: (item: Post) => void }) => {
   return (
     <PostListItem.Root post={post} onClick={() => handlePostClick(post)}>
       <PostListItem.Center>
         <PostListItem.Title />
         <PostListItem.BottomContent />
       </PostListItem.Center>
-      <PostListItem.Right />
+      <PostListItem.Right>
+        <PostListItem.Date>{formatDayOrTime(post.createdDateTime)}</PostListItem.Date>
+        <Button
+          variant="ghost"
+          color="gray-700"
+          onClick={(e) => {
+            e.stopPropagation();
+            bookmarkOnClick(post);
+          }}
+          size="sm"
+        >
+          <Icon name="star-line" color={"var(--color-brand-500)"} />
+        </Button>
+      </PostListItem.Right>
     </PostListItem.Root>
   );
 });
 
-MustReadRow.displayName = "MustReadRow";
+BookmarkRow.displayName = "BookmarkRow";

@@ -121,17 +121,6 @@ function DeletedDate() {
   return <div className={postListItemStyles.deletedDate}>삭제일: {formatYMDHM(post.trashedDateTime)}</div>;
 }
 
-function RequiredBadge() {
-  const { post } = useItem();
-  if (!post.mustRead) return null;
-
-  return (
-    <div className={postListItemStyles.requiredBadge}>
-      <Icon name="star-line" color="var(--color-brand-500)" size={{ width: 14, height: 14 }} />
-    </div>
-  );
-}
-
 function BookmarkedDate() {
   const { post } = useItem();
   if (!post.isBookmarked) return null;
@@ -191,7 +180,6 @@ export const PostListItem = {
   BottomContentWithoutAuthor,
   Check,
   DeletedDate,
-  RequiredBadge,
   BookmarkedDate,
 };
 

@@ -109,9 +109,28 @@ export const emptyState = style({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  padding: "64px 16px",
+  height: "400px",
   textAlign: "center",
   color: "var(--color-gray-600)",
+});
+
+export const emptyStateIcon = style({
+  marginBottom: "24px",
+  color: "var(--color-gray-400)",
+});
+
+export const emptyStateTitle = style({
+  fontSize: "18px",
+  fontWeight: 500,
+  color: "var(--color-gray-600)",
+  margin: 0,
+  marginBottom: "8px",
+});
+
+export const emptyStateDescription = style({
+  fontSize: "14px",
+  color: "var(--color-gray-400)",
+  margin: 0,
 });
 
 export const errorState = style({
