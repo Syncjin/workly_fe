@@ -1,4 +1,4 @@
-import { createOptimisticUpdater, removeIdsFromList, usePostDelete } from "@/entities/post";
+import { createOptimisticUpdater, postQueryKeys, removeIdsFromList, usePostDelete } from "@/entities/post";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -14,9 +14,13 @@ export function usePostDeleteAction() {
       if (ids.length === 0) return;
 
       const idSet = new Set(ids);
-      return updater(idSet, () => mutateAsync({ postIds: ids }));
+      const result = await updater(idSet, () => mutateAsync({ postIds: ids }));
+
+      qc.invalidateQueries({ queryKey: postQueryKeys.trashLists() });
+
+      return result;
     },
-    [updater, mutateAsync]
+    [updater, mutateAsync, qc]
   );
 
   return { run, isPending };

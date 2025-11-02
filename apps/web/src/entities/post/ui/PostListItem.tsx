@@ -2,7 +2,7 @@
 
 import { Post } from "@/entities/post/model";
 import { postListItemStyles } from "@/entities/post/ui/postListItem.css";
-import { formatDayOrTime } from "@/shared/lib/format/date/formatters";
+import { formatDayOrTime, formatYMDHM } from "@/shared/lib/format/date/formatters";
 import { CheckBox, cx, Icon } from "@workly/ui";
 import React, { createContext, useContext } from "react";
 
@@ -94,6 +94,64 @@ function BottomContent() {
   );
 }
 
+function BottomContentWithoutAuthor() {
+  const { post } = useItem();
+  return (
+    <div className={postListItemStyles.bottomContentView}>
+      <span className={postListItemStyles.boardName}>{post?.board?.boardName ?? ""}</span>
+      {typeof post.readCount === "number" && (
+        <>
+          <span aria-label="읽음 수">읽음 {post.readCount.toLocaleString()}</span>
+          <span aria-hidden>·</span>
+        </>
+      )}
+      {typeof post.likesCount === "number" && (
+        <div className={postListItemStyles.like}>
+          <Icon name="thumb-up-line" color="var(--color-gray-500)" size={{ width: 14, height: 14 }} />
+          <span aria-label="좋아요 수">{post.likesCount.toLocaleString()}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeletedDate() {
+  const { post } = useItem();
+  if (!post.trashedDateTime) return null;
+
+  console.log("trashedDateTime", post.trashedDateTime);
+  return <div className={postListItemStyles.deletedDate}>삭제일: {formatYMDHM(post.trashedDateTime)}</div>;
+}
+
+function ReadStatus() {
+  const { post } = useItem();
+
+  return (
+    <div className={postListItemStyles.readStatus} data-read={post.isRead}>
+      {post.isRead ? "읽음" : "미읽음"}
+    </div>
+  );
+}
+
+function RequiredBadge() {
+  const { post } = useItem();
+  if (!post.mustRead) return null;
+
+  return (
+    <div className={postListItemStyles.requiredBadge}>
+      <Icon name="star-line" color="var(--color-red-500)" size={{ width: 14, height: 14 }} />
+      <span>필독</span>
+    </div>
+  );
+}
+
+function BookmarkedDate() {
+  const { post } = useItem();
+  if (!post.isBookmarked) return null;
+
+  return <div className={postListItemStyles.bookmarkedDate}>스크랩일: {formatDayOrTime(post.createdDateTime)}</div>;
+}
+
 /** Layout */
 function Layout({ children }: { children: React.ReactNode }) {
   // 커스텀 레이아웃: 사용자가 Left/Center/Right를 원하는 순서로 배치
@@ -143,7 +201,12 @@ export const PostListItem = {
   Title,
   Date,
   BottomContent,
+  BottomContentWithoutAuthor,
   Check,
+  DeletedDate,
+  ReadStatus,
+  RequiredBadge,
+  BookmarkedDate,
 };
 
 export default PostListItem;

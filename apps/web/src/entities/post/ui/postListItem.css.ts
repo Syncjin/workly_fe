@@ -74,4 +74,45 @@ export const postListItemStyles = {
     lineHeight: "20px",
     color: "var(--color-gray-500)",
   }),
+  deletedDate: style({
+    fontSize: "12px",
+    color: "var(--color-red-500)",
+    fontWeight: 400,
+    marginTop: "4px",
+  }),
+  readStatus: style({
+    fontSize: "12px",
+    fontWeight: 500,
+    padding: "2px 6px",
+    borderRadius: "4px",
+    display: "inline-flex",
+    alignItems: "center",
+    selectors: {
+      '&[data-read="true"]': {
+        color: "var(--color-green-600)",
+        backgroundColor: "var(--color-green-50)",
+      },
+      '&[data-read="false"]': {
+        color: "var(--color-orange-600)",
+        backgroundColor: "var(--color-orange-50)",
+      },
+    },
+  }),
+  requiredBadge: style({
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    fontSize: "12px",
+    fontWeight: 500,
+    color: "var(--color-red-600)",
+    backgroundColor: "var(--color-red-50)",
+    padding: "2px 6px",
+    borderRadius: "4px",
+  }),
+  bookmarkedDate: style({
+    fontSize: "12px",
+    color: "var(--color-blue-500)",
+    fontWeight: 400,
+    marginTop: "4px",
+  }),
 };
