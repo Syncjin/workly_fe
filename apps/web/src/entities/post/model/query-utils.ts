@@ -18,8 +18,18 @@ export function isInfiniteData<T>(v: any): v is InfiniteData<T> {
 // 쿼리 키 매칭
 export function isPostListKey(qk: unknown): boolean {
   if (!Array.isArray(qk)) return false;
-  const listKeys = postQueryKeys.lists();
-  return qk.length >= listKeys.length && listKeys.every((key, index) => qk[index] === key);
+
+  // 모든 게시글 목록 쿼리 키 패턴들을 확인
+  const listKeyPatterns = [
+    postQueryKeys.lists(), // ["posts", "list"]
+    postQueryKeys.unreadLists(), // ["posts", "unread", "list"]
+    postQueryKeys.trashLists(), // ["posts", "trash", "list"]
+    postQueryKeys.myPostsLists(), // ["posts", "my-posts", "list"]
+    postQueryKeys.mustReadLists(), // ["posts", "must-read", "list"]
+    postQueryKeys.bookmarksLists(), // ["posts", "bookmarks", "list"]
+  ];
+
+  return listKeyPatterns.some((pattern) => qk.length >= pattern.length && pattern.every((key, index) => qk[index] === key));
 }
 
 export function isPostDetailKey(qk: unknown): boolean {
