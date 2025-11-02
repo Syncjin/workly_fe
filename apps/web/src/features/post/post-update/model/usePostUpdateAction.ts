@@ -1,4 +1,4 @@
-import { usePostUpdate } from "@/entities/post";
+import { isPostDetailKey, isPostListKey, usePostUpdate } from "@/entities/post";
 import { useQueryClient } from "@tanstack/react-query";
 import { PostCreateRequest, PostUpdateRequest } from "@workly/types";
 import { useCallback } from "react";
@@ -8,16 +8,6 @@ type RunArgs = {
   post: PostCreateRequest;
   files?: File[];
 };
-
-export type PostDetailKey = readonly ["posts", "detail", number];
-
-export function isPostDetailKey(qk: unknown): qk is PostDetailKey {
-  return Array.isArray(qk) && qk.length === 3 && qk[0] === "posts" && qk[1] === "detail" && typeof qk[2] === "number";
-}
-
-function isPostListKey(qk: unknown): boolean {
-  return Array.isArray(qk) && qk[0] === "posts" && qk[1] === "list";
-}
 
 export function usePostUpdateAction() {
   const qc = useQueryClient();

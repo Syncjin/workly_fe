@@ -1,19 +1,15 @@
-import { postApi, postQueryKeys } from "@/entities/post";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postQueryKeys, usePostTrash } from "@/entities/post";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 export function usePostTrashAction() {
   const qc = useQueryClient();
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => postApi.deletePostsTrash(),
-    onSuccess: () => {
-      // 휴지통 목록 갱신
-      qc.invalidateQueries({ queryKey: postQueryKeys.trashLists() });
-    },
-  });
+  const { mutateAsync, isPending } = usePostTrash();
 
   const run = useCallback(async () => {
-    return mutateAsync();
+    const result = await mutateAsync();
+    qc.invalidateQueries({ queryKey: postQueryKeys.trashLists() });
+    return result;
   }, [mutateAsync]);
 
   return { run, isPending };

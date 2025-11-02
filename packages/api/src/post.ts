@@ -110,14 +110,9 @@ export function createPostApi(http: HttpClient) {
       return http.delete<any>(`/posts/trash`);
     },
 
-    /** 게시글 영구 삭제 */
-    deletePostsPermanent: (body: { postIds: number[] }): Promise<ApiResponse<void>> => {
-      return http.delete<void>(`/posts/permanent`, body);
-    },
-
-    /** 게시글 스크랩 해제 */
-    deletePostsBookmark: (params: { postId: number }): Promise<ApiResponse<void>> => {
-      return http.delete<void>(`/posts/${params.postId}/bookmarks`);
+    /** 게시글 스크랩 업데이트 */
+    postPostsBookmarks: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
+      return http.post<PostDTO>(`/posts/${params.postId}/bookmarks`);
     },
 
     /** 게시글 필독 설정 */

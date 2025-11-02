@@ -1,10 +1,9 @@
 "use client";
 
-import type { Post } from "@/entities/post";
-import { PostListItem } from "@/entities/post";
+import type { PageParams, Post } from "@/entities/post";
+import { PostListItem, useTrashPostsSuspense } from "@/entities/post";
 import { formatDayOrTime } from "@/shared/lib";
 import { useIsSelected, useSelectionActions, useSyncVisibleIds } from "@/widgets/post-list/model/SelectionStore";
-import { useTrashPosts } from "@/widgets/trash-list/model/useTrashPosts";
 import { Pagination } from "@workly/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { memo, useCallback, useMemo } from "react";
@@ -12,9 +11,18 @@ import { TrashEmptyState } from "./TrashEmptyState";
 import * as styles from "./trashList.css";
 
 export const TrashList = React.memo(() => {
-  const { data, isLoading } = useTrashPosts();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const params = useMemo(
+    (): PageParams => ({
+      page: Number(searchParams?.get("page")) || 1,
+      size: Number(searchParams?.get("size")) || 10,
+    }),
+    [searchParams]
+  );
+
+  const { data, isLoading } = useTrashPostsSuspense(params);
 
   const posts: Post[] = useMemo(() => (Array.isArray(data?.data?.items) ? (data.data.items as Post[]) : []), [data?.data?.items]);
   const visibleIds = useMemo(() => posts.map((p) => p.postId), [posts]);

@@ -128,7 +128,7 @@ export const usePostRestore = () => {
 /**
  * 휴지통 전체 비우기 (영구 삭제) 훅
  */
-export const useTrashEmpty = () => {
+export const usePostTrash = () => {
   return useApiMutation<any, void>(() => postApi.deletePostsTrash(), {});
 };
 
@@ -137,4 +137,11 @@ export const useTrashEmpty = () => {
  */
 export const usePostMustRead = () => {
   return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsMustRead(params), {});
+};
+
+/**
+ * 게시글 스크랩 설정 훅
+ */
+export const usePostBookmarks = () => {
+  return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsBookmarks(params), {});
 };
