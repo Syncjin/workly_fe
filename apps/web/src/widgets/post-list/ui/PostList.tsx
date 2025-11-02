@@ -54,6 +54,18 @@ export const PostList = React.memo(() => {
     );
   }
 
+  const isEmpty = posts.length === 0;
+  const isUnreadFilter = filter === "unread";
+  const showEmptyState = isEmpty && isUnreadFilter;
+
+  if (showEmptyState) {
+    return (
+      <div className={styles.listView}>
+        <PostListEmptyState type="no-unread-posts" onShowAll={handleShowAll} />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.listView}>
       {posts.map((post) => {
