@@ -118,19 +118,7 @@ function BottomContentWithoutAuthor() {
 function DeletedDate() {
   const { post } = useItem();
   if (!post.trashedDateTime) return null;
-
-  console.log("trashedDateTime", post.trashedDateTime);
   return <div className={postListItemStyles.deletedDate}>삭제일: {formatYMDHM(post.trashedDateTime)}</div>;
-}
-
-function ReadStatus() {
-  const { post } = useItem();
-
-  return (
-    <div className={postListItemStyles.readStatus} data-read={post.isRead}>
-      {post.isRead ? "읽음" : "미읽음"}
-    </div>
-  );
 }
 
 function RequiredBadge() {
@@ -139,8 +127,7 @@ function RequiredBadge() {
 
   return (
     <div className={postListItemStyles.requiredBadge}>
-      <Icon name="star-line" color="var(--color-red-500)" size={{ width: 14, height: 14 }} />
-      <span>필독</span>
+      <Icon name="star-line" color="var(--color-brand-500)" size={{ width: 14, height: 14 }} />
     </div>
   );
 }
@@ -204,7 +191,6 @@ export const PostListItem = {
   BottomContentWithoutAuthor,
   Check,
   DeletedDate,
-  ReadStatus,
   RequiredBadge,
   BookmarkedDate,
 };

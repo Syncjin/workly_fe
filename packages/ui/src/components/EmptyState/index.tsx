@@ -6,7 +6,7 @@ import Icon from "../Icon";
 import { emptyStateContainer, emptyStateContent, emptyStateDescription, emptyStateIcon, emptyStateTitle } from "./emptyState.css";
 
 export interface EmptyStateProps {
-  title: string;
+  title?: string;
   description?: string;
   icon?: React.ReactNode;
   action?: {

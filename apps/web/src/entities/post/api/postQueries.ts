@@ -131,3 +131,10 @@ export const usePostRestore = () => {
 export const useTrashEmpty = () => {
   return useApiMutation<any, void>(() => postApi.deletePostsTrash(), {});
 };
+
+/**
+ * 게시글 필독 설정 훅
+ */
+export const usePostMustRead = () => {
+  return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsMustRead(params), {});
+};

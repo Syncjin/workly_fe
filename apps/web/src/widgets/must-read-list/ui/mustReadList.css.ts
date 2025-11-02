@@ -35,7 +35,7 @@ export const toolbar = {
     marginTop: 24,
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     flexWrap: "wrap",
     gap: 12,
@@ -94,52 +94,6 @@ export const toolbar = {
   }),
 };
 
-// 기존 버튼 스타일 유지 (호환성을 위해)
-export const actionButton = style({
-  padding: "8px 16px",
-  fontSize: "14px",
-  fontWeight: "500",
-  color: "var(--color-blue-600)",
-  backgroundColor: "var(--color-blue-50)",
-  border: "1px solid var(--color-blue-200)",
-  borderRadius: "6px",
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-
-  ":hover": {
-    backgroundColor: "var(--color-blue-100)",
-    borderColor: "var(--color-blue-300)",
-  },
-
-  ":disabled": {
-    opacity: 0.5,
-    cursor: "not-allowed",
-  },
-});
-
-export const dangerButton = style({
-  padding: "8px 16px",
-  fontSize: "14px",
-  fontWeight: "500",
-  color: "var(--color-red-600)",
-  backgroundColor: "var(--color-red-50)",
-  border: "1px solid var(--color-red-200)",
-  borderRadius: "6px",
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-
-  ":hover": {
-    backgroundColor: "var(--color-red-100)",
-    borderColor: "var(--color-red-300)",
-  },
-
-  ":disabled": {
-    opacity: 0.5,
-    cursor: "not-allowed",
-  },
-});
-
-// trash-list와 동일한 listView 스타일로 변경
 export const listView = style({
   display: "flex",
   flexDirection: "column",
@@ -150,15 +104,33 @@ export const listView = style({
   borderTopStyle: "solid",
 });
 
-// trash-list와 동일한 emptyState 스타일로 변경
 export const emptyState = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  padding: "64px 16px",
+  height: "400px",
   textAlign: "center",
   color: "var(--color-gray-600)",
+});
+
+export const emptyStateIcon = style({
+  marginBottom: "24px",
+  color: "var(--color-gray-400)",
+});
+
+export const emptyStateTitle = style({
+  fontSize: "18px",
+  fontWeight: 500,
+  color: "var(--color-gray-600)",
+  margin: 0,
+  marginBottom: "8px",
+});
+
+export const emptyStateDescription = style({
+  fontSize: "14px",
+  color: "var(--color-gray-400)",
+  margin: 0,
 });
 
 export const errorState = style({
@@ -171,7 +143,6 @@ export const errorState = style({
   color: "var(--color-red-600)",
 });
 
-// 기존 스타일 호환성을 위해 유지
 export const emptyTitle = style({
   fontSize: "18px",
   fontWeight: "600",

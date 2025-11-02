@@ -119,5 +119,10 @@ export function createPostApi(http: HttpClient) {
     deletePostsBookmark: (params: { postId: number }): Promise<ApiResponse<void>> => {
       return http.delete<void>(`/posts/${params.postId}/bookmarks`);
     },
+
+    /** 게시글 필독 설정 */
+    postPostsMustRead: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
+      return http.post<PostDTO>(`/posts/${params.postId}/must-read`);
+    },
   };
 }

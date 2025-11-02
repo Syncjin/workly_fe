@@ -5,7 +5,6 @@ import { PostListItem } from "@/entities/post";
 import { usePostFilterManager } from "@/features/post/post-filter";
 import { usePostListParamsFromURL } from "@/widgets/post-list";
 import { useIsSelected, useSelectionActions, useSyncVisibleIds } from "@/widgets/post-list/model/SelectionStore";
-import { PostListSkeleton } from "@/widgets/post-list/ui/loading/PostListSkeleton";
 import { PostListEmptyState } from "@/widgets/post-list/ui/PostListEmptyState";
 import { Pagination } from "@workly/ui";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -42,10 +41,6 @@ export const PostList = React.memo(() => {
   const handleShowAll = useCallback(() => {
     setFilter("all");
   }, [setFilter]);
-
-  if (isLoading) {
-    return <PostListSkeleton rows={10} />;
-  }
 
   const isEmpty = posts.length === 0;
   const isUnreadFilter = filter === "unread";
