@@ -8,7 +8,7 @@ export const nav = style({
 export const boardList = style({
   listStyle: "none",
   margin: 0,
-  padding: "0 12px",
+  padding: 0,
   display: "flex",
   flexDirection: "column",
   gap: "4px",
@@ -35,10 +35,6 @@ export const boardButton = recipe({
     selectors: {
       "&:hover": {
         background: "var(--color-gray-200)",
-      },
-      "&:focus": {
-        outline: "2px solid var(--color-brand-500)",
-        outlineOffset: "2px",
       },
     },
 
