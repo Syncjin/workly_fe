@@ -80,26 +80,36 @@ export function createHttpClient(opts: HttpClientOptions) {
     return `${base}/${ep}`;
   };
 
-  async function ensureAccessTokenIfNeeded(endpoint: string) {
-    const key = normalize(endpoint);
-    const skip = Object.prototype.hasOwnProperty.call(routeOverrides, key);
-    if (skip || !auth?.refreshAccessToken || auth?.getAccessToken?.()) return;
-
-    if (!inflightRefresh) {
-      inflightRefresh = auth.refreshAccessToken().finally(() => {
-        inflightRefresh = null;
-      });
-    }
-    await inflightRefresh;
-  }
-
   function isFormDataBody(b: unknown): b is FormData {
     return typeof FormData !== "undefined" && b instanceof FormData;
   }
 
-  async function request<T>(method: string, endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
-    await ensureAccessTokenIfNeeded(endpoint);
+  async function refreshAndRetry<T>(req: RequestInit, url: string): Promise<ApiResponse<T>> {
+    if (!inflightRefresh) {
+      inflightRefresh = auth!.refreshAccessToken!().finally(() => {
+        inflightRefresh = null;
+      });
+    }
 
+    const newToken = await inflightRefresh;
+
+    if (newToken) {
+      // 새 토큰으로 헤더 교체
+      const newHeaders = new Headers(req.headers);
+      newHeaders.set("Authorization", `Bearer ${newToken}`);
+
+      const retryRes = await fetch(url, { ...req, headers: newHeaders });
+
+      if (retryRes.ok) return parseApiJsonSafe<T>(retryRes);
+
+      // 재시도도 실패하면 에러
+      const retryText = await retryRes.text().catch(() => "");
+      throw { message: retryText || `HTTP ${retryRes.status}`, status: retryRes.status } as any;
+    } else {
+      throw { message: "Session expired, unable to refresh.", status: 401 } as any;
+    }
+  }
+  async function request<T>(method: string, endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
     const service = resolveService(endpoint, options.service);
     const url = getFullUrl(endpoint, service, options.absolute);
 
@@ -110,16 +120,9 @@ export function createHttpClient(opts: HttpClientOptions) {
     const at = auth?.getAccessToken?.();
     if (at) (baseHeaders as any).Authorization = `Bearer ${at}`;
     const csrf = auth?.getCsrfToken?.();
-    if (csrf) (baseHeaders as any)["X-CSRF-TOKEN"] = csrf;
+    if (csrf) (baseHeaders as any)["x-csrf-token"] = csrf;
 
-    const body =
-      options.body == null
-        ? undefined
-        : isFormDataBody(options.body)
-          ? options.body // ← FormData는 그대로
-          : typeof options.body === "string"
-            ? options.body // 이미 문자열인 경우(직접 JSON.stringify 해서 넣은 경우 등)
-            : options.body; // post/put/patch에서 이미 JSON.stringify하여 전달함
+    const body = options.body == null ? undefined : isFormDataBody(options.body) ? options.body : typeof options.body === "string" ? options.body : options.body;
 
     // Content-Type 결정: FormData면 지정하지 않음(브라우저가 boundary 포함 자동 설정)
     const isForm = isFormDataBody(body);
@@ -145,20 +148,8 @@ export function createHttpClient(opts: HttpClientOptions) {
 
     if (!res.ok) {
       if (res.status === 401 && auth?.refreshAccessToken) {
-        const newToken = await auth.refreshAccessToken();
-        if (newToken) {
-          const retryHeaders: any = {
-            ...(isForm ? {} : { "Content-Type": "application/json" }),
-            ...baseHeaders,
-            Authorization: `Bearer ${newToken}`,
-            ...(options.headers ?? {}),
-          };
-
-          const retryRes = await fetch(url, { ...req, headers: retryHeaders });
-          if (retryRes.ok) return parseApiJsonSafe<T>(retryRes);
-          const retryText = await retryRes.text().catch(() => "");
-          throw { message: retryText || `HTTP ${retryRes.status}`, status: retryRes.status } as any;
-        }
+        if (debug) console.debug("[http]", "Token expired (401). Attempting refresh and retry...");
+        return refreshAndRetry<T>(req, url);
       }
       const text = await res.text().catch(() => "");
       let json: any = {};
@@ -192,7 +183,7 @@ export function createHttpClient(opts: HttpClientOptions) {
       const at = auth?.getAccessToken?.();
       if (at) (headers as any).Authorization = `Bearer ${at}`;
       const csrf = auth?.getCsrfToken?.();
-      if (csrf) (headers as any)["X-CSRF-TOKEN"] = csrf;
+      if (csrf) (headers as any)["x-csrf-token"] = csrf;
       if (environment) (headers as any)["X-Environment"] = environment;
 
       const isLocalApi = url.startsWith("/api/");

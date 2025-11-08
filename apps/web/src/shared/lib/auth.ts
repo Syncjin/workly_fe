@@ -7,7 +7,7 @@
 
 import { log } from "@/lib/logger";
 import { type ApiResponse } from "@workly/types/common";
-import { parse, serialize } from "cookie";
+import { parse } from "cookie";
 
 /** 브라우저/SSR 가드 */
 const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
@@ -140,11 +140,6 @@ export const getCookieValue = (name: string): string | null => {
 const CSRF_COOKIE = "csrfToken";
 export const getCsrfTokenFromCookie = (): string | null => getCookieValue(CSRF_COOKIE);
 
-export const setCsrfToken = (token: string, { maxAgeSeconds = 7 * 24 * 60 * 60, path = "/", sameSite = "lax" as "lax" | "strict" | "none", secure = isBrowser ? window.location.protocol === "https:" : true } = {}) => {
-  if (!isBrowser) return;
-  document.cookie = serialize(CSRF_COOKIE, token, { maxAge: maxAgeSeconds, path, sameSite, secure });
-};
-
 /**
  * 사용자가 인증되었는지 확인합니다
  * @returns 액세스 토큰이 존재하면 true, 그렇지 않으면 false
@@ -172,13 +167,12 @@ const doRefresh = async (): Promise<string | null> => {
 
   try {
     const csrf = getCsrfTokenFromCookie();
-
     const res = await fetch("/api/auth/refresh", {
       method: "POST",
       credentials: "include", // ★ RT 쿠키 전송 (본문에 RT 안 보냄)
       headers: {
         "Content-Type": "application/json",
-        ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+        ...(csrf ? { "x-csrf-token": csrf } : {}),
       },
       // body: JSON.stringify({}) // 필요 없음
     });
@@ -196,13 +190,6 @@ const doRefresh = async (): Promise<string | null> => {
 
     if (data?.data?.accessToken) {
       setAccessToken(data.data.accessToken);
-    } else {
-      log.warn("응답에 accessToken 없음", { dur, op: "refresh" });
-      return null;
-    }
-
-    if (data?.data.csrfToken) {
-      setCsrfToken(data.data.csrfToken);
     } else {
       log.warn("응답에 accessToken 없음", { dur, op: "refresh" });
       return null;
@@ -239,41 +226,11 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 };
 
 /**
- * 토큰 갱신을 시도하여 인증을 초기화합니다
- * 앱 시작 시 인증 상태를 복원하기 위해 호출되어야 합니다
- *
- * @returns 인증이 복원되면 true, 그렇지 않으면 false를 반환하는 Promise
- */
-export const initializeAuth = async (): Promise<boolean> => {
-  const start = Date.now();
-  log.info("인증 초기화 시작", { op: "init" });
-
-  try {
-    const token = await refreshAccessToken();
-    const ok = token !== null;
-    const dur = Date.now() - start;
-    log.info("인증 초기화 token", { op: "init", token });
-    if (ok) {
-      log.info("인증 초기화 완료(AT 복구)", { dur, op: "init" });
-    } else {
-      log.info("인증 초기화: 비인증 상태", { dur, op: "init" });
-    }
-    return ok;
-  } catch (error) {
-    const dur = Date.now() - start;
-    log.error("인증 초기화 오류", { error, dur, op: "init" });
-    return false;
-  }
-};
-
-/**
  * 액세스 토큰과 CSRF 토큰을 지우고 필요시 로그아웃 엔드포인트를 호출하여 사용자를 로그아웃합니다
  */
 export const logout = async (): Promise<void> => {
   const start = Date.now();
   log.info("로그아웃 시작", { op: "logout" });
-
-  removeAccessToken(); // 클라 상태 먼저 정리
 
   try {
     const res = await fetch("/api/auth/logout", {
@@ -290,5 +247,7 @@ export const logout = async (): Promise<void> => {
   } catch (error) {
     const dur = Date.now() - start;
     log.warn("서버 로그아웃 호출 실패", { error, dur, op: "logout" });
+  } finally {
+    removeAccessToken();
   }
 };

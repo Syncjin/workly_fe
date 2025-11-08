@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // import { log } from './lib/logger';
 
 // 보호된 페이지 경로들
-const protectedPaths = ["/board", "/profile", "/dashboard", "/admin"];
+const protectedPaths = ["/board", "/profile", "/dashboard", "/admin", "/must-read"];
 const authPaths = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {

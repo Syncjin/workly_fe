@@ -2,42 +2,99 @@
 
 import { getAccessToken, logout, setAccessToken } from "@/shared/lib/auth";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export function AuthProvider({ children, fallback = <div>auth...</div> }: { children: React.ReactNode; fallback?: React.ReactNode }) {
+const authPaths = ["/login", "/register"];
+
+function getCsrfTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null; // 서버 환경 방지
+
+  const cookieName = "csrfToken=";
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i].trim();
+    if (cookie.startsWith(cookieName)) {
+      return cookie.substring(cookieName.length);
+    }
+  }
+  return null;
+}
+
+export function AuthProvider({ children, fallback = <div>Loading authentication...</div> }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   const pathname = usePathname();
   const [ready, setReady] = useState(!!getAccessToken());
-  const authPaths = ["/login", "/register"];
-  
+
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    
-    if (ready) return;
-    let alive = true;
+    if (getAccessToken()) {
+      setReady(true);
+      return;
+    }
+
+    const isAuthPath = authPaths.some((path) => pathname?.startsWith(path));
+    if (isAuthPath) {
+      setReady(true);
+      return;
+    }
 
     (async () => {
-      const isAuthPath = authPaths.some((path) => pathname?.startsWith(path));
-      if(isAuthPath) {
-        setReady(true);
+      mountedRef.current = true;
+      // 갱신 시도 시작
+      const csrfToken = getCsrfTokenFromCookie();
+      if (!csrfToken) {
+        await logout();
         return;
       }
-      const res = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
-      if (!alive) return;
+      try {
+        const res = await fetch("/api/auth/refresh", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": csrfToken,
+          },
+        });
 
-      if (res.ok) {
-        const body = await res.json();
-        const at = body?.data?.accessToken ?? body?.accessToken;
-        if (at) {
-          setAccessToken(at);
-          setReady(true);
-          return;
+        const text = await res.text();
+        let body: any = null;
+        try {
+          body = text ? JSON.parse(text) : null;
+        } catch {
+          body = null;
         }
+
+        if (res.ok) {
+          const at = body?.data?.accessToken ?? body?.accessToken ?? body?.token ?? null;
+          if (at) {
+            setAccessToken(at);
+            setReady(true);
+            return;
+          }
+        }
+
+        const code: string | undefined = body?.code ?? body?.errorCode ?? body?.error;
+        const shouldLogout =
+          !isAuthPath &&
+          (!res.ok || // 4xx/5xx
+            res.status === 401 ||
+            res.status === 403 ||
+            code === "FORBIDDEN" ||
+            code === "CSRF_TOKEN_INVALID" ||
+            code === "CSRF_INVALID");
+
+        if (shouldLogout) {
+          await logout();
+        }
+      } catch (e: any) {
+        if (!isAuthPath) await logout();
       }
-      await logout();
-      setReady(true);
     })();
 
-    return () => { alive = false; };
-  }, [ready, pathname]);
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [pathname]);
 
   if (!ready) return <>{fallback}</>;
   return <>{children}</>;
