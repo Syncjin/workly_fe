@@ -1,21 +1,55 @@
 "use client";
 
+import { LoginFormData, loginSchema, useLoginAction } from "@/features/auth/loginForm";
+import { setAccessToken } from "@/shared/lib";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, CheckBoxField, Icon, InputField } from "@workly/ui";
-import { useLoginForm } from "../model/useLoginForm";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { checkboxContainer, forgotPasswordLink, form, loginButton, loginCard, loginContainer, logoContainer } from "./loginForm.css";
 
 export function LoginForm() {
+  const { run, isPending: isPendingLogin } = useLoginAction();
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
     setValue,
-    onSubmit,
-    handleFindIdpw,
-  } = useLoginForm();
-
+    setError,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { userId: "", password: "", autoLogin: false },
+    mode: "onSubmit",
+  });
+  const router = useRouter();
   const autoLogin = watch("autoLogin");
+  const [isPendingRoute, startTransition] = useTransition();
+
+  const onSubmit = async (values: LoginFormData) => {
+    try {
+      const response = await run(values);
+
+      if (response.data?.accessToken) {
+        setAccessToken(response.data.accessToken);
+      }
+
+      if (response.status === 200) {
+        startTransition(() => {
+          router.push("/board");
+        });
+      }
+    } catch (e: any) {
+      // const msg = e?.message || e?.response?.data?.message || "로그인에 실패했습니다. 다시 시도해주세요.";
+      // setError("userId", { message: msg });
+      // setError("password", { message: msg });
+    }
+  };
+
+  const handleFindIdpw = () => {};
+  const loading = isSubmitting || isPendingLogin || isPendingRoute;
 
   return (
     <div className={loginContainer}>
@@ -24,7 +58,7 @@ export function LoginForm() {
           <Icon name="logo-vertical" size={{ width: 128, height: 86 }} color="var(--color-brand-600)" />
         </div>
 
-        <form className={form} onSubmit={handleSubmit(onSubmit)}>
+        <form className={form} onSubmit={handleSubmit(onSubmit)} aria-busy={loading}>
           <InputField id="userId" type="text" placeholder="ID를 입력해주세요" {...register("userId")} status={errors.userId ? "error" : "default"} errorText={errors.userId?.message} />
 
           <InputField id="password" type="password" placeholder="비밀번호를 입력해주세요" {...register("password")} status={errors.password ? "error" : "default"} errorText={errors.password?.message} />
@@ -37,7 +71,7 @@ export function LoginForm() {
             </Button>
           </div>
 
-          <Button type="submit" className={loginButton} size="xl" variant="solid" color="brand-600" loading={isSubmitting} loadingIcon={<Icon name="loader-2-line" color="#fff" />}>
+          <Button type="submit" className={loginButton} size="xl" variant="solid" color="brand-600" loading={loading} loadingIcon={<Icon name="loader-2-line" color="#fff" />}>
             로그인
           </Button>
         </form>

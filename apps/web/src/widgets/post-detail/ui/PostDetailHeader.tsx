@@ -28,7 +28,7 @@ const PostDetailHeader = (post: Post) => {
       <div className={styles.titleArea}>
         <h3>{post.title}</h3>
         <Button variant="ghost" color="gray-700" onClick={bookmarkOnClick} size="sm">
-          <Icon name="star-line" color={isBookmarked ? "var(--color-brand-500)" : "var(--color-gray-500)"} />
+          {isBookmarked ? <Icon name="star-fill" color={"var(--color-brand-500)"} /> : <Icon name="star-line" color={"var(--color-gray-500)"} />}
         </Button>
       </div>
       <div className={styles.headerArea}>

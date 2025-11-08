@@ -1,3 +1,4 @@
+import { cx } from "@/shared/styles/classes";
 import { Icon } from "@workly/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SidebarBoard, SidebarGroup } from "../model/useSidebarBoard";
@@ -71,7 +72,7 @@ export const CollapsibleBoardTree = ({ data, activeBoardId, onSelectBoard, defau
   );
 
   return (
-    <nav className={[styles.nav, className].filter(Boolean).join(" ")} data-ui="board-tree">
+    <div className={cx(styles.nav, className)} data-ui="board-tree">
       <ul className={styles.rootList} role="tree">
         {data.map(({ category, boards }) => {
           const expandedNow = isExpanded(category.id);
@@ -110,7 +111,7 @@ export const CollapsibleBoardTree = ({ data, activeBoardId, onSelectBoard, defau
           );
         })}
       </ul>
-    </nav>
+    </div>
   );
 };
 

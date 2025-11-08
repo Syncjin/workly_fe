@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/shared/styles/classes";
 import { Icon, Tooltip } from "@workly/ui";
 import { useCallback } from "react";
 import type { SidebarBoard, SidebarGroup } from "../model/useSidebarBoard";
@@ -29,7 +30,7 @@ export const CollapsedBoardTree: React.FC<CollapsedBoardTreeProps> = ({ data, ac
   );
 
   return (
-    <nav className={[styles.nav, className].filter(Boolean).join(" ")} data-ui="collapsed-board-tree">
+    <div className={cx(styles.nav, className)} data-ui="collapsed-board-tree">
       <ul className={styles.boardList} role="list">
         {allBoards.map((board) => {
           const active = board.id === activeBoardId;
@@ -46,7 +47,7 @@ export const CollapsedBoardTree: React.FC<CollapsedBoardTreeProps> = ({ data, ac
           );
         })}
       </ul>
-    </nav>
+    </div>
   );
 };
 

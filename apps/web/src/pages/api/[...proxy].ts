@@ -2,7 +2,7 @@
 import { log } from "@/lib/logger";
 import { NextApiRequest, NextApiResponse } from "next";
 // 인증이 필요한 API 경로들
-const protectedPaths = ["/boards", "/admin", "/profile", "/dashboard", "/settings"];
+const protectedPaths = ["/board", "/admin", "/profile", "/dashboard", "/settings", "/must-read", "/my-posts", "/bookmarks", "/trash"];
 
 // 특별 처리가 필요한 경로들 (프록시하지 않음)
 const specialPaths = ["/auth/login", "/auth/refresh", "/auth/logout"];

@@ -7,6 +7,13 @@ export interface UseIconCacheResult {
   isLoading: boolean;
   error: boolean;
 }
+
+const INITIAL_ICON_STATE: IconLoadingState = Object.freeze({
+  isLoading: false,
+  error: false,
+  component: null,
+});
+
 export function useIconCache(name: IconName): UseIconCacheResult {
   const stateRef = React.useRef<IconLoadingState | null>(null);
 
@@ -20,20 +27,9 @@ export function useIconCache(name: IconName): UseIconCacheResult {
     return stateRef.current;
   }, [name]);
 
-  const getServerSnapshot = React.useCallback(() => {
-    return {
-      isLoading: false,
-      error: false,
-      component: null,
-    } as IconLoadingState;
-  }, []);
+  const getServerSnapshot = React.useCallback(() => INITIAL_ICON_STATE, []);
 
-  const subscribe = React.useCallback(
-    (callback: () => void) => {
-      return iconCache.subscribe(name, callback);
-    },
-    [name]
-  );
+  const subscribe = React.useCallback((callback: () => void) => iconCache.subscribe(name, callback), [name]);
 
   const state = React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 

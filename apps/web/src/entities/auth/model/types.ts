@@ -6,7 +6,9 @@
 
 import type { UserLoginRequest as UserLoginRequestDTO, UserLoginResponse as UserLoginResponseDTO } from "@workly/types";
 
-export interface UserLoginRequest extends UserLoginRequestDTO {}
+export interface UserLoginRequest extends UserLoginRequestDTO {
+  autoLogin?: boolean;
+}
 
 export interface UserLoginResponse extends UserLoginResponseDTO {
   csrfToken?: string;
