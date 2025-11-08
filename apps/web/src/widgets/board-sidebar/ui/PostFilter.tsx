@@ -11,13 +11,9 @@ export type PostFilterType = "must-read" | "bookmarks" | "my-posts" | null;
 export const VALID_FILTER_VALUES = ["must-read", "bookmarks", "my-posts"] as const;
 export type ValidFilterValue = (typeof VALID_FILTER_VALUES)[number];
 
-// 필터 값 검증 함수
-export const isValidFilterValue = (value: string | null): value is ValidFilterValue => {
-  return value !== null && VALID_FILTER_VALUES.includes(value as ValidFilterValue);
-};
-
 interface PostFilterProps {
   isCollapsed?: boolean;
+  currentFilter?: string;
 }
 
 interface FilterOption {
@@ -32,13 +28,9 @@ const FILTER_OPTIONS: FilterOption[] = [
   { key: "my-posts", label: "내 게시글", icon: "user-line" },
 ];
 
-export const PostFilter: React.FC<PostFilterProps> = ({ isCollapsed = false }) => {
+export const PostFilter: React.FC<PostFilterProps> = ({ isCollapsed = false, currentFilter }) => {
   const router = useRouter();
   const pathname = usePathname();
-
-  const currentFilter = React.useMemo(() => {
-    return pathname?.slice(1, pathname.length);
-  }, [pathname]);
 
   const handleFilterClick = React.useCallback(
     (filterKey: PostFilterType) => {

@@ -2,15 +2,16 @@
 
 import { Icon, Tooltip } from "@workly/ui";
 import { useRouter } from "next/navigation";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import * as styles from "./collapsibleBoardTree.css";
 
 interface TrashBinProps {
   isCollapsed?: boolean;
   onClick?: () => void;
+  currentFilter?: string;
 }
 
-export const TrashBin = ({ isCollapsed, onClick }: TrashBinProps) => {
+export const TrashBin = ({ isCollapsed, onClick, currentFilter }: TrashBinProps) => {
   const router = useRouter();
 
   const handleClick = useCallback(() => {
@@ -35,6 +36,10 @@ export const TrashBin = ({ isCollapsed, onClick }: TrashBinProps) => {
     [handleClick]
   );
 
+  const active = useMemo(() => {
+    return currentFilter === "trash";
+  }, [currentFilter]);
+
   if (isCollapsed) {
     return (
       <Tooltip content="휴지통" position="right">
@@ -42,8 +47,9 @@ export const TrashBin = ({ isCollapsed, onClick }: TrashBinProps) => {
           type="button"
           onClick={handleClick}
           onKeyDown={handleKeyDown}
-          className={styles.boardButton({ active: false })}
+          className={styles.boardButton({ active })}
           aria-label="휴지통으로 이동"
+          aria-current={active ? "page" : undefined}
           role="button"
           tabIndex={0}
           style={{
@@ -53,15 +59,15 @@ export const TrashBin = ({ isCollapsed, onClick }: TrashBinProps) => {
             justifyContent: "center",
           }}
         >
-          <Icon name="delete-bin-line" color="gray-600" size={{ width: 16, height: 16 }} />
+          <Icon name="delete-bin-line" color={active ? "brand-600" : "gray-600"} size={{ width: 16, height: 16 }} />
         </button>
       </Tooltip>
     );
   }
 
   return (
-    <button type="button" onClick={handleClick} onKeyDown={handleKeyDown} className={styles.boardButton({ active: false })} aria-label="휴지통으로 이동" role="button" tabIndex={0}>
-      <Icon name="delete-bin-line" color="gray-600" size={{ width: 16, height: 16 }} />
+    <button type="button" onClick={handleClick} onKeyDown={handleKeyDown} className={styles.boardButton({ active })} aria-label="휴지통으로 이동" role="button" tabIndex={0} aria-current={active ? "true" : undefined}>
+      <Icon name="delete-bin-line" color={active ? "brand-600" : "gray-600"} size={{ width: 16, height: 16 }} />
       <span className={styles.boardText}>휴지통</span>
     </button>
   );

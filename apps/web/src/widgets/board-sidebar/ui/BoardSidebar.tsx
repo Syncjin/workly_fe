@@ -19,18 +19,29 @@ interface BoardSidebarProps {
   style?: React.CSSProperties;
 }
 
+const Chevron = React.memo<{ open: boolean }>(({ open }) => (
+  <span className={treeStyles.chevron} data-open={open ? "true" : "false"} aria-hidden>
+    <Icon name="arrow-right-s-line" size={{ width: 16, height: 16 }} />
+  </span>
+));
+Chevron.displayName = "Chevron";
+
 export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
   const headerId = "all-boards-header";
   const panelId = "all-boards-panel";
   const [isBoardListVisible, setIsBoardListVisible] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   // 사이드바 축소/확장 상태 가져오기
   const { isCollapsed } = useSidebar();
 
   const { data = [] } = useSidebarBoardsSuspense();
+
+  const currentFilter = React.useMemo(() => {
+    return pathname?.slice(1, pathname.length);
+  }, [pathname]);
 
   const onCreatePost = useCallback(async () => {
     const sp = new URLSearchParams(searchParams?.toString() ?? "");
@@ -47,7 +58,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
         router.push(`/article/write?boardId=${boardId}`, { scroll: false });
       });
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const activeBoardId = useMemo(() => {
     const v = searchParams?.get("boardId");
@@ -60,12 +71,6 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
     const found = data.find((cat) => cat.boards?.some((b) => b.id === activeBoardId));
     return found ? [found?.category.id] : [1];
   }, [data, activeBoardId]);
-
-  const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
-    <span className={treeStyles.chevron} data-open={open ? "true" : "false"} aria-hidden>
-      <Icon name="arrow-right-s-line" size={{ width: 16, height: 16 }} />
-    </span>
-  );
 
   const toggleBoardList = useCallback(() => {
     setIsBoardListVisible((prev) => !prev);
@@ -93,7 +98,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
         router.push(`/board?${sp.toString()}`, { scroll: false });
       });
     },
-    [pathname, router, searchParams]
+    [router, searchParams]
   );
 
   return (
@@ -113,7 +118,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
           )}
         </div>
 
-        <PostFilter isCollapsed={isCollapsed} />
+        <PostFilter isCollapsed={isCollapsed} currentFilter={currentFilter} />
 
         <div className={styles.divider} role="separator" />
 
@@ -146,18 +151,16 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
             </div>
           </div>
         )}
-        {!isCollapsed && (
+        {!isCollapsed ? (
           <>
             <div className={styles.divider} role="separator" />
             <div className={styles.trashBinContainer}>
-              <TrashBin isCollapsed={isCollapsed} />
+              <TrashBin isCollapsed={isCollapsed} currentFilter={currentFilter} />
             </div>
           </>
-        )}
-
-        {isCollapsed && (
+        ) : (
           <div className={styles.collapsedTrashBin}>
-            <TrashBin isCollapsed={isCollapsed} />
+            <TrashBin isCollapsed={isCollapsed} currentFilter={currentFilter} />
           </div>
         )}
       </nav>
