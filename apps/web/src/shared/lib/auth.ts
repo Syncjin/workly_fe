@@ -1,8 +1,18 @@
 /**
  * 인증 유틸리티
  *
- * 메모리에서 인증 토큰을 관리하고
+ * AccessToken을 클라이언트 메모리에서 관리하고
  * /auth/refresh API를 통한 토큰 갱신을 처리하는 함수들을 제공합니다
+ *
+ * 보안 전략:
+ * - AccessToken: 클라이언트 메모리에 저장 (XSS 공격 시 탭 단위로만 노출)
+ * - RefreshToken: HttpOnly 쿠키에 저장 (JavaScript 접근 불가)
+ * - CSRF Token: 일반 쿠키에 저장 (클라이언트에서 읽어서 헤더로 전송)
+ *
+ * 중요:
+ * - 이 파일의 함수들은 클라이언트 사이드에서만 정상 동작합니다
+ * - 서버 사이드(API Routes, SSR)에서는 tokenStore가 빈 상태로 초기화됩니다
+ * - 서버에서 accessToken이 필요한 경우 클라이언트가 Authorization 헤더로 전송해야 합니다
  */
 
 import { log } from "@/lib/logger";
@@ -12,7 +22,11 @@ import { parse } from "cookie";
 /** 브라우저/SSR 가드 */
 const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
 
-/** ===== 전역 AT 저장소: 브라우저에서만 HMR-safe, SSR은 요청마다 ephemeral ===== */
+/**
+ * 전역 AccessToken 저장소
+ * - 브라우저: globalThis에 저장하여 HMR(Hot Module Replacement) 시에도 유지
+ * - 서버: 요청마다 새로운 빈 store 생성 (ephemeral)
+ */
 type TokenStore = { accessToken: string | null };
 
 const createStore = (): TokenStore => ({ accessToken: null });
@@ -56,70 +70,9 @@ export const setAccessToken = (token: string): void => {
  * 메모리에서 액세스 토큰을 제거합니다
  */
 export const removeAccessToken = (): void => {
-  try {
-    const existed = tokenStore.accessToken != null;
-    tokenStore.accessToken = null;
-    log.debug("AT 제거", { existed });
-  } catch (error) {
-    log.error("AT 제거 오류", { error, op: "removeAccessToken" });
-    tokenStore.accessToken = null;
-  }
-};
-
-/**
- * 쿠키 문자열을 파싱하여 키-값 객체로 변환합니다
- * @param cookieString - 파싱할 쿠키 문자열 (예: "key1=value1; key2=value2")
- * @returns 파싱된 쿠키 객체
- */
-export const parseCookies = (cookieString: string): Record<string, string> => {
-  const cookies: Record<string, string> = {};
-
-  if (!cookieString || typeof cookieString !== "string") {
-    log.debug("parseCookies: 빈 쿠키 문자열이 제공되었습니다", { cookieStringType: typeof cookieString });
-    return cookies;
-  }
-
-  try {
-    let parsedCount = 0;
-    cookieString.split(";").forEach((cookie) => {
-      const trimmedCookie = cookie.trim();
-      if (trimmedCookie) {
-        const [key, ...valueParts] = trimmedCookie.split("=");
-        if (key && valueParts.length > 0) {
-          // 값에 '='가 포함될 수 있으므로 join으로 재결합
-          const value = valueParts.join("=").trim();
-          try {
-            cookies[key.trim()] = decodeURIComponent(value);
-            parsedCount++;
-          } catch (decodeError) {
-            log.warn("쿠키 값 디코딩 실패, 원본 값 사용", {
-              key: key.trim(),
-              value,
-              error: decodeError,
-              operation: "parseCookies",
-            });
-            cookies[key.trim()] = value;
-            parsedCount++;
-          }
-        }
-      }
-    });
-
-    log.debug("쿠키 파싱 완료", {
-      totalCookies: parsedCount,
-      cookieStringLength: cookieString.length,
-      operation: "parseCookies",
-    });
-  } catch (error) {
-    log.error("쿠키 파싱 중 오류 발생", {
-      error,
-      cookieStringLength: cookieString?.length,
-      operation: "parseCookies",
-    });
-    // 파싱 실패 시 빈 객체 반환
-  }
-
-  return cookies;
+  const existed = tokenStore.accessToken != null;
+  tokenStore.accessToken = null;
+  log.debug("AT 제거", { existed });
 };
 
 /**
@@ -146,18 +99,6 @@ export const getCsrfTokenFromCookie = (): string | null => getCookieValue(CSRF_C
  */
 export const isAuthenticated = (): boolean => tokenStore.accessToken !== null;
 
-/**
- * 디버깅용: 현재 토큰 상태를 반환합니다
- * @returns 토큰 상태 객체
- */
-export const getTokenStatus = () => {
-  return {
-    hasAccessToken: !!tokenStore.accessToken,
-    accessTokenLength: tokenStore.accessToken?.length || 0,
-    accessTokenPreview: tokenStore.accessToken ? `${tokenStore.accessToken.substring(0, 10)}...` : null,
-  };
-};
-
 /** ===== 토큰 갱신: 경합 방지용 mutex + credentials 기반 ===== */
 let refreshInFlight: Promise<string | null> | null = null;
 
@@ -169,7 +110,7 @@ const doRefresh = async (): Promise<string | null> => {
     const csrf = getCsrfTokenFromCookie();
     const res = await fetch("/api/auth/refresh", {
       method: "POST",
-      credentials: "include", // ★ RT 쿠키 전송 (본문에 RT 안 보냄)
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         ...(csrf ? { "x-csrf-token": csrf } : {}),
@@ -186,7 +127,6 @@ const doRefresh = async (): Promise<string | null> => {
     }
 
     const data = (await res.json()) as ApiResponse<TokenResponse> & { csrfToken?: string };
-    console.log("AT data", data);
 
     if (data?.data?.accessToken) {
       setAccessToken(data.data.accessToken);
@@ -207,7 +147,8 @@ const doRefresh = async (): Promise<string | null> => {
 
 /**
  * /auth/refresh API를 사용하여 액세스 토큰을 갱신합니다
- * refreshToken은 쿠키에서 읽어와서 body로 전송합니다
+ * refreshToken은 HttpOnly 쿠키로 자동 전송됩니다 (credentials: "include")
+ * 동시 요청 시 하나의 갱신 요청만 실행되도록 mutex 패턴을 사용합니다
  *
  * @returns 새로운 액세스 토큰을 반환하는 Promise, 갱신 실패 시 null
  */
@@ -227,27 +168,47 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
 /**
  * 액세스 토큰과 CSRF 토큰을 지우고 필요시 로그아웃 엔드포인트를 호출하여 사용자를 로그아웃합니다
+ * 클라이언트 메모리의 accessToken을 Authorization 헤더로 전송하여 백엔드 로그아웃을 수행합니다
+ *
+ * 동작:
+ * 1. 백엔드 로그아웃 API 호출 (성공/실패 무관하게 진행)
+ * 2. 클라이언트 메모리에서 accessToken 제거
+ * 3. 로그인 페이지로 리다이렉트
  */
 export const logout = async (): Promise<void> => {
   const start = Date.now();
   log.info("로그아웃 시작", { op: "logout" });
 
   try {
+    const accessToken = getAccessToken();
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    // accessToken이 있으면 Authorization 헤더에 추가
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+
     const res = await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
+      headers,
     });
     const dur = Date.now() - start;
     if (!res.ok) {
       log.warn("서버 로그아웃 응답 오류", { status: res.status, dur, op: "logout" });
     } else {
       log.debug("서버 로그아웃 완료", { status: res.status, dur, op: "logout" });
-      window.location.href = "/login";
     }
   } catch (error) {
     const dur = Date.now() - start;
     log.warn("서버 로그아웃 호출 실패", { error, dur, op: "logout" });
   } finally {
+    // 서버 로그아웃 성공/실패 무관하게 클라이언트 정리 및 리다이렉트
     removeAccessToken();
+    if (isBrowser) {
+      window.location.href = "/login";
+    }
   }
 };

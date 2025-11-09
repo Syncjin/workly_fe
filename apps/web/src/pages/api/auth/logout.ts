@@ -1,6 +1,4 @@
-// pages/api/users/logout.ts
-import { getAccessToken } from "@/shared/lib/auth";
-import { serialize } from "cookie";
+import { createExpiredCookie } from "@/shared/lib/cookie-utils";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -9,34 +7,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const accessToken = getAccessToken();
+    // 클라이언트가 보낸 Authorization 헤더에서 accessToken 추출
+    const authHeader = req.headers.authorization;
+    const accessToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+
     if (accessToken) {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }).catch(console.error);
     }
 
     // 쿠키 삭제
-    res.setHeader("Set-Cookie", [
-      serialize("refreshToken", "", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
-        maxAge: 0, // 즉시 만료
-      }),
-      serialize("csrfToken", "", {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
-        maxAge: 0, // 즉시 만료
-      }),
-    ]);
+    res.setHeader("Set-Cookie", [createExpiredCookie("refreshToken"), createExpiredCookie("csrfToken")]);
 
     return res.status(200).json({ message: "logout" });
   } catch (error) {
