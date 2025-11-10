@@ -20,20 +20,12 @@ export function MustReadSection({ maxItems = 5 }: MustReadSectionProps) {
   const posts = data?.data?.items ?? [];
   const totalCount = data?.data?.totalItems ?? 0;
 
-  if (posts.length === 0) {
-    return null;
-  }
-
   const showMoreLink = totalCount > maxItems;
 
   return (
     <section className={styles.section}>
       <h2 className={styles.title}>📌 필독 게시글</h2>
-      <div className={styles.content}>
-        {posts.map((post) => (
-          <PostItem key={post.postId} post={post} />
-        ))}
-      </div>
+      <div className={styles.content}>{posts.length === 0 ? <div className={styles.emptyState}>등록된 필독 게시글이 없습니다</div> : posts.map((post) => <PostItem key={post.postId} post={post} />)}</div>
       {showMoreLink && (
         <div className={styles.moreLinkWrapper}>
           <Link href="/must-read" className={styles.moreLink}>

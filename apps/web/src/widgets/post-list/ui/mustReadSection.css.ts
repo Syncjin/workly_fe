@@ -77,3 +77,18 @@ export const moreLink = style({
     },
   },
 });
+
+export const emptyState = style({
+  padding: "32px 16px",
+  textAlign: "center",
+  fontSize: "14px",
+  lineHeight: "20px",
+  color: "var(--color-gray-500)",
+  "@media": {
+    "(max-width: 768px)": {
+      padding: "24px 12px",
+      fontSize: "13px",
+      lineHeight: "18px",
+    },
+  },
+});
