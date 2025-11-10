@@ -91,7 +91,7 @@ export function createPostApi(http: HttpClient) {
       return http.get<Pagination<PostDTO>>(`/posts/must-read${query}`);
     },
 
-    /** 게시글 스크랩 목록  */
+    /** 게시글 중요 목록  */
     getPostsBookmarks: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
       const query = qs({
         page: params?.page,
@@ -110,7 +110,7 @@ export function createPostApi(http: HttpClient) {
       return http.delete<any>(`/posts/trash`);
     },
 
-    /** 게시글 스크랩 업데이트 */
+    /** 게시글 중요 업데이트 */
     postPostsBookmarks: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
       return http.post<PostDTO>(`/posts/${params.postId}/bookmarks`);
     },

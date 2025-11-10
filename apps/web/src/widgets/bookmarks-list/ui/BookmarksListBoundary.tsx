@@ -10,7 +10,7 @@ interface BookmarksListBoundaryProps {
 
 export const BookmarksListBoundary = ({ children }: BookmarksListBoundaryProps) => {
   return (
-    <ErrorBoundary fallbackRender={({ error, resetErrorBoundary }) => <PostListError error={error} onRetry={resetErrorBoundary} title="스크랩 목록을 불러올 수 없습니다" />}>
+    <ErrorBoundary fallbackRender={({ error, resetErrorBoundary }) => <PostListError error={error} onRetry={resetErrorBoundary} title="중요 목록을 불러올 수 없습니다" />}>
       <Suspense fallback={<PostListSkeleton rows={10} />}>{children}</Suspense>
     </ErrorBoundary>
   );

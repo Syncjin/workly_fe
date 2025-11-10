@@ -125,7 +125,7 @@ function BookmarkedDate() {
   const { post } = useItem();
   if (!post.isBookmarked) return null;
 
-  return <div className={postListItemStyles.bookmarkedDate}>스크랩일: {formatDayOrTime(post.createdDateTime)}</div>;
+  return <div className={postListItemStyles.bookmarkedDate}>중요일: {formatDayOrTime(post.createdDateTime)}</div>;
 }
 
 /** Layout */

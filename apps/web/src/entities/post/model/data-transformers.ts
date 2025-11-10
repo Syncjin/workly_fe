@@ -127,7 +127,7 @@ export function movePostsFromList(oldData: unknown, payload: { postIds: Set<numb
   return removeIdsFromList(oldData, payload.postIds);
 }
 
-// 게시글 스크랩 처리 변환
+// 게시글 중요 처리 변환
 function toggleBookmark(p: Post, targetId: number): Post {
   if (p.postId !== targetId) return p;
   return { ...p, isBookmarked: !(p.isBookmarked === true) };
