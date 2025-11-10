@@ -8,8 +8,7 @@
 import type { PageParams, PostLikeRequest, PostMustReadListParams, PostRestoreRequest } from "@/entities/post";
 import { postApi, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
-import type { UseQueryOptions } from "@tanstack/react-query";
-import type { PostLikeRequest } from "@workly/types";
+import { type UseQueryOptions } from "@tanstack/react-query";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
 /**
@@ -77,6 +76,17 @@ export const usePostUnreadList = <TSelected = ApiResponse<Pagination<Post>>>(par
 };
 
 /**
+ * 안읽은 게시글 목록을 가져오는 Suspense 훅
+ */
+export const useUnreadPostsSuspense = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = postQueryKeys.unreadList(params);
+
+  return useApiSuspenseQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPostsUnread(params), {
+    ...options,
+  });
+};
+
+/**
  * 휴지통 게시글 목록을 가져오는 Suspense 훅
  */
 export const useTrashPostsSuspense = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
@@ -138,6 +148,13 @@ export const usePostTrash = () => {
  */
 export const usePostMustRead = () => {
   return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsMustRead(params), {});
+};
+
+/**
+ * 게시글 필독 해제 훅
+ */
+export const usePostMustReadDelete = () => {
+  return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsMustReadDelete(params), {});
 };
 
 /**

@@ -1,24 +1,10 @@
 "use client";
 
-import { getAccessToken, logout, setAccessToken } from "@/shared/lib/auth";
+import { getAccessToken, getCsrfTokenFromCookie, logout, setAccessToken } from "@/shared/lib/auth";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const authPaths = ["/login", "/register"];
-
-function getCsrfTokenFromCookie(): string | null {
-  if (typeof document === "undefined") return null; // 서버 환경 방지
-
-  const cookieName = "csrfToken=";
-  const cookies = document.cookie.split(";");
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i].trim();
-    if (cookie.startsWith(cookieName)) {
-      return cookie.substring(cookieName.length);
-    }
-  }
-  return null;
-}
 
 export function AuthProvider({ children, fallback = <div>Loading authentication...</div> }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   const pathname = usePathname();

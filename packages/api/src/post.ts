@@ -119,5 +119,10 @@ export function createPostApi(http: HttpClient) {
     postPostsMustRead: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
       return http.post<PostDTO>(`/posts/${params.postId}/must-read`);
     },
+
+    /** 게시글 필독 해제 */
+    postPostsMustReadDelete: (params: { postId: number }): Promise<ApiResponse<PostDTO>> => {
+      return http.delete<PostDTO>(`/posts/${params.postId}/must-read`);
+    },
   };
 }

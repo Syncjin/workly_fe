@@ -1,1 +1,1 @@
-export { usePostMustReadAction } from "./model/usePostMustReadAction";
+export * from "./model";

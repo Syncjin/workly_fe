@@ -1,4 +1,4 @@
-import { serialize } from "cookie";
+import { createCsrfTokenCookie } from "@/shared/lib/cookie-utils";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 function getBackendSetCookiesArray(loginRes: Response): string[] {
@@ -37,11 +37,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req.body),
     });
-
     const data = await loginRes.json();
 
     const backendCookiesArr = getBackendSetCookiesArray(loginRes);
-
     if (backendCookiesArr.length > 0) {
       const forwardedCookies = backendCookiesArr.map((c) => (process.env.NODE_ENV === "development" ? c.replace(/;\s*Secure/gi, "") : c));
 
@@ -58,13 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       if (extractedCsrfToken) {
-        const csrfCookie = serialize("csrfToken", extractedCsrfToken, {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-          path: "/",
-          maxAge: 60 * 60 * 24 * 14, // 14일
-        });
+        const csrfCookie = createCsrfTokenCookie({ token: extractedCsrfToken });
         res.setHeader("Set-Cookie", [...filteredForwardedCookies, csrfCookie]);
       } else {
         res.setHeader("Set-Cookie", filteredForwardedCookies);

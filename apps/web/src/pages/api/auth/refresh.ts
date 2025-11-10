@@ -1,5 +1,5 @@
-// pages/api/auth/refresh.ts
 import { log } from "@/lib/logger";
+import { createCsrfTokenCookie, createRefreshTokenCookie } from "@/shared/lib/cookie-utils";
 import { serialize } from "cookie";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -62,24 +62,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       log.warn("응답에 refreshToken, expiresIn, newCsrfToken 누락", { operation: "refresh-api" });
       return res.status(502).json({ message: "Upstream payload missing refreshToken" });
     }
-    const isProd = process.env.NODE_ENV === "production";
     const maxAge = Math.max(0, Math.floor(expiresIn));
-    const cookie = [
-      serialize("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: "lax",
-        path: "/",
-        maxAge,
-        expires: new Date(Date.now() + maxAge * 1000),
-      }),
-      serialize("csrfToken", newCsrfToken, {
-        secure: isProd,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60,
-      }),
-    ];
+    const cookie = [createRefreshTokenCookie({ token: newRefreshToken, maxAge }), createCsrfTokenCookie({ token: newCsrfToken })];
 
     res.setHeader("Set-Cookie", cookie);
     return res.status(backendRes.status).json(resultData);
