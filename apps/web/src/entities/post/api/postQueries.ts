@@ -8,7 +8,7 @@
 import type { PageParams, PostLikeRequest, PostMustReadListParams, PostRestoreRequest } from "@/entities/post";
 import { postApi, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
-import type { UseQueryOptions } from "@tanstack/react-query";
+import { type UseQueryOptions } from "@tanstack/react-query";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
 /**
@@ -148,6 +148,13 @@ export const usePostTrash = () => {
  */
 export const usePostMustRead = () => {
   return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsMustRead(params), {});
+};
+
+/**
+ * 게시글 필독 해제 훅
+ */
+export const usePostMustReadDelete = () => {
+  return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsMustReadDelete(params), {});
 };
 
 /**

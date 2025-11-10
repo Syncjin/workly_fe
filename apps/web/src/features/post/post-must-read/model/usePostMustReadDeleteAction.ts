@@ -1,14 +1,14 @@
 /**
- * 게시글 필독 설정 기능 훅
+ * 게시글 필독 해제 기능 훅
  */
 
-import { isPostDetailKey, isPostListKey, usePostMustRead } from "@/entities/post";
+import { isPostDetailKey, isPostListKey, usePostMustReadDelete } from "@/entities/post";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-export function usePostMustReadAction() {
+export function usePostMustReadDeleteAction() {
   const qc = useQueryClient();
-  const { mutateAsync, isPending, error } = usePostMustRead();
+  const { mutateAsync, isPending, error } = usePostMustReadDelete();
 
   const run = useCallback(
     async (postId: number) => {
