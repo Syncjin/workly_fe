@@ -9,7 +9,6 @@ import type { PageParams, PostLikeRequest, PostMustReadListParams, PostRestoreRe
 import { postApi, postQueryKeys, type Post, type PostCreateParams, type PostDeleteRequest, type PostDetailRequest, type PostListParams, type PostMoveRequest, type PostMoveResponse, type PostReadRequest, type PostUpdateParams } from "@/entities/post";
 import { useApiMutation, useApiQuery, useApiSuspenseQuery } from "@/shared/api/hooks";
 import type { UseQueryOptions } from "@tanstack/react-query";
-import type { PostLikeRequest } from "@workly/types";
 import type { ApiError, ApiResponse, Pagination } from "@workly/types/common";
 
 /**
@@ -72,6 +71,17 @@ export const usePostUnreadList = <TSelected = ApiResponse<Pagination<Post>>>(par
   const queryKey = postQueryKeys.unreadList(params);
 
   return useApiQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPostsUnread(params), {
+    ...options,
+  });
+};
+
+/**
+ * 안읽은 게시글 목록을 가져오는 Suspense 훅
+ */
+export const useUnreadPostsSuspense = <TSelected = ApiResponse<Pagination<Post>>>(params?: PostListParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
+  const queryKey = postQueryKeys.unreadList(params);
+
+  return useApiSuspenseQuery<Pagination<Post>, TSelected>(queryKey, () => postApi.getPostsUnread(params), {
     ...options,
   });
 };

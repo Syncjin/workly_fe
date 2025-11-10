@@ -12,7 +12,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import * as styles from "./postList.css";
 
 export const PostList = React.memo(() => {
-  const { data, isLoading } = usePostListParamsFromURL();
+  const { data } = usePostListParamsFromURL();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { filter, setFilter } = usePostFilterManager();
