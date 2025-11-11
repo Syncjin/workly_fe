@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 
 export const right = style({
   position: "absolute",
-  right: 0,
+  right: 10,
   top: 16,
 });
 
@@ -47,6 +47,9 @@ export const contentArea = style({
 
 export const footer = style({
   marginTop: 12,
+  display: "flex",
+  gap: 8,
+  alignItems: "center",
 });
 
 export const container = style({
@@ -128,4 +131,31 @@ export const reactionList = style({
 export const reactionButtonWrapper = style({
   position: "relative",
   display: "inline-block",
+});
+
+export const commentContainer = style({
+  display: "flex",
+  flexDirection: "row",
+  borderRadius: 8,
+  padding: "12px 16px",
+  flex: 1,
+});
+
+export const replyContainer = style({
+  backgroundColor: "var(--color-gray-50)",
+});
+
+export const profileWrapper = style({
+  display: "flex",
+  alignItems: "center",
+});
+
+export const replyIndicator = style({
+  width: 8,
+  height: 8,
+  marginRight: 8,
+  borderLeft: "1px solid var(--color-gray-400)",
+  borderBottom: "1px solid var(--color-gray-400)",
+  borderBottomLeftRadius: 4,
+  flexShrink: 0,
 });

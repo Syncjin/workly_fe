@@ -10,7 +10,7 @@ export function useCommentCreateAction() {
   const { mutateAsync, isPending } = useCommentCreate();
 
   const run = useCallback(
-    async ({ content, postId }: CommentCreateRequest) => {
+    async ({ content, postId, parentId }: CommentCreateRequest) => {
       // 관련 쿼리들을 취소하여 경쟁 상태 방지
       const cancelData = await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
 
@@ -73,7 +73,7 @@ export function useCommentCreateAction() {
         });
 
         // return;
-        const result = await mutateAsync({ content, postId });
+        const result = await mutateAsync({ content, postId, parentId });
 
         // 성공 시 실제 데이터로 교체
         qc.setQueryData<InfiniteData<ApiResponse<PageData>>>(commentQueryKeys.infinite({ postId }), (old) => {

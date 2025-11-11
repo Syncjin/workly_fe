@@ -1,6 +1,8 @@
 import { style } from "@vanilla-extract/css";
 
-export const createBtn = style({
+export const btnArea = style({
   alignSelf: "flex-end",
-  marginTop: 10,
+  margin: "10px 0",
+  gap: 6,
+  display: "flex",
 });

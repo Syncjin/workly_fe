@@ -23,10 +23,21 @@ const useItem = () => {
 
 function Profile() {
   const { comment } = useItem();
+
   if (comment.user.profile && comment.user.profile !== "프로필 이미지가 없습니다. 이미지를 등록해주세요.") {
-    return <Avatar src={comment.user.profile} size={"md"} />;
+    return <Avatar src={comment.user.profile} size="md" />;
   }
   return <Avatar size="md" />;
+}
+
+function Indicator() {
+  const { comment } = useItem();
+
+  if (!comment.parentId) {
+    return null;
+  }
+
+  return <div className={styles.replyIndicator} />;
 }
 
 function Author() {
@@ -85,7 +96,7 @@ function ReactionButton() {
 function ReplyButton() {
   const { replyOnClick, comment } = useItem();
   return (
-    <Button variant="border" size="md" color="gray-300" onClick={() => replyOnClick?.(comment)}>
+    <Button variant="border" size="sm" color="gray-300" onClick={() => replyOnClick?.(comment)}>
       답글
     </Button>
   );
@@ -117,6 +128,10 @@ function RightSlot({ children }: { children?: React.ReactNode }) {
   return <div className={styles.right}>{children}</div>;
 }
 
+function ReplyFormSlot({ children }: { children?: React.ReactNode }) {
+  return <>{children}</>;
+}
+
 /** Root */
 type RootProps = React.PropsWithChildren<
   CtxValue & {
@@ -124,27 +139,37 @@ type RootProps = React.PropsWithChildren<
     className?: string;
     right?: React.ReactNode;
     footer?: React.ReactNode;
+    replyForm?: React.ReactNode;
   }
 >;
 
-function Root({ as = "li", className, children, right, footer, ...ctx }: RootProps) {
+function Root({ as = "li", className, children, right, footer, replyForm, ...ctx }: RootProps) {
   const Comp: any = as;
+  const isReply = ctx.comment.parentId ? true : false;
+
+  const defaultContent = (
+    <>
+      <Indicator />
+      <Profile />
+      <div className={styles.main}>
+        <HeaderSlot />
+        <ContentSlot />
+        {footer && <FooterSlot>{footer}</FooterSlot>}
+      </div>
+      {right && <RightSlot>{right}</RightSlot>}
+    </>
+  );
+
+  const content = children ?? defaultContent;
+
   return (
     <Ctx.Provider value={ctx}>
-      <Comp role={as === "li" ? "listitem" : undefined} className={cx(styles.container, className)}>
-        {/* 기본 레이아웃 제공 */}
-        {children ?? (
-          <>
-            <Profile />
-            <div className={styles.main}>
-              <HeaderSlot />
-              <ContentSlot />
-              {footer && <FooterSlot>{footer}</FooterSlot>}
-            </div>
-            {right && <RightSlot>{right}</RightSlot>}
-          </>
-        )}
-      </Comp>
+      <>
+        <Comp role={as === "li" ? "listitem" : undefined} className={cx(styles.container, isReply && styles.replyContainer, className)}>
+          <div className={styles.commentContainer}>{content}</div>
+        </Comp>
+        {replyForm && <ReplyFormSlot>{replyForm}</ReplyFormSlot>}
+      </>
     </Ctx.Provider>
   );
 }
@@ -152,6 +177,7 @@ function Root({ as = "li", className, children, right, footer, ...ctx }: RootPro
 export const CommentItem = {
   Root,
   Profile,
+  Indicator,
   Author,
   Date,
   Content,
@@ -161,4 +187,5 @@ export const CommentItem = {
   ContentSlot,
   FooterSlot,
   RightSlot,
+  ReplyFormSlot,
 };

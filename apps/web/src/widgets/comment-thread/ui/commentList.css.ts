@@ -34,3 +34,12 @@ export const menu = style({
 export const menuItem = style({
   fontSize: 12,
 });
+
+export const replyForm = style({
+  paddingLeft: "48px",
+  marginTop: "12px",
+});
+
+export const replyItem = style({
+  paddingLeft: "48px",
+});

@@ -7,6 +7,7 @@ export interface CommentListParams extends PageParams {
 export interface CommentCreateRequest {
   postId: number;
   content: string;
+  parentId?: number;
 }
 
 export interface CommentDetailRequest {
