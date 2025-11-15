@@ -72,7 +72,7 @@ export const CollapsibleBoardTree = ({ data, activeBoardId, onSelectBoard, defau
   );
 
   return (
-    <div className={cx(styles.nav, className)} data-ui="board-tree">
+    <div className={cx(styles.nav, className)} data-ui="board-tree" data-empty={data.length === 0}>
       <ul className={styles.rootList} role="tree">
         {data.map(({ category, boards }) => {
           const expandedNow = isExpanded(category.id);
