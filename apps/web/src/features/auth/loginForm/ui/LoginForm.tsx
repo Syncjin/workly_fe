@@ -1,7 +1,7 @@
 "use client";
 
 import { LoginFormData, loginSchema, useLoginAction } from "@/features/auth/loginForm";
-import { setAccessToken } from "@/shared/lib";
+import { setAccessToken, setAutoLoginFlag } from "@/shared/lib";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, CheckBoxField, Icon, InputField } from "@workly/ui";
 import { useRouter } from "next/navigation";
@@ -34,6 +34,7 @@ export function LoginForm() {
 
       if (response.data?.accessToken) {
         setAccessToken(response.data.accessToken);
+        setAutoLoginFlag(values.autoLogin ?? false);
       }
 
       if (response.status === 200) {
