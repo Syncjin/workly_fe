@@ -3,4 +3,4 @@
  */
 
 export { authApi } from "./authApi";
-export { useLogin } from "./authQueries";
+export { useForgotId, useForgotPassword, useLogin, useResetPassword } from "./authQueries";
