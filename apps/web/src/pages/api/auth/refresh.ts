@@ -14,7 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   log.debug("Refresh API 요청 시작", { operation: "refresh-api" });
 
   try {
-    // 클라이언트에서 body로 받은 refreshToken 또는 쿠키에서 가져오기
+    // 클라이언트에서 body로 받은 renewRefreshToken 파라미터 추출
+    const { renewRefreshToken } = req.body || {};
+
     const refreshToken = req.cookies.refreshToken; // HttpOnly이지만 서버 측이므로 접근 가능
     const csrfTokenFromCookie = req.cookies?.["csrfToken"];
     const csrfTokenFromHeader = req.headers["x-csrf-token"];
@@ -43,6 +45,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const backendRes = await fetch(backendUrl, {
       method: "POST",
       headers,
+      body: JSON.stringify({
+        renewRefreshToken: renewRefreshToken ?? false,
+      }),
     });
 
     const resultData = await backendRes.json();

@@ -99,6 +99,36 @@ export const getCsrfTokenFromCookie = (): string | null => getCookieValue(CSRF_C
  */
 export const isAuthenticated = (): boolean => tokenStore.accessToken !== null;
 
+/**
+ * localStorage에서 자동 로그인 플래그를 가져옵니다
+ * @returns 자동 로그인이 활성화되어 있으면 true, 그렇지 않으면 false
+ */
+export const getAutoLoginFlag = (): boolean => {
+  if (!isBrowser) return false;
+  return localStorage.getItem("autoLogin") === "true";
+};
+
+/**
+ * localStorage에 자동 로그인 플래그를 저장합니다
+ * @param enabled - true면 자동 로그인 활성화, false면 비활성화
+ */
+export const setAutoLoginFlag = (enabled: boolean): void => {
+  if (!isBrowser) return;
+  if (enabled) {
+    localStorage.setItem("autoLogin", "true");
+  } else {
+    localStorage.removeItem("autoLogin");
+  }
+};
+
+/**
+ * localStorage에서 자동 로그인 플래그를 제거합니다
+ */
+export const removeAutoLoginFlag = (): void => {
+  if (!isBrowser) return;
+  localStorage.removeItem("autoLogin");
+};
+
 /** ===== 토큰 갱신: 경합 방지용 mutex + credentials 기반 ===== */
 let refreshInFlight: Promise<string | null> | null = null;
 
@@ -171,15 +201,34 @@ export const refreshAccessToken = async (): Promise<string | null> => {
  * 클라이언트 메모리의 accessToken을 Authorization 헤더로 전송하여 백엔드 로그아웃을 수행합니다
  *
  * 동작:
- * 1. 백엔드 로그아웃 API 호출 (성공/실패 무관하게 진행)
- * 2. 클라이언트 메모리에서 accessToken 제거
- * 3. 로그인 페이지로 리다이렉트
+ * 1. RefreshToken 무효화 (/api/auth/revoke 호출)
+ * 2. 백엔드 로그아웃 API 호출 (성공/실패 무관하게 진행)
+ * 3. 클라이언트 메모리에서 accessToken 제거
+ * 4. 자동 로그인 플래그 제거
+ * 5. 로그인 페이지로 리다이렉트
  */
 export const logout = async (): Promise<void> => {
   const start = Date.now();
   log.info("로그아웃 시작", { op: "logout" });
 
   try {
+    try {
+      const revokeRes = await fetch("/api/auth/revoke", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!revokeRes.ok) {
+        log.warn("RefreshToken 무효화 실패", { status: revokeRes.status, op: "logout" });
+      } else {
+        log.debug("RefreshToken 무효화 완료", { status: revokeRes.status, op: "logout" });
+      }
+    } catch (error) {
+      log.warn("RefreshToken 무효화 호출 실패", { error, op: "logout" });
+    }
+
     const accessToken = getAccessToken();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -207,6 +256,7 @@ export const logout = async (): Promise<void> => {
   } finally {
     // 서버 로그아웃 성공/실패 무관하게 클라이언트 정리 및 리다이렉트
     removeAccessToken();
+    removeAutoLoginFlag();
     if (isBrowser) {
       window.location.href = "/login";
     }

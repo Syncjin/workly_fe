@@ -1,6 +1,6 @@
 "use client";
 
-import { getAccessToken, getCsrfTokenFromCookie, logout, setAccessToken } from "@/shared/lib/auth";
+import { getAccessToken, getAutoLoginFlag, getCsrfTokenFromCookie, logout, removeAutoLoginFlag, setAccessToken } from "@/shared/lib/auth";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,6 +18,7 @@ export function AuthProvider({ children, fallback = <div>Loading authentication.
       return;
     }
 
+    // 로그인/회원가입 페이지는 토큰 갱신 불필요
     const isAuthPath = authPaths.some((path) => pathname?.startsWith(path));
     if (isAuthPath) {
       setReady(true);
@@ -26,12 +27,13 @@ export function AuthProvider({ children, fallback = <div>Loading authentication.
 
     (async () => {
       mountedRef.current = true;
-      // 갱신 시도 시작
       const csrfToken = getCsrfTokenFromCookie();
       if (!csrfToken) {
         await logout();
         return;
       }
+      const autoLoginEnabled = getAutoLoginFlag();
+
       try {
         const res = await fetch("/api/auth/refresh", {
           method: "POST",
@@ -40,6 +42,9 @@ export function AuthProvider({ children, fallback = <div>Loading authentication.
             "Content-Type": "application/json",
             "x-csrf-token": csrfToken,
           },
+          body: JSON.stringify({
+            renewRefreshToken: autoLoginEnabled, // 자동 로그인 시에만 RefreshToken 갱신
+          }),
         });
 
         const text = await res.text();
@@ -59,21 +64,21 @@ export function AuthProvider({ children, fallback = <div>Loading authentication.
           }
         }
 
+        // 갱신 실패 시 처리
         const code: string | undefined = body?.code ?? body?.errorCode ?? body?.error;
-        const shouldLogout =
-          !isAuthPath &&
-          (!res.ok || // 4xx/5xx
-            res.status === 401 ||
-            res.status === 403 ||
-            code === "FORBIDDEN" ||
-            code === "CSRF_TOKEN_INVALID" ||
-            code === "CSRF_INVALID");
+        const shouldLogout = !res.ok || res.status === 401 || res.status === 403 || code === "FORBIDDEN" || code === "CSRF_TOKEN_INVALID" || code === "CSRF_INVALID";
 
         if (shouldLogout) {
+          if (autoLoginEnabled) {
+            removeAutoLoginFlag();
+          }
           await logout();
         }
       } catch (e: any) {
-        if (!isAuthPath) await logout();
+        if (autoLoginEnabled) {
+          removeAutoLoginFlag();
+        }
+        await logout();
       }
     })();
 

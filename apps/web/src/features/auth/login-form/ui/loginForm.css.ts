@@ -55,3 +55,12 @@ export const loginButton = style({
   marginTop: "16px",
   width: "100%",
 });
+
+export const errorMessage = style({
+  padding: "12px",
+  backgroundColor: "var(--color-error-50)",
+  color: "var(--color-error-700)",
+  borderRadius: "8px",
+  fontSize: "14px",
+  lineHeight: "20px",
+});

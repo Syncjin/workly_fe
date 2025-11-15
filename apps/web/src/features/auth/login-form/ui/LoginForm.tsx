@@ -1,16 +1,17 @@
 "use client";
 
-import { LoginFormData, loginSchema, useLoginAction } from "@/features/auth/loginForm";
-import { setAccessToken } from "@/shared/lib";
+import { LoginFormData, loginSchema, useLoginAction } from "@/features/auth/login-form";
+import { setAccessToken, setAutoLoginFlag } from "@/shared/lib";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, CheckBoxField, Icon, InputField } from "@workly/ui";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { checkboxContainer, forgotPasswordLink, form, loginButton, loginCard, loginContainer, logoContainer } from "./loginForm.css";
+import { checkboxContainer, errorMessage, forgotPasswordLink, form, loginButton, loginCard, loginContainer, logoContainer } from "./loginForm.css";
 
 export function LoginForm() {
   const { run, isPending: isPendingLogin } = useLoginAction();
+  const [error, setErrorState] = useState<string | null>(null);
 
   const {
     register,
@@ -18,7 +19,6 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
     watch,
     setValue,
-    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { userId: "", password: "", autoLogin: false },
@@ -30,25 +30,30 @@ export function LoginForm() {
 
   const onSubmit = async (values: LoginFormData) => {
     try {
+      setErrorState(null);
       const response = await run(values);
 
       if (response.data?.accessToken) {
         setAccessToken(response.data.accessToken);
+        setAutoLoginFlag(values.autoLogin ?? false);
       }
 
       if (response.status === 200) {
         startTransition(() => {
           router.push("/board");
         });
+      } else {
+        setErrorState(response.message || "로그인에 실패했습니다. 다시 시도해주세요.");
       }
     } catch (e: any) {
-      // const msg = e?.message || e?.response?.data?.message || "로그인에 실패했습니다. 다시 시도해주세요.";
-      // setError("userId", { message: msg });
-      // setError("password", { message: msg });
+      const errorMsg = e?.message || "로그인에 실패했습니다. 다시 시도해주세요.";
+      setErrorState(errorMsg);
     }
   };
 
-  const handleFindIdpw = () => {};
+  const handleFindIdpw = () => {
+    router.push("/account-recovery");
+  };
   const loading = isSubmitting || isPendingLogin || isPendingRoute;
 
   return (
@@ -70,6 +75,8 @@ export function LoginForm() {
               아이디/비밀번호 찾기
             </Button>
           </div>
+
+          {error && <div className={errorMessage}>{error}</div>}
 
           <Button type="submit" className={loginButton} size="xl" variant="solid" color="brand-600" loading={loading} loadingIcon={<Icon name="loader-2-line" color="#fff" />}>
             로그인

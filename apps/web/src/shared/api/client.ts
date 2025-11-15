@@ -1,3 +1,4 @@
+import { PUBLIC_API_PATTERNS } from "@/shared/config/auth-paths";
 import { config } from "@/shared/config/environment";
 import { createHttpClient } from "@workly/api";
 import { getAccessToken, getCsrfTokenFromCookie, refreshAccessToken } from "../lib/auth";
@@ -18,6 +19,7 @@ export const http = createHttpClient({
     getAccessToken,
     getCsrfToken: getCsrfTokenFromCookie,
     refreshAccessToken,
+    publicApiPatterns: PUBLIC_API_PATTERNS,
   },
   environment: config.NEXT_PUBLIC_ENV,
   debug: process.env.NODE_ENV !== "production",

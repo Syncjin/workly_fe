@@ -31,6 +31,7 @@ export function createCommentApi(http: HttpClient) {
     postCommentCreate: (params: CommentCreateRequest): Promise<ApiResponse<CommentDTO>> => {
       const body = {
         content: params.content,
+        parentId: params.parentId ? params.parentId : null,
       };
       return http.post<CommentDTO>(`/posts/${params.postId}/comments`, body);
     },

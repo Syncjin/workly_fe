@@ -120,7 +120,7 @@ export const useMustReadPostsSuspense = <TSelected = ApiResponse<Pagination<Post
 };
 
 /**
- * 스크랩 게시글 목록을 가져오는 Suspense 훅
+ * 중요 게시글 목록을 가져오는 Suspense 훅
  */
 export const useBookmarkedPostsSuspense = <TSelected = ApiResponse<Pagination<Post>>>(params?: PageParams, options?: Omit<UseQueryOptions<ApiResponse<Pagination<Post>>, ApiError, TSelected>, "queryKey" | "queryFn">) => {
   const queryKey = postQueryKeys.bookmarks(params);
@@ -158,7 +158,7 @@ export const usePostMustReadDelete = () => {
 };
 
 /**
- * 게시글 스크랩 설정 훅
+ * 게시글 중요 설정 훅
  */
 export const usePostBookmarks = () => {
   return useApiMutation<Post, { postId: number }>((params) => postApi.postPostsBookmarks(params), {});

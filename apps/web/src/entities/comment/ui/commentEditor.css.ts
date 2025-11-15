@@ -16,3 +16,11 @@ export const createBtn = style({
   alignSelf: "flex-end",
   marginTop: 10,
 });
+
+export const actionSlot = style({
+  display: "flex",
+  flexDirection: "row",
+  gap: 8,
+  justifyContent: "flex-end",
+  marginTop: 10,
+});

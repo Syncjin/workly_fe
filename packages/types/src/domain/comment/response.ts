@@ -13,6 +13,7 @@ export interface CommentDTO {
   content: string; //댓글 내용
   user: UserDTO;
   postId: number;
+  parentId?: number; //부모 댓글 ID (대댓글인 경우)
   createdDateTime: string; //작성일
   updatedDateTime?: string; //수정일
   deletedDateTime?: string; //삭제일

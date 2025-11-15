@@ -1,0 +1,1 @@
+export { ForgotIdFormContent } from "./ForgotIdFormContent";

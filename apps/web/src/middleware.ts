@@ -1,10 +1,7 @@
 // middleware.ts (프로젝트 루트에 위치)
+import { PROTECTED_PAGE_PATHS, PUBLIC_PAGE_PATHS } from "@/shared/config/auth-paths";
+import { isProtectedPage, isPublicPage } from "@workly/api";
 import { NextRequest, NextResponse } from "next/server";
-// import { log } from './lib/logger';
-
-// 보호된 페이지 경로들
-const protectedPaths = ["/board", "/profile", "/dashboard", "/admin", "/must-read"];
-const authPaths = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,8 +14,8 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;
   const csrfToken = request.cookies.get("csrfToken")?.value;
 
-  const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
-  const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
+  const isProtectedPath = isProtectedPage(pathname, PROTECTED_PAGE_PATHS);
+  const isAuthPath = isPublicPage(pathname, PUBLIC_PAGE_PATHS);
 
   if (pathname === "/") {
     if (!refreshToken || !csrfToken) {

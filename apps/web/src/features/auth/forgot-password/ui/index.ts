@@ -1,0 +1,1 @@
+export { ForgotPasswordFormContent } from "./ForgotPasswordFormContent";

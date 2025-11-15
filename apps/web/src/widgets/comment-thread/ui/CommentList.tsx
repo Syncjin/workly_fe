@@ -2,6 +2,7 @@
 
 import { Comment, CommentItem, useCommentListInfinite } from "@/entities/comment";
 import * as itemStyles from "@/entities/comment/ui/commentItem.css";
+import { CommentCreate } from "@/features/comment/comment-create";
 import { DeleteCommentButton, useCommentDeleteAction, type DeleteCommentRenderProps } from "@/features/comment/comment-delete";
 import { CommentUpdate, UpdateCommentButton, UpdateCommentRenderProps } from "@/features/comment/comment-update";
 import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
@@ -14,8 +15,6 @@ const RightMenu = ({ comment, setEditingId }: { comment: Comment; setEditingId: 
   const { run } = useCommentDeleteAction();
   const renderOnUpdate = useCallback(
     ({ isPending, isError }: UpdateCommentRenderProps) => {
-      const disabled = isPending || isError;
-
       const onClick = useCallback(() => {
         setEditingId(comment.commentId);
       }, [comment]);
@@ -27,8 +26,6 @@ const RightMenu = ({ comment, setEditingId }: { comment: Comment; setEditingId: 
 
   const renderOnDelete = useCallback(
     ({ isPending, isError }: DeleteCommentRenderProps) => {
-      const disabled = isPending || isError;
-
       const onClick = useCallback(async () => {
         const res = await openConfirm({ header: "댓글 삭제", title: "댓글을 삭제하시겠습니까?" });
         if (res && comment.commentId && comment.postId) {
@@ -64,6 +61,15 @@ export const CommentList = ({ postId }: { postId: number }) => {
 
   const items = data?.pages.flatMap((page) => page.data.items ?? []) ?? [];
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+
+  const handleReply = useCallback((comment: Comment) => {
+    setReplyingTo(comment.commentId);
+  }, []);
+
+  const handleCancelReply = useCallback(() => {
+    setReplyingTo(null);
+  }, []);
 
   const bottomRef = useRef<HTMLLIElement | null>(null);
 
@@ -98,11 +104,35 @@ export const CommentList = ({ postId }: { postId: number }) => {
     <ul className={styles.container}>
       {items.map((comment) => {
         const isEditing = editingId === comment.commentId;
+        const isReplying = replyingTo === comment.commentId;
         if (!isEditing) {
-          return <CommentItem.Root key={comment.commentId} comment={comment} right={<RightMenu comment={comment} setEditingId={setEditingId} />} footer={<CommentItem.ReactionButton />} />;
+          const isReply = comment.parentId !== undefined;
+          return (
+            <CommentItem.Root
+              key={comment.commentId}
+              comment={comment}
+              replyOnClick={handleReply}
+              className={isReply ? styles.replyItem : undefined}
+              right={<RightMenu comment={comment} setEditingId={setEditingId} />}
+              footer={
+                <>
+                  <CommentItem.ReactionButton />
+                  <CommentItem.ReplyButton />
+                </>
+              }
+              replyForm={
+                isReplying ? (
+                  <li className={styles.replyForm}>
+                    <CommentCreate postId={postId} parentId={comment.parentId ?? comment.commentId} onCancel={handleCancelReply} />
+                  </li>
+                ) : undefined
+              }
+            />
+          );
         }
+        const isReply = comment.parentId !== undefined;
         return (
-          <CommentItem.Root key={comment.commentId} comment={comment}>
+          <CommentItem.Root key={comment.commentId} comment={comment} className={isReply ? styles.replyItem : undefined}>
             <CommentItem.Profile />
             <div className={itemStyles.main}>
               <CommentItem.HeaderSlot />

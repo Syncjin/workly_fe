@@ -4,6 +4,11 @@ import { recipe } from "@vanilla-extract/recipes";
 export const nav = style({
   padding: "4px 8px",
   flex: 1,
+  selectors: {
+    '&[data-empty="true"]': {
+      padding: 0,
+    },
+  },
 });
 export const rootList = style({ listStyle: "none", margin: 0, padding: 0 });
 export const categoryItem = style({ marginBottom: 6 });
