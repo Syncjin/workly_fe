@@ -1,5 +1,6 @@
 // packages/api/src/http.ts
 import type { ApiResponse } from "@workly/types/common";
+import { isPublicApiEndpoint } from "./auth-config";
 
 export type ServiceKey = "main" | "admin";
 
@@ -12,6 +13,7 @@ export interface AuthConfig {
   getAccessToken?: () => string | null | undefined;
   getCsrfToken?: () => string | null | undefined;
   refreshAccessToken?: () => Promise<string | null | undefined>;
+  publicApiPatterns?: readonly string[];
 }
 
 export interface HttpClientOptions {
@@ -147,7 +149,10 @@ export function createHttpClient(opts: HttpClientOptions) {
     const res = await fetch(url, req);
 
     if (!res.ok) {
-      if (res.status === 401 && auth?.refreshAccessToken) {
+      // 공개 API 엔드포인트는 refresh 로직 제외
+      const shouldSkipRefresh = isPublicApiEndpoint(url, auth?.publicApiPatterns);
+
+      if (res.status === 401 && auth?.refreshAccessToken && !shouldSkipRefresh) {
         if (debug) console.debug("[http]", "Token expired (401). Attempting refresh and retry...");
         return refreshAndRetry<T>(req, url);
       }
