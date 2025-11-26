@@ -122,6 +122,9 @@ Thumbs.db
 # Local development
 .local
 
+#AI
+.kiro
+
 # Testing
 .jest/
 test-results/
