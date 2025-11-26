@@ -23,7 +23,7 @@ export function DropdownColorPicker({ value, onChange, colors = DEFAULT_COLORS, 
   );
 
   return (
-    <Dropdown>
+    <Dropdown align="start">
       <Dropdown.Trigger>{trigger}</Dropdown.Trigger>
       <Dropdown.Menu>
         <MenuPanel title={title} value={value ?? ""} colors={colors} recent={recent} onChange={onChange} onRecentChange={onRecentChange} />

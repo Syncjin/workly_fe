@@ -70,59 +70,6 @@ export default function ImagePlugin({
     );
   }, [editor, handleError]);
 
-  const onPaste = useCallback(
-    (e: ClipboardEvent) => {
-      try {
-        const files = Array.from(e.clipboardData?.files ?? []);
-        const img = files.find((f) => f.type.startsWith("image/"));
-        if (!img) return;
-
-        e.preventDefault();
-        handleIncomingImage(img, "붙여넣은 이미지");
-      } catch (err) {
-        handleError(err);
-      }
-    },
-    [handleIncomingImage, handleError]
-  );
-
-  const onDrop = useCallback(
-    (e: DragEvent) => {
-      try {
-        const files = Array.from(e.dataTransfer?.files ?? []);
-        const img = files.find((f) => f.type.startsWith("image/"));
-        if (!img) return;
-
-        e.preventDefault();
-        handleIncomingImage(img, "드롭된 이미지");
-      } catch (err) {
-        handleError(err);
-      }
-    },
-    [handleIncomingImage, handleError]
-  );
-
-  const onDragOver = useCallback((e: DragEvent) => {
-    const files = Array.from(e.dataTransfer?.files ?? []);
-    const hasImage = files.some((f) => f.type.startsWith("image/"));
-    if (hasImage) e.preventDefault();
-  }, []);
-
-  useEffect(() => {
-    return editor.registerRootListener((rootElem, prevRootElem) => {
-      if (prevRootElem) {
-        prevRootElem.removeEventListener("paste", onPaste as EventListener);
-        prevRootElem.removeEventListener("drop", onDrop as EventListener);
-        prevRootElem.removeEventListener("dragover", onDragOver as EventListener);
-      }
-      if (rootElem) {
-        rootElem.addEventListener("paste", onPaste as EventListener);
-        rootElem.addEventListener("drop", onDrop as EventListener);
-        rootElem.addEventListener("dragover", onDragOver as EventListener);
-      }
-    });
-  }, [editor, onPaste, onDrop, onDragOver]);
-
   const handleIncomingImage = useCallback(
     (file: File, fallbackAlt: string) => {
       const check = validateImageFile(file);
@@ -145,6 +92,59 @@ export default function ImagePlugin({
     },
     [editor, fileManager]
   );
+
+  const onPaste = useCallback(
+    (e: ClipboardEvent) => {
+      try {
+        const files = Array.from(e.clipboardData?.files ?? []);
+        const img = files.find((f: File) => f.type.startsWith("image/"));
+        if (!img) return;
+
+        e.preventDefault();
+        handleIncomingImage(img, "붙여넣은 이미지");
+      } catch (err) {
+        handleError(err);
+      }
+    },
+    [handleIncomingImage, handleError]
+  );
+
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      try {
+        const files = Array.from(e.dataTransfer?.files ?? []);
+        const img = files.find((f: File) => f.type.startsWith("image/"));
+        if (!img) return;
+
+        e.preventDefault();
+        handleIncomingImage(img, "드롭된 이미지");
+      } catch (err) {
+        handleError(err);
+      }
+    },
+    [handleIncomingImage, handleError]
+  );
+
+  const onDragOver = useCallback((e: DragEvent) => {
+    const files = Array.from(e.dataTransfer?.files ?? []);
+    const hasImage = files.some((f: File) => f.type.startsWith("image/"));
+    if (hasImage) e.preventDefault();
+  }, []);
+
+  useEffect(() => {
+    return editor.registerRootListener((rootElem, prevRootElem) => {
+      if (prevRootElem) {
+        prevRootElem.removeEventListener("paste", onPaste as EventListener);
+        prevRootElem.removeEventListener("drop", onDrop as EventListener);
+        prevRootElem.removeEventListener("dragover", onDragOver as EventListener);
+      }
+      if (rootElem) {
+        rootElem.addEventListener("paste", onPaste as EventListener);
+        rootElem.addEventListener("drop", onDrop as EventListener);
+        rootElem.addEventListener("dragover", onDragOver as EventListener);
+      }
+    });
+  }, [editor, onPaste, onDrop, onDragOver]);
 
   useEffect(() => {
     ImageNode.setContainerMaxWidth(contentMaxWidth);

@@ -11,7 +11,7 @@ export function createFileApi(http: HttpClient) {
     },
     postFilesUpload: (params: FileRequest): Promise<ApiResponse<FileInfoDTO[]>> => {
       const fd = new FormData();
-      (params.files ?? []).forEach((f) => fd.append("files", f));
+      (params.files ?? []).forEach((f: File) => fd.append("files", f));
       return http.postMultipart<FileInfoDTO[]>(`/files/upload`, fd);
     },
   };

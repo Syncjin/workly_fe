@@ -7,11 +7,12 @@ export function createCommentApi(http: HttpClient) {
   return {
     /** 댓글 목록 조회 */
     getCommentList: async (params?: CommentListParams): Promise<ApiResponse<Pagination<CommentDTO>>> => {
-      const query = qs({
-        page: params?.page,
-        size: params?.size,
+      const query: string = qs({
+        page: params?.page ?? undefined,
+        size: params?.size ?? undefined,
       });
-      return await http.get<Pagination<CommentDTO>>(`/posts/${params?.postId}/comments${query}`);
+      const postId: number | string = params?.postId ?? "";
+      return await http.get<Pagination<CommentDTO>>(`/posts/${postId}/comments${query}`);
     },
     /** 댓글 단건 조회 */
     getCommentDetail: async (params: CommentDetailRequest): Promise<ApiResponse<CommentDTO>> => {

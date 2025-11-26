@@ -6,8 +6,8 @@ import type { HttpClient } from "./http";
 export function createBoardApi(http: HttpClient) {
   return {
     getBoards: async (params?: BoardParams): Promise<ApiResponse<BoardDTO[]>> => {
-      const query = qs({
-        categoryId: params?.categoryId,
+      const query: string = qs({
+        categoryId: params?.categoryId ?? undefined,
       });
       return await http.get<BoardDTO[]>(`/boards${query}`);
     },

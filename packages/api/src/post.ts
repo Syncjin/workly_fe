@@ -7,7 +7,7 @@ export function createPostApi(http: HttpClient) {
   return {
     /** 게시글 목록 (DTO 반환) */
     getPosts: async (params?: PostListParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
-      const query = qs({
+      const query: string = qs({
         keyword: params?.keyword,
         boardId: params?.boardId,
         categoryId: params?.categoryId,
@@ -34,7 +34,7 @@ export function createPostApi(http: HttpClient) {
     patchPosts: (params: PostUpdateRequest, post: PostCreateRequest, files?: File[]): Promise<ApiResponse<PostDTO>> => {
       const fd = new FormData();
       fd.append("post", new Blob([JSON.stringify(post)], { type: "application/json" }));
-      (files ?? []).forEach((f) => fd.append("files", f));
+      (files ?? []).forEach((f: File) => fd.append("files", f));
       return http.patchMultipart<PostDTO>(`/posts/${params.postId}`, fd);
     },
     /** 게시글 이동 */
@@ -44,7 +44,7 @@ export function createPostApi(http: HttpClient) {
     postPosts: (post: PostCreateRequest, files?: File[]): Promise<ApiResponse<PostDTO>> => {
       const fd = new FormData();
       fd.append("post", new Blob([JSON.stringify(post)], { type: "application/json" }));
-      (files ?? []).forEach((f) => fd.append("files", f));
+      (files ?? []).forEach((f: File) => fd.append("files", f));
       return http.postMultipart<PostDTO>(`/posts`, fd);
     },
     /** 게시글 좋아요 */
@@ -54,7 +54,7 @@ export function createPostApi(http: HttpClient) {
 
     /** 게시글 안읽은 목록  */
     getPostsUnread: async (params?: PostListParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
-      const query = qs({
+      const query: string = qs({
         keyword: params?.keyword,
         boardId: params?.boardId,
         categoryId: params?.categoryId,
@@ -66,7 +66,7 @@ export function createPostApi(http: HttpClient) {
 
     /** 게시글 휴지통 목록  */
     getPostsTrash: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
-      const query = qs({
+      const query: string = qs({
         page: params?.page,
         size: params?.size,
       });
@@ -75,7 +75,7 @@ export function createPostApi(http: HttpClient) {
 
     /** 게시글 내 작성 목록  */
     getPostsMyPosts: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
-      const query = qs({
+      const query: string = qs({
         page: params?.page,
         size: params?.size,
       });
@@ -84,7 +84,7 @@ export function createPostApi(http: HttpClient) {
 
     /** 게시글 필독 목록  */
     getPostsMustRead: async (params?: PostMustReadListParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
-      const query = qs({
+      const query: string = qs({
         boardId: params?.boardId,
         page: params?.page,
         size: params?.size,
@@ -94,7 +94,7 @@ export function createPostApi(http: HttpClient) {
 
     /** 게시글 중요 목록  */
     getPostsBookmarks: async (params?: PageParams): Promise<ApiResponse<Pagination<PostDTO>>> => {
-      const query = qs({
+      const query: string = qs({
         page: params?.page,
         size: params?.size,
       });
