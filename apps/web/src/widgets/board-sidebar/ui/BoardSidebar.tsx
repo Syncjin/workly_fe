@@ -49,7 +49,7 @@ export const BoardSidebar = ({ className, style }: BoardSidebarProps) => {
     if (!boardId) {
       const res = await openBoardSelect();
       if (res?.board) {
-        boardId = res?.board.id;
+        boardId = String(res.board.id);
       }
     }
 

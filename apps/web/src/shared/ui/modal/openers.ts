@@ -1,10 +1,10 @@
 "use client";
-import { BOARD_SELECT_MODAL_KEY } from "@/features/board/board-select";
+import { BOARD_SELECT_MODAL_KEY, type SelectBoard, type SelectCategory } from "@/features/board/board-select";
 import { CONFIRM_MODAL_KEY, LOADING_OVERLAY_MODAL_KEY } from "@/shared/ui/modal/model/keys";
 import { modalClient } from "./client";
 
-export async function openBoardSelect(params?: { initialBoardId?: number }) {
-  return modalClient.open(BOARD_SELECT_MODAL_KEY, { params });
+export async function openBoardSelect(params?: { initialBoardId?: number }): Promise<{ board: SelectBoard; category: SelectCategory } | undefined> {
+  return modalClient.open(BOARD_SELECT_MODAL_KEY, { params }) as Promise<{ board: SelectBoard; category: SelectCategory } | undefined>;
 }
 
 export async function openLoadingOverlay() {
