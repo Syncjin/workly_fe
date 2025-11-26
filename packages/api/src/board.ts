@@ -1,5 +1,6 @@
-import type { ApiResponse, BoardDetailParams, BoardDTO, BoardParams } from "@workly/types";
 import { qs } from "@workly/utils";
+
+import type { ApiResponse, BoardDetailParams, BoardDTO, BoardParams } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createBoardApi(http: HttpClient) {

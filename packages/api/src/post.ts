@@ -1,5 +1,6 @@
-import type { ApiResponse, PageParams, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostLikeRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostMustReadListParams, PostReadRequest, PostRestoreRequest, PostUpdateRequest } from "@workly/types";
 import { qs } from "@workly/utils";
+
+import type { ApiResponse, PageParams, Pagination, PostCreateRequest, PostDeleteRequest, PostDetailRequest, PostDTO, PostLikeRequest, PostListParams, PostMoveRequest, PostMoveResponse, PostMustReadListParams, PostReadRequest, PostRestoreRequest, PostUpdateRequest } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createPostApi(http: HttpClient) {
@@ -101,13 +102,13 @@ export function createPostApi(http: HttpClient) {
     },
 
     /** 게시글 휴지통 복원 */
-    postPostsRestore: (body: PostRestoreRequest): Promise<ApiResponse<any>> => {
-      return http.post<any>(`/posts/restore`, body);
+    postPostsRestore: (body: PostRestoreRequest): Promise<ApiResponse<void>> => {
+      return http.post<void>(`/posts/restore`, body);
     },
 
     /** 게시글 휴지통 비우기. 전체 영구 삭제 */
-    deletePostsTrash: (): Promise<ApiResponse<any>> => {
-      return http.delete<any>(`/posts/trash`);
+    deletePostsTrash: (): Promise<ApiResponse<void>> => {
+      return http.delete<void>(`/posts/trash`);
     },
 
     /** 게시글 중요 업데이트 */
