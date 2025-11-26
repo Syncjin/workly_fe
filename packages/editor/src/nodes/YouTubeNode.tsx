@@ -106,16 +106,12 @@ export class YouTubeNode extends DecoratorBlockNode {
     const oldWidth = writable.__width;
     const oldHeight = writable.__height;
 
-    // 최소 크기 200x200 적용
     const newWidth = width && width >= 200 ? width : undefined;
     const newHeight = height && height >= 200 ? height : undefined;
 
-    // 실제로 변경된 경우에만 업데이트
     if (oldWidth !== newWidth || oldHeight !== newHeight) {
       writable.__width = newWidth;
       writable.__height = newHeight;
-
-      // 노드 변경 사항을 에디터에 알림
       writable.markDirty();
     }
   }
@@ -133,7 +129,6 @@ export class YouTubeNode extends DecoratorBlockNode {
   }
 
   decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
-    // 에디터의 편집 가능 상태 확인 ImageNode와 동일
     const isEditable = editor?.isEditable() ?? true;
     const maxW = YouTubeNode.__containerMaxWidth;
     const embedBlockTheme = config.theme.embedBlock || {};

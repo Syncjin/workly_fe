@@ -5,6 +5,6 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 
 import { ImageNode } from "./nodes/ImageNode";
-import { YouTubeNode } from "./nodes/YoutubeNode";
+import { YouTubeNode } from "./nodes/YouTubeNode";
 
 export const defaultNodes = [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, CodeNode, CodeHighlightNode, TableNode, TableRowNode, TableCellNode, ImageNode, YouTubeNode];

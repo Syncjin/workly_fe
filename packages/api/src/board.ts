@@ -9,10 +9,10 @@ export function createBoardApi(http: HttpClient) {
       const query = qs({
         categoryId: params?.categoryId,
       });
-      return http.get<BoardDTO[]>(`/boards${query}`);
+      return await http.get<BoardDTO[]>(`/boards${query}`);
     },
     getBoardById: async (params: BoardDetailParams): Promise<ApiResponse<BoardDTO>> => {
-      return http.get<BoardDTO>(`/boards/${params.boardId}`);
+      return await http.get<BoardDTO>(`/boards/${params.boardId}`);
     },
   };
 }

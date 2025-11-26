@@ -15,7 +15,7 @@ import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { $createParagraphNode, $getRoot, type Klass, type LexicalEditor, type LexicalNode } from "lexical";
 
 import { ImageNode } from "./nodes/ImageNode";
-import { YouTubeNode } from "./nodes/YoutubeNode";
+import { YouTubeNode } from "./nodes/YouTubeNode";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import { lexicalTheme as defaultTheme } from "./theme.css";
 
