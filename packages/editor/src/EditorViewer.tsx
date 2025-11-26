@@ -12,7 +12,7 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import { HeadingNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
-import { $createParagraphNode, $getRoot, type Klass, type LexicalNode } from "lexical";
+import { $createParagraphNode, $getRoot, type Klass, type LexicalEditor, type LexicalNode } from "lexical";
 
 import { ImageNode } from "./nodes/ImageNode";
 import { YouTubeNode } from "./nodes/YoutubeNode";
@@ -34,11 +34,12 @@ export function EditorViewer({ namespace, initialJSON, theme = defaultTheme, nod
     theme,
     nodes,
     editable: false,
-    onError,
-    editorState: (editor: { parseEditorState: (state: unknown) => unknown; setEditorState: (state: unknown) => void; update: (fn: () => void) => void }) => {
+    // eslint-disable-next-line no-console
+    onError: onError || ((e: Error) => console.error(e)),
+    editorState: (editor: LexicalEditor) => {
       try {
         const parsed: unknown = typeof initialJSON === "string" ? JSON.parse(initialJSON) : initialJSON;
-        const state = editor.parseEditorState(parsed);
+        const state = editor.parseEditorState(parsed as string);
         editor.setEditorState(state);
       } catch {
         editor.update(() => {
@@ -48,7 +49,7 @@ export function EditorViewer({ namespace, initialJSON, theme = defaultTheme, nod
         });
       }
     },
-  } as const;
+  };
 
   return (
     <LexicalComposer initialConfig={initialConfig}>

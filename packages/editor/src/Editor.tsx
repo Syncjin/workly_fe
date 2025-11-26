@@ -85,20 +85,22 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
     namespace,
     theme,
     nodes,
-    onError,
-    editorState: (editor: LexicalEditor) => {
-      if (!initialJSON) return;
-      try {
-        const parsed = JSON.parse(initialJSON) as Parameters<typeof editor.parseEditorState>[0];
-        editor.setEditorState(editor.parseEditorState(parsed));
-      } catch {
-        editor.update(() => {
-          const root = $getRoot();
-          if (root.isEmpty()) root.append($createParagraphNode());
-        });
-      }
-    },
-  } as const;
+    // eslint-disable-next-line no-console
+    onError: onError || ((e: Error) => console.error(e)),
+    editorState: initialJSON
+      ? (editor: LexicalEditor) => {
+          try {
+            const parsed = JSON.parse(initialJSON) as Parameters<typeof editor.parseEditorState>[0];
+            editor.setEditorState(editor.parseEditorState(parsed));
+          } catch {
+            editor.update(() => {
+              const root = $getRoot();
+              if (root.isEmpty()) root.append($createParagraphNode());
+            });
+          }
+        }
+      : undefined,
+  };
 
   // 파일 저장
   const rememberFile = useCallback((tempId: string, file: File) => {
@@ -143,11 +145,10 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
 
   // 콘텐츠 변경 핸들러 (빈 컨텐츠 → 빈 문자열 제공)
   const handleChange = useCallback(
-    (editorState: Parameters<NonNullable<Props["onChangeJSON"]>>[0]) => {
+    (editorState: { read: (fn: () => void) => void; toJSON: () => unknown }) => {
       if (!onChangeJSON) return;
       try {
-        const state = editorState as { read: (fn: () => void) => void };
-        state.read(() => {
+        editorState.read(() => {
           const root = $getRoot();
           const children = root.getChildren();
           const isEmpty = children.length === 0 || (children.length === 1 && children[0].getTextContent().trim() === "");

@@ -1,4 +1,4 @@
-import { DecoratorNode, LexicalEditor, type EditorConfig, type LexicalNode, type NodeKey } from "lexical";
+import { DecoratorNode, LexicalEditor, type EditorConfig, type LexicalNode, type NodeKey, type SerializedLexicalNode, type Spread } from "lexical";
 import { JSX } from "react";
 
 import { ImageView } from "./ImageView";
@@ -11,6 +11,17 @@ export type InsertImagePayload = {
   // 지연 업로드용 메타
   tempId?: string | null; // blob 이미지면 식별자(예: uuid), 서버 업로드 후 null
 };
+
+export type SerializedImageNode = Spread<
+  {
+    src: string;
+    altText: string;
+    tempId: string | null;
+    width?: number;
+    height?: number;
+  },
+  SerializedLexicalNode
+>;
 
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
@@ -41,7 +52,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   // 직렬화/역직렬화
-  static importJSON(json: { src: string; altText?: string; width?: number; height?: number; tempId?: string | null }): ImageNode {
+  static importJSON(json: SerializedImageNode): ImageNode {
     return new ImageNode({
       src: json.src,
       altText: json.altText || "",
@@ -51,24 +62,16 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     });
   }
 
-  exportJSON(): { type: string; version: number; src: string; altText: string; tempId: string | null; width?: number; height?: number } {
-    const json: { type: string; version: number; src: string; altText: string; tempId: string | null; width?: number; height?: number } = {
+  exportJSON(): SerializedImageNode {
+    return {
       type: "image",
       version: 1,
       src: this.__src,
       altText: this.__altText,
       tempId: this.__tempId,
+      width: this.__width,
+      height: this.__height,
     };
-
-    // width와 height는 undefined가 아닐 때만 포함
-    if (this.__width !== undefined) {
-      json.width = this.__width;
-    }
-    if (this.__height !== undefined) {
-      json.height = this.__height;
-    }
-
-    return json;
   }
 
   createDOM(config: EditorConfig): HTMLElement {
