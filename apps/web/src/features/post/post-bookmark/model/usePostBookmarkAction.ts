@@ -11,7 +11,7 @@ export const usePostBookmarkAction = () => {
 
   const run = useCallback(
     async (postId: number) => {
-      const result: ApiResponse<Post> = await updater(postId, () => mutateAsync({ postId }));
+      const result = (await updater(postId, () => mutateAsync({ postId }))) as ApiResponse<Post>;
 
       qc.invalidateQueries({
         predicate: ({ queryKey }) => isPostListKey(queryKey) || isPostDetailKey(queryKey),
@@ -20,7 +20,7 @@ export const usePostBookmarkAction = () => {
 
       return result;
     },
-    [qc, mutateAsync]
+    [qc, mutateAsync, updater]
   );
 
   return { run, isPending };

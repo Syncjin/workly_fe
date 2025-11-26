@@ -33,10 +33,13 @@ export const PostList = React.memo(() => {
     [searchParams, router]
   );
 
-  const handlePostClick = useCallback((item: Post) => {
-    console.log("item", item);
-    router.push(`/article/${item.postId}`);
-  }, []);
+  const handlePostClick = useCallback(
+    (item: Post) => {
+      console.log("item", item);
+      router.push(`/article/${item.postId}`);
+    },
+    [router]
+  );
 
   const handleShowAll = useCallback(() => {
     setFilter("all");

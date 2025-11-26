@@ -19,7 +19,7 @@ export function ModalBoundary({ pending, onClose, children }: ModalQueryBoundary
           fallbackRender={({ error, resetErrorBoundary }) => (
             <div style={{ padding: 16 }}>
               <div style={{ marginBottom: 8, fontWeight: 700, fontSize: 14 }}>데이터를 불러오지 못했어요.</div>
-              <div style={{ marginBottom: 12, fontSize: 13, color: "var(--color-gray-700)" }}>{String((error as any)?.message ?? "네트워크 오류가 발생했습니다.")}</div>
+              <div style={{ marginBottom: 12, fontSize: 13, color: "var(--color-gray-700)" }}>{String((error as Error)?.message ?? "네트워크 오류가 발생했습니다.")}</div>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                 <Button variant="ghost" color="gray-400" onClick={onClose}>
                   닫기

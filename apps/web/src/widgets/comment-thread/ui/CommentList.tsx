@@ -3,8 +3,8 @@
 import { Comment, CommentItem, useCommentListInfinite } from "@/entities/comment";
 import * as itemStyles from "@/entities/comment/ui/commentItem.css";
 import { CommentCreate } from "@/features/comment/comment-create";
-import { DeleteCommentButton, useCommentDeleteAction, type DeleteCommentRenderProps } from "@/features/comment/comment-delete";
-import { CommentUpdate, UpdateCommentButton, UpdateCommentRenderProps } from "@/features/comment/comment-update";
+import { DeleteCommentButton, useCommentDeleteAction } from "@/features/comment/comment-delete";
+import { CommentUpdate, UpdateCommentButton } from "@/features/comment/comment-update";
 import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
 import { useCommentThreadActions } from "@/widgets/comment-thread/model";
 import { Button, Dropdown, Icon } from "@workly/ui";
@@ -13,32 +13,27 @@ import * as styles from "./commentList.css";
 
 const RightMenu = ({ comment, setEditingId }: { comment: Comment; setEditingId: Dispatch<SetStateAction<number | null>> }) => {
   const { run } = useCommentDeleteAction();
-  const renderOnUpdate = useCallback(
-    ({ isPending, isError }: UpdateCommentRenderProps) => {
-      const onClick = useCallback(() => {
-        setEditingId(comment.commentId);
-      }, [comment]);
 
-      return <Dropdown.Item text="수정" onClick={onClick} />;
-    },
-    [comment]
-  );
+  const handleUpdate = useCallback(() => {
+    setEditingId(comment.commentId);
+  }, [comment.commentId, setEditingId]);
 
-  const renderOnDelete = useCallback(
-    ({ isPending, isError }: DeleteCommentRenderProps) => {
-      const onClick = useCallback(async () => {
-        const res = await openConfirm({ header: "댓글 삭제", title: "댓글을 삭제하시겠습니까?" });
-        if (res && comment.commentId && comment.postId) {
-          openLoadingOverlay();
-          await run({ commentId: comment.commentId, postId: comment.postId });
-          closeLoadingOverlay();
-        }
-      }, [comment]);
+  const handleDelete = useCallback(async () => {
+    const res = await openConfirm({ header: "댓글 삭제", title: "댓글을 삭제하시겠습니까?" });
+    if (res && comment.commentId && comment.postId) {
+      openLoadingOverlay();
+      await run({ commentId: comment.commentId, postId: comment.postId });
+      closeLoadingOverlay();
+    }
+  }, [comment.commentId, comment.postId, run]);
 
-      return <Dropdown.Item text="삭제" onClick={onClick} />;
-    },
-    [comment]
-  );
+  const renderOnUpdate = useCallback(() => {
+    return <Dropdown.Item text="수정" onClick={handleUpdate} />;
+  }, [handleUpdate]);
+
+  const renderOnDelete = useCallback(() => {
+    return <Dropdown.Item text="삭제" onClick={handleDelete} />;
+  }, [handleDelete]);
 
   return (
     <Dropdown align="end" classes={{ menu: styles.menu, item: styles.menuItem }}>
@@ -94,7 +89,7 @@ export const CommentList = ({ postId }: { postId: number }) => {
     if (totalCnt || totalCnt === 0) {
       setCommentCnt(totalCnt);
     }
-  }, [data]);
+  }, [data, setCommentCnt]);
 
   if (!isPending && items.length === 0) {
     return null;

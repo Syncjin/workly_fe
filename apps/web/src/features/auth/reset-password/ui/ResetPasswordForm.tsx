@@ -45,8 +45,8 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       } else {
         setError(response.message || "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.");
       }
-    } catch (e: any) {
-      const errorMsg = e?.message || "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.";
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.";
       setError(errorMsg);
     }
   };

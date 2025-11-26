@@ -44,9 +44,9 @@ export const BookmarksList = () => {
   const bookmarkOnClick = useCallback(
     async (item: Post) => {
       if (!item.postId) return;
-      const result = await run(item.postId);
+      await run(item.postId);
     },
-    [router]
+    [run]
   );
 
   if (isLoading) {

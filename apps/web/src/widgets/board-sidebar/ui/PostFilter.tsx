@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon, Tooltip } from "@workly/ui";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React from "react";
 import * as styles from "./postFilter.css";
 
@@ -19,7 +19,7 @@ interface PostFilterProps {
 interface FilterOption {
   key: ValidFilterValue;
   label: string;
-  icon?: string;
+  icon: "checkbox-line" | "star-line" | "user-line";
 }
 
 const FILTER_OPTIONS: FilterOption[] = [
@@ -30,7 +30,6 @@ const FILTER_OPTIONS: FilterOption[] = [
 
 export const PostFilter: React.FC<PostFilterProps> = ({ isCollapsed = false, currentFilter }) => {
   const router = useRouter();
-  const pathname = usePathname();
 
   const handleFilterClick = React.useCallback(
     (filterKey: PostFilterType) => {
@@ -41,7 +40,7 @@ export const PostFilter: React.FC<PostFilterProps> = ({ isCollapsed = false, cur
         console.error("필터 변경 중 오류가 발생했습니다:", error);
       }
     },
-    [currentFilter, router, pathname]
+    [router]
   );
 
   if (isCollapsed) {
@@ -51,7 +50,7 @@ export const PostFilter: React.FC<PostFilterProps> = ({ isCollapsed = false, cur
           <Tooltip key={option.key} content={option.label} position="right">
             <button type="button" className={styles.collapsedFilterButton} data-selected={currentFilter === option.key} onClick={() => handleFilterClick(option.key)} aria-label={option.label}>
               <div className={styles.collapsedIconContainer}>
-                <Icon name={option.icon as any} size={{ width: 16, height: 16 }} />
+                <Icon name={option.icon} size={{ width: 16, height: 16 }} />
               </div>
             </button>
           </Tooltip>
@@ -67,7 +66,7 @@ export const PostFilter: React.FC<PostFilterProps> = ({ isCollapsed = false, cur
           <button key={option.key} type="button" className={styles.filterButton} data-selected={currentFilter === option.key} onClick={() => handleFilterClick(option.key)}>
             <div className={styles.filterContent}>
               <div className={styles.iconContainer}>
-                <Icon name={option.icon as any} size={{ width: 14, height: 14 }} />
+                <Icon name={option.icon} size={{ width: 14, height: 14 }} />
               </div>
               <span className={styles.filterLabel}>{option.label}</span>
             </div>

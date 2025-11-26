@@ -20,12 +20,6 @@ export function usePostUpdateMoveAction() {
   const updateQ = usePostUpdate();
   const moveQ = usePostMove();
 
-  async function updateThenMove(updateReq: UpdateReq, moveReq: PostMoveRequest) {
-    const updateRes = await updateQ.mutateAsync(updateReq);
-    const moveRes = await moveQ.mutateAsync(moveReq);
-    return { updateRes, moveRes };
-  }
-
   const run = useCallback(
     async ({ updateReq, moveReq }: RunArgs) => {
       if (!updateReq.post.title?.trim()) throw new Error("제목을 입력해주세요.");
@@ -33,10 +27,11 @@ export function usePostUpdateMoveAction() {
       if (!updateReq.post.boardId) throw new Error("게시판을 선택해주세요.");
 
       try {
-        const result = await updateThenMove(updateReq, moveReq);
+        const updateRes = await updateQ.mutateAsync(updateReq);
+        const moveRes = await moveQ.mutateAsync(moveReq);
         qc.invalidateQueries({ predicate: ({ queryKey }) => isPostDetailKey(queryKey) });
         qc.invalidateQueries({ predicate: ({ queryKey }) => isPostListKey(queryKey) });
-        return result;
+        return { updateRes, moveRes };
       } catch (error) {
         log.error("usePostUpdateMoveAction error", error);
       }

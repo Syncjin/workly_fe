@@ -10,7 +10,7 @@ export function usePostTrashAction() {
     const result = await mutateAsync();
     qc.invalidateQueries({ queryKey: postQueryKeys.trashLists() });
     return result;
-  }, [mutateAsync]);
+  }, [qc, mutateAsync]);
 
   return { run, isPending };
 }

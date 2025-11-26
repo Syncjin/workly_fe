@@ -53,29 +53,29 @@ const PostContent = (post: Post) => {
         </Button>
       );
     },
-    [post]
+    [post, qc, router, searchParams]
   );
+
+  const handleUpdate = useCallback(() => {
+    const sp = new URLSearchParams(searchParams?.toString() ?? "");
+    sp.set("boardId", String(post.board.boardId));
+    sp.set("postId", String(post.postId));
+    startTransition(() => {
+      router.push(`/article/write?${sp.toString()}`, { scroll: false });
+    });
+  }, [post.board.boardId, post.postId, router, searchParams]);
 
   const renderOnUpdate = useCallback(
     ({ isPending, isError }: UpdatePostRenderProps) => {
       const disabled = isPending || isError;
 
-      const onClick = useCallback(() => {
-        const sp = new URLSearchParams(searchParams?.toString() ?? "");
-        sp.set("boardId", String(post.board.boardId));
-        sp.set("postId", String(post.postId));
-        startTransition(() => {
-          router.push(`/article/write?${sp.toString()}`, { scroll: false });
-        });
-      }, [post]);
-
       return (
-        <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={undefined} onClick={onClick}>
+        <Button variant="border" size="md" color="gray-300" disabled={disabled} loading={undefined} onClick={handleUpdate}>
           수정
         </Button>
       );
     },
-    [post]
+    [handleUpdate]
   );
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const PostContent = (post: Post) => {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [post.isRead, post.postId]);
+  }, [post.isRead, post.postId, run]);
 
   useEffect(() => {
     hasExecutedRead.current = false;

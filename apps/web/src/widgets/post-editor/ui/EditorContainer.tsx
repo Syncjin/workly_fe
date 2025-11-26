@@ -16,21 +16,27 @@ export const EditorBody = ({ post }: { post?: Post }) => {
   const { mutateAsync: uploadMutate } = useFileUpload();
   const { mutateAsync: deleteMutate } = useFileDelete();
 
-  const uploadAPI = useCallback(async (files: File[]) => {
-    const result = await uploadMutate({ files });
-    return result.data.map((item) => ({
-      fileId: item.fileId,
-      fileUrl: item.fileUrl,
-    }));
-  }, []);
+  const uploadAPI = useCallback(
+    async (files: File[]) => {
+      const result = await uploadMutate({ files });
+      return result.data.map((item) => ({
+        fileId: item.fileId,
+        fileUrl: item.fileUrl,
+      }));
+    },
+    [uploadMutate]
+  );
 
-  const deleteAPI = useCallback(async (fileId: string) => {
-    try {
-      await deleteMutate({ fileId: fileId });
-    } catch (error) {
-      log.error("Delete API 실패:", error);
-    }
-  }, []);
+  const deleteAPI = useCallback(
+    async (fileId: string) => {
+      try {
+        await deleteMutate({ fileId: fileId });
+      } catch (error) {
+        log.error("Delete API 실패:", error);
+      }
+    },
+    [deleteMutate]
+  );
 
   useEffect(() => {
     if (post) {
@@ -38,7 +44,7 @@ export const EditorBody = ({ post }: { post?: Post }) => {
       setPost(post);
       setJson(post.content);
     }
-  }, [post]);
+  }, [post, setTitle, setPost, setJson]);
 
   return (
     <div className={styles.container}>

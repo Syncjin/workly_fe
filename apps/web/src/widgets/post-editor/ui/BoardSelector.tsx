@@ -32,7 +32,7 @@ const BoardSelector = () => {
       setBoardId(res.board.id);
       setCategory(res.category);
     }
-  }, [boardId, board]);
+  }, [boardId, board, setBoard, setBoardId, setCategory]);
 
   return (
     <div className={s.boardSelector.container}>

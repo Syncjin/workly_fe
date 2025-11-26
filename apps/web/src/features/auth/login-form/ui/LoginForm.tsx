@@ -45,8 +45,8 @@ export function LoginForm() {
       } else {
         setErrorState(response.message || "로그인에 실패했습니다. 다시 시도해주세요.");
       }
-    } catch (e: any) {
-      const errorMsg = e?.message || "로그인에 실패했습니다. 다시 시도해주세요.";
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : "로그인에 실패했습니다. 다시 시도해주세요.";
       setErrorState(errorMsg);
     }
   };

@@ -27,7 +27,7 @@ export const ReactionPopup = forwardRef<ReactionPopupOpeners>((_, ref) => {
 
   const { handleReactionSelect, loading } = useReactionUpsert({
     comment: state.selectedComment,
-    onSuccess: (reaction) => {
+    onSuccess: () => {
       handleClose();
     },
     onError: (error) => {

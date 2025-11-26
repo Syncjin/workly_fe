@@ -21,7 +21,7 @@ const PostDetailHeader = (post: Post) => {
     const result = await run(post.postId);
     console.log("result", result);
     setIsBookmarked(result?.data.isBookmarked);
-  }, [post.postId]);
+  }, [post.postId, run]);
 
   return (
     <div className={styles.container}>

@@ -11,12 +11,12 @@ export function useCommentUpdateAction() {
   const run = useCallback(
     async ({ content, postId, commentId }: CommentUpdateRequest) => {
       // 관련 쿼리들을 취소하여 경쟁 상태 방지
-      const cancelData = await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
+      await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
       const qk = commentQueryKeys.infinite({ postId });
       const prev = qc.getQueryData<InfiniteData<ApiResponse<PageData>>>(qk);
       const nowISO = new Date().toISOString();
 
-      const optimisticApplied = qc.setQueryData<InfiniteData<ApiResponse<PageData>>>(qk, (old) => {
+      qc.setQueryData<InfiniteData<ApiResponse<PageData>>>(qk, (old) => {
         if (!old) return old;
 
         let found = false;

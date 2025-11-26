@@ -6,12 +6,7 @@ import { LoadingSpinner, Popup } from "@workly/ui";
 import { FC } from "react";
 import * as s from "./loadingOverlay.css";
 
-type Props = {
-  visible: boolean;
-  text?: string;
-};
-
-export const LoadingOverlay: FC<Props> = ({ visible, text = "처리 중…" }) => {
+export const LoadingOverlay: FC = ({}) => {
   const modalState = useModalStore((state) => state.current);
   const isOpen = modalState.type === LOADING_OVERLAY_MODAL_KEY;
   return (

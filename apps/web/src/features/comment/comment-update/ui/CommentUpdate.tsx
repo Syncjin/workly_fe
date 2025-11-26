@@ -24,7 +24,7 @@ export const CommentUpdate = ({ postId, comment, onCancel }: { postId: number; c
     await run(parsed.data);
     setContent("");
     onCancel?.();
-  }, [postId, content, comment.commentId]);
+  }, [onCancel, run, postId, content, comment.commentId]);
 
   const btnOnCancel = useCallback(() => {
     onCancel?.();

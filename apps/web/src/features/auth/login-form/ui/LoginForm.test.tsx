@@ -1,4 +1,3 @@
-import { getAccessToken, getAutoLoginFlag } from "@/shared/lib/auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -6,7 +5,17 @@ import { serialize } from "cookie";
 import { http, HttpResponse } from "msw";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { server } from "../../../../../tests/msw/server";
+import { getAccessToken, getAutoLoginFlag, logout, removeAccessToken, setAccessToken } from "../../../../shared/lib/auth";
 import { LoginForm } from "./LoginForm";
+
+// Type definitions
+interface TokenStore {
+  accessToken: string | null;
+}
+
+declare global {
+  var __tokenStore: TokenStore | undefined;
+}
 
 // Next.js router mock
 const mockPush = vi.fn();
@@ -33,7 +42,7 @@ describe("LoginForm - 로그인 플로우 테스트", () => {
     localStorage.clear();
     // AccessToken 초기화
     if (getAccessToken()) {
-      (globalThis as any).__tokenStore = { accessToken: null };
+      globalThis.__tokenStore = { accessToken: null };
     }
     mockPush.mockClear();
   });
@@ -76,7 +85,7 @@ describe("LoginForm - 로그인 플로우 테스트", () => {
               expiresIn: 108000,
             },
           },
-          { headers: { "Set-Cookie": cookies as unknown as any } }
+          { headers: { "Set-Cookie": cookies.join(", ") } }
         );
       })
     );
@@ -140,7 +149,7 @@ describe("LoginForm - 로그인 플로우 테스트", () => {
               expiresIn: 108000,
             },
           },
-          { headers: { "Set-Cookie": cookies as unknown as any } }
+          { headers: { "Set-Cookie": cookies.join(", ") } }
         );
       })
     );
@@ -204,7 +213,7 @@ describe("LoginForm - 로그인 플로우 테스트", () => {
               expiresIn: 108000,
             },
           },
-          { headers: { "Set-Cookie": cookies as unknown as any } }
+          { headers: { "Set-Cookie": cookies.join(", ") } }
         );
       })
     );
@@ -245,7 +254,7 @@ describe("LoginForm - 자동 로그인 플로우 테스트", () => {
     localStorage.clear();
     // AccessToken 초기화
     if (getAccessToken()) {
-      (globalThis as any).__tokenStore = { accessToken: null };
+      globalThis.__tokenStore = { accessToken: null };
     }
     mockPush.mockClear();
   });
@@ -392,7 +401,7 @@ describe("LoginForm - 자동 로그인 비활성화 플로우 테스트", () => 
     localStorage.clear();
     // AccessToken 초기화
     if (getAccessToken()) {
-      (globalThis as any).__tokenStore = { accessToken: null };
+      globalThis.__tokenStore = { accessToken: null };
     }
     mockPush.mockClear();
   });
@@ -435,7 +444,7 @@ describe("LoginForm - 자동 로그인 비활성화 플로우 테스트", () => 
               expiresIn: 108000,
             },
           },
-          { headers: { "Set-Cookie": cookies as unknown as any } }
+          { headers: { "Set-Cookie": cookies.join(", ") } }
         );
       })
     );
@@ -507,7 +516,6 @@ describe("LoginForm - 자동 로그인 비활성화 플로우 테스트", () => 
 
     // AccessToken도 없는 상태 (페이지 새로고침 시뮬레이션)
     // 이전 테스트의 영향을 받지 않도록 명시적으로 초기화
-    const { removeAccessToken, getAutoLoginFlag } = await import("@/shared/lib/auth");
     removeAccessToken();
 
     // AuthProvider 로직 시뮬레이션
@@ -529,12 +537,15 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
     localStorage.clear();
     // AccessToken 초기화
     if (getAccessToken()) {
-      (globalThis as any).__tokenStore = { accessToken: null };
+      globalThis.__tokenStore = { accessToken: null };
     }
     mockPush.mockClear();
     // window.location mock 초기화
-    delete (window as any).location;
-    (window as any).location = { href: "" };
+    Object.defineProperty(window, "location", {
+      value: { href: "" },
+      writable: true,
+      configurable: true,
+    });
   });
 
   afterEach(() => {
@@ -544,9 +555,6 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
   it("로그아웃 시 /api/auth/revoke 호출을 시도한다", async () => {
     // 초기 상태 설정: 로그인된 상태
     localStorage.setItem("autoLogin", "true");
-
-    // logout 함수 동적 import
-    const { logout, setAccessToken, getAccessToken } = await import("@/shared/lib/auth");
     setAccessToken("AT-TEST-TOKEN");
 
     // 로그아웃 실행 (API 호출은 실패할 수 있지만 클라이언트 정리는 수행됨)
@@ -561,7 +569,7 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
   it("로그아웃 시 localStorage에서 autoLogin 플래그가 제거된다", async () => {
     // 초기 상태 설정: 로그인된 상태
     localStorage.setItem("autoLogin", "true");
-    (globalThis as any).__tokenStore = { accessToken: "AT-TEST-TOKEN" };
+    setAccessToken("AT-TEST-TOKEN");
 
     // API 모킹
     server.use(
@@ -583,9 +591,6 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
         });
       })
     );
-
-    // logout 함수 동적 import
-    const { logout, getAutoLoginFlag } = await import("@/shared/lib/auth");
 
     // 로그아웃 실행
     await logout();
@@ -598,7 +603,7 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
   it("로그아웃 시 AccessToken이 메모리에서 제거된다", async () => {
     // 초기 상태 설정: 로그인된 상태
     localStorage.setItem("autoLogin", "true");
-    (globalThis as any).__tokenStore = { accessToken: "AT-TEST-TOKEN" };
+    setAccessToken("AT-TEST-TOKEN");
 
     // API 모킹
     server.use(
@@ -620,9 +625,6 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
         });
       })
     );
-
-    // logout 함수 동적 import
-    const { logout, getAccessToken } = await import("@/shared/lib/auth");
 
     // 로그아웃 실행
     await logout();
@@ -634,7 +636,7 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
   it("로그아웃 시 로그인 페이지로 리다이렉트된다", async () => {
     // 초기 상태 설정: 로그인된 상태
     localStorage.setItem("autoLogin", "true");
-    (globalThis as any).__tokenStore = { accessToken: "AT-TEST-TOKEN" };
+    setAccessToken("AT-TEST-TOKEN");
 
     // API 모킹
     server.use(
@@ -656,9 +658,6 @@ describe("LoginForm - 로그아웃 플로우 테스트", () => {
         });
       })
     );
-
-    // logout 함수 동적 import
-    const { logout } = await import("@/shared/lib/auth");
 
     // 로그아웃 실행
     await logout();
