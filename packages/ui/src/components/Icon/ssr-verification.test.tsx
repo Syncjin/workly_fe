@@ -1,6 +1,8 @@
 import { renderToString } from "react-dom/server";
 import { beforeEach, describe, expect, it } from "vitest";
+
 import { iconCache } from "./IconCache";
+
 import Icon from "./index";
 
 // Next.js SSR 환경 시뮬레이션을 위한 테스트

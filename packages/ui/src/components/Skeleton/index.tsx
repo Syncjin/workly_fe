@@ -1,4 +1,5 @@
 import React from "react";
+
 import * as styles from "./skeleton.css";
 
 type SkeletonProps = React.HTMLAttributes<HTMLDivElement> & {

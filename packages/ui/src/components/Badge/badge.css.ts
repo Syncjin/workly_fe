@@ -1,5 +1,6 @@
 import { style, styleVariants } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
+
 import { colorGroups, colorLevels, ColorVariant } from "../../theme/colorTokens";
 
 export const baseBadge = {
@@ -27,6 +28,7 @@ const colorCompoundVariants: {
 }[] = [];
 colorGroups.forEach((group) => {
   colorLevels.forEach((level) => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const color = `${group}-${level}` as BadgeColor;
     colorCompoundVariants.push({
       variants: { color },

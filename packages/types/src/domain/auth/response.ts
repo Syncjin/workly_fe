@@ -1,7 +1,9 @@
-type MessageResponse = {
+export type AuthForgotIdResponse = {
   message: string;
 };
-
-export interface AuthForgotIdResponse extends MessageResponse {}
-export interface AuthForgotPasswordResponse extends MessageResponse {}
-export interface AuthResetPasswordResponse extends MessageResponse {}
+export type AuthForgotPasswordResponse = {
+  message: string;
+};
+export type AuthResetPasswordResponse = {
+  message: string;
+};

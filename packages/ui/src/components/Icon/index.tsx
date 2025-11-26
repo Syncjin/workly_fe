@@ -1,18 +1,20 @@
 "use client";
-import type { IconName } from "@workly/icons";
 import React from "react";
+
 import { useIconCache } from "./useIconCache";
+
+import type { IconName } from "@workly/icons";
 
 type ColorVariant = string; // TODO: Import from shared styles
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
   size?: { width: number; height: number } | number;
-  color?: string | ColorVariant;
+  color?: string;
 }
 
 function isColorVariant(color?: string): color is ColorVariant {
-  return !!color && /^([a-z\-]+)-(25|50|100|200|300|400|500|600|700|800|900)$/.test(color);
+  return !!color && /^([a-z-]+)-(25|50|100|200|300|400|500|600|700|800|900)$/.test(color);
 }
 
 const Icon: React.FC<IconProps> = React.memo(({ name, size = 20, color = "currentColor", className, style, ...props }) => {

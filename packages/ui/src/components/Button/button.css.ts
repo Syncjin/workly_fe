@@ -1,5 +1,6 @@
 import { createVar, keyframes, style, styleVariants } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
+
 import { colorGroups, colorLevels, type ColorVariant } from "../../theme/colorTokens";
 import { components } from "../../theme/layers.css";
 export const btnBg = createVar();
@@ -153,7 +154,7 @@ function mapSolid(group: string, level: Tone) {
   } as const;
 }
 
-function mapLight(group: string, _level: Tone) {
+function mapLight(group: string) {
   return {
     vars: {
       [btnBg]: `var(--color-${group}-50)`,
@@ -181,7 +182,7 @@ function mapLight(group: string, _level: Tone) {
   } as const;
 }
 
-function mapBorder(group: string, _level: Tone) {
+function mapBorder(group: string) {
   return {
     vars: {
       [btnBg]: "transparent",
@@ -208,7 +209,7 @@ function mapBorder(group: string, _level: Tone) {
   } as const;
 }
 
-function mapGhost(group: string, _level: Tone) {
+function mapGhost(group: string) {
   return {
     vars: {
       [btnBg]: "transparent",
@@ -229,7 +230,7 @@ function mapGhost(group: string, _level: Tone) {
   } as const;
 }
 
-function mapLink(group: string, _level: Tone) {
+function mapLink(group: string) {
   return {
     vars: {
       [btnBg]: "transparent",
@@ -254,13 +255,13 @@ function styleFor(variant: ButtonVariant, color: ButtonColor) {
     case "solid":
       return mapSolid(group, level);
     case "light":
-      return mapLight(group, level);
+      return mapLight(group);
     case "border":
-      return mapBorder(group, level);
+      return mapBorder(group);
     case "ghost":
-      return mapGhost(group, level);
+      return mapGhost(group);
     case "link":
-      return mapLink(group, level);
+      return mapLink(group);
   }
 }
 
@@ -280,10 +281,11 @@ export const buttonRecipe = recipe({
     color: Object.fromEntries(colorGroups.flatMap((group) => colorLevels.map((level) => [`${group}-${level}`, placeholder]))) as Record<ButtonColor, string>,
   },
   compoundVariants: (() => {
-    const list: { variants: { variant: ButtonVariant; color: ButtonColor }; style: any }[] = [];
+    const list: { variants: { variant: ButtonVariant; color: ButtonColor }; style: ReturnType<typeof styleFor> }[] = [];
     (["solid", "light", "border", "ghost", "link"] as ButtonVariant[]).forEach((variant) => {
       colorGroups.forEach((group) => {
         colorLevels.forEach((level) => {
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           const color = `${group}-${level}` as ButtonColor;
           list.push({
             variants: { variant, color },

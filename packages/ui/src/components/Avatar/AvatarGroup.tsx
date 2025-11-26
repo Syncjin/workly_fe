@@ -1,6 +1,8 @@
 import React from "react";
+
 import { avatarSize } from "./avatar.css";
 import { avatarGroupContainer, avatarGroupItem, avatarGroupOverflow, avatarGroupOverflowBase } from "./avatarGroup.css";
+
 import Avatar from "./index";
 
 interface AvatarGroupProps {

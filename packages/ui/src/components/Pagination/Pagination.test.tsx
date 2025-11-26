@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import Pagination from "./index";
 
 describe("Pagination 컴포넌트", () => {

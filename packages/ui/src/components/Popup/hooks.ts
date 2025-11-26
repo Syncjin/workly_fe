@@ -87,7 +87,7 @@ export function useFocusTrap(open: boolean, trap: boolean, rootRef: RefLike) {
 
     const node = rootRef.current;
     const q = 'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"]):not([disabled])';
-    const list = Array.from(node.querySelectorAll(q)) as HTMLElement[];
+    const list = Array.from(node.querySelectorAll<HTMLElement>(q));
     list[0]?.focus();
 
     const keyHandler = (e: KeyboardEvent) => {

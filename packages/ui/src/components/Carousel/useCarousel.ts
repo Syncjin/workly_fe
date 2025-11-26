@@ -68,22 +68,23 @@ export const useCarousel = ({ children, autoSlide, autoSlideInterval, onSlideCha
   useEffect(() => {
     startAutoSlide();
     return () => clearExistingInterval();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSlide, autoSlideInterval]);
 
   useEffect(() => {
     if (!transition) {
-      let frame: number;
-      let timeout: NodeJS.Timeout;
-
-      frame = requestAnimationFrame(() => {
-        timeout = setTimeout(() => {
+      const frame = requestAnimationFrame(() => {
+        const timeout = setTimeout(() => {
           setTransition(true);
         }, 32); // 1 frame 정도의 여유
+
+        return () => {
+          clearTimeout(timeout);
+        };
       });
 
       return () => {
         cancelAnimationFrame(frame);
-        clearTimeout(timeout);
       };
     }
   }, [transition]);

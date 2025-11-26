@@ -1,7 +1,9 @@
 "use client";
 
 import { FC, ReactNode, useContext } from "react";
+
 import { cx } from "../../theme/classes";
+
 import PopupContext from "./context";
 import * as styles from "./popup.css";
 

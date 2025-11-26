@@ -1,4 +1,5 @@
 import React from "react";
+
 import { inputHintVariants } from "./inputHint.css";
 
 type InputHintProps = {

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+
 import Icon from "../Icon";
+
 import { activeDot, arrowButton, carouselContainer, carouselInner, carouselItem, dot, dotsContainer, dotsWrapper, noTransition } from "./carousel.css";
 import { useCarousel } from "./useCarousel";
 import { usePrevious } from "./usePrevious";
@@ -76,6 +78,7 @@ const Carousel = ({ children, autoSlide = false, autoSlideInterval = 3000, size 
         width: dotSize,
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, transition, prevIndex, length, extendedSlides.length, dotSize, dotGap, currentDotIndex]);
 
   return (

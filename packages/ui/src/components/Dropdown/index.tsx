@@ -1,8 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useRef, useState } from "react";
+
 import { useClickOutside } from "../../hooks";
 import { cx } from "../../theme/classes";
+
 import * as styles from "./dropdown.css";
 
 export type DropdownClassNames = {

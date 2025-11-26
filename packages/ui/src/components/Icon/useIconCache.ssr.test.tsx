@@ -2,11 +2,14 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { iconCache } from "./IconCache";
 import { useIconCache } from "./useIconCache";
 
+import type { IconName } from "@workly/icons";
+
 // 테스트용 컴포넌트
-function TestIconComponent({ name }: { name: any }) {
+function TestIconComponent({ name }: { name: IconName }) {
   const { component, isLoading, error } = useIconCache(name);
 
   return (
@@ -59,7 +62,7 @@ describe("useIconCache SSR 호환성", () => {
   it("서버 스냅샷이 안정적인 참조를 가진다", () => {
     const TestComponent = () => {
       const result1 = useIconCache("add-line");
-      const result2 = useIconCache("check-line");
+      useIconCache("check-line");
 
       return (
         <div>
@@ -120,7 +123,7 @@ describe("useIconCache SSR 호환성", () => {
 
   it("서버와 클라이언트 간 하이드레이션 불일치가 발생하지 않는다", () => {
     // 서버 렌더링
-    const serverHtml = renderToString(<TestIconComponent name="add-line" />);
+    renderToString(<TestIconComponent name="add-line" />);
 
     // 클라이언트 초기 렌더링
     const { container } = render(<TestIconComponent name="add-line" />);

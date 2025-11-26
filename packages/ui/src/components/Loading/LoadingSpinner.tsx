@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import * as s from "./loadingSpinner.css";
 
 type SpinnerSize = "sm" | "md" | "lg" | number;
@@ -20,10 +21,10 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = "md", thi
 
   const inlineStyle: React.CSSProperties = {
     ...(typeof size === "number" ? { width: size, height: size } : null),
-    ...(typeof thickness === "number" ? { ["--spinner-bw" as any]: `${thickness}px` } : null),
+    ...(typeof thickness === "number" ? { ["--spinner-bw"]: `${thickness}px` } : null),
     color, // arc 색상은 currentColor로 처리
     ...style,
-  };
+  } as React.CSSProperties;
 
   return (
     <div className={s.wrapper} role="status" aria-live="polite" {...rest}>

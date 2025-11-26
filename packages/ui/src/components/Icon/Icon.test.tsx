@@ -1,14 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
 import Icon from "./index";
 
 // SVG 파일 모킹
 vi.mock("@workly/icons/svgs/add-line.svg", () => ({
-  default: (props: any) => <svg {...props} data-testid="mocked-svg" />,
+  default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} data-testid="mocked-svg" />,
 }));
 
 vi.mock("@workly/icons/svgs/check-line.svg", () => ({
-  default: (props: any) => <svg {...props} data-testid="mocked-svg" />,
+  default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} data-testid="mocked-svg" />,
 }));
 
 describe("Icon 컴포넌트", () => {

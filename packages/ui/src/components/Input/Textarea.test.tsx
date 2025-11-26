@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
 import { Textarea } from "./Textarea";
 
 describe("Textarea 컴포넌트", () => {

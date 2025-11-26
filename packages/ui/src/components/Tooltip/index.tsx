@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+
 import * as styles from "./tooltip.css";
 
 interface TooltipProps {
@@ -54,7 +55,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ content, children, position = 
     onBlur: hideTooltip,
     onKeyDown: handleKeyDown,
     "aria-describedby": shouldShow ? "tooltip" : undefined,
-  } as any);
+  } as React.HTMLAttributes<HTMLElement>);
 
   return (
     <div className={styles.container}>
