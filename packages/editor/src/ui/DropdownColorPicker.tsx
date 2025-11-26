@@ -3,6 +3,7 @@
 import { assignInlineVars } from "@vanilla-extract/dynamic";
 import { Dropdown, useDropdown } from "@workly/ui";
 import { useMemo, useState } from "react";
+
 import * as s from "./dropdownColorPicker.css";
 import { colorVar } from "./dropdownColorPicker.css";
 

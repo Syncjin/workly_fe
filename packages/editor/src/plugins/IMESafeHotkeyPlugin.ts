@@ -11,7 +11,7 @@ export function IMESafeHotkeyPlugin() {
     return editor.registerCommand(
       KEY_DOWN_COMMAND,
       (event: KeyboardEvent) => {
-        if ((event as any).isComposing) return true; // 조합 중 핸들링 차단
+        if ((event as KeyboardEvent & { isComposing?: boolean }).isComposing) return true; // 조합 중 핸들링 차단
         return false;
       },
       COMMAND_PRIORITY_LOW

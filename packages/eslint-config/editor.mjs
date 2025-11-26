@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default [
-  { ignores: ['dist/**', 'build/**', 'coverage/**', '.turbo/**'] },
+  { ignores: ['dist/**', 'build/**', 'coverage/**', '.turbo/**', '*.config.mjs', '*.config.ts'] },
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked, 
 

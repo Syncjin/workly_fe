@@ -2,7 +2,9 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $insertNodes, createCommand } from "lexical";
 import { useCallback, useEffect } from "react";
+
 import { $createImageNode, ImageNode, type InsertImagePayload } from "../nodes/ImageNode";
+
 import { ImageFileManager } from "./ImageFileManager";
 
 export const INSERT_IMAGE_COMMAND = createCommand<InsertImagePayload>("INSERT_IMAGE_COMMAND");
@@ -42,7 +44,6 @@ export default function ImagePlugin({
   const handleError = useCallback(
     (e: unknown) => {
       const err = e instanceof Error ? e : new Error(String(e));
-      console.error("[ImagePlugin]", err);
       onError?.(err);
     },
     [onError]
@@ -58,7 +59,6 @@ export default function ImagePlugin({
       INSERT_IMAGE_COMMAND,
       (payload) => {
         try {
-          console.log("payload", payload);
           $insertNodes([$createImageNode(payload)]);
           return true;
         } catch (e) {
@@ -69,44 +69,6 @@ export default function ImagePlugin({
       0
     );
   }, [editor, handleError]);
-
-  useEffect(() => {
-    return editor.registerRootListener((rootElem, prevRootElem) => {
-      if (prevRootElem) {
-        prevRootElem.removeEventListener("paste", onPaste as EventListener);
-        prevRootElem.removeEventListener("drop", onDrop as EventListener);
-        prevRootElem.removeEventListener("dragover", onDragOver as EventListener);
-      }
-      if (rootElem) {
-        rootElem.addEventListener("paste", onPaste as EventListener);
-        rootElem.addEventListener("drop", onDrop as EventListener);
-        rootElem.addEventListener("dragover", onDragOver as EventListener);
-      }
-    });
-  }, [editor, handleError]);
-
-  const handleIncomingImage = useCallback(
-    (file: File, fallbackAlt: string) => {
-      const check = validateImageFile(file);
-      if (!check.isValid) throw new Error(check.error);
-
-      const tempId = uuid();
-      const objectURL = URL.createObjectURL(file);
-
-      fileManager?.rememberFile(tempId, file);
-
-      editor.update(() => {
-        $insertNodes([
-          $createImageNode({
-            src: objectURL,
-            altText: file.name || fallbackAlt,
-            tempId,
-          }),
-        ]);
-      });
-    },
-    [editor, fileManager]
-  );
 
   const onPaste = useCallback(
     (e: ClipboardEvent) => {
@@ -145,6 +107,44 @@ export default function ImagePlugin({
     const hasImage = files.some((f) => f.type.startsWith("image/"));
     if (hasImage) e.preventDefault();
   }, []);
+
+  useEffect(() => {
+    return editor.registerRootListener((rootElem, prevRootElem) => {
+      if (prevRootElem) {
+        prevRootElem.removeEventListener("paste", onPaste as EventListener);
+        prevRootElem.removeEventListener("drop", onDrop as EventListener);
+        prevRootElem.removeEventListener("dragover", onDragOver as EventListener);
+      }
+      if (rootElem) {
+        rootElem.addEventListener("paste", onPaste as EventListener);
+        rootElem.addEventListener("drop", onDrop as EventListener);
+        rootElem.addEventListener("dragover", onDragOver as EventListener);
+      }
+    });
+  }, [editor, onPaste, onDrop, onDragOver]);
+
+  const handleIncomingImage = useCallback(
+    (file: File, fallbackAlt: string) => {
+      const check = validateImageFile(file);
+      if (!check.isValid) throw new Error(check.error);
+
+      const tempId = uuid();
+      const objectURL = URL.createObjectURL(file);
+
+      fileManager?.rememberFile(tempId, file);
+
+      editor.update(() => {
+        $insertNodes([
+          $createImageNode({
+            src: objectURL,
+            altText: file.name || fallbackAlt,
+            tempId,
+          }),
+        ]);
+      });
+    },
+    [editor, fileManager]
+  );
 
   useEffect(() => {
     ImageNode.setContainerMaxWidth(contentMaxWidth);

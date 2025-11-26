@@ -3,9 +3,9 @@ import { TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $isListNode, REMOVE_LIST_COMMAND } from "@lexical/list";
 import { $isHeadingNode } from "@lexical/rich-text";
 import { $patchStyleText, $setBlocksType } from "@lexical/selection";
-import { $createParagraphNode, $getSelection, $isElementNode, $isRangeSelection, $isTextNode } from "lexical";
+import { $createParagraphNode, $getSelection, $isElementNode, $isRangeSelection, $isTextNode, type LexicalEditor } from "lexical";
 
-export function clearFormatting(editor: any) {
+export function clearFormatting(editor: LexicalEditor) {
   editor.update(() => {
     const selection = $getSelection();
     if (!$isRangeSelection(selection)) return;

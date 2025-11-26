@@ -4,6 +4,7 @@
 export type JSONNode = {
   type?: string;
   children?: JSONNode[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };
 

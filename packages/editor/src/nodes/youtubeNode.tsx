@@ -1,8 +1,10 @@
 import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { DecoratorBlockNode, SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
-import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 import { JSX } from "react";
+
 import { YouTubeView } from "./YouTubeView";
+
+import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 
 export type SerializedYouTubeNode = Spread<
   {
@@ -112,7 +114,6 @@ export class YouTubeNode extends DecoratorBlockNode {
     if (oldWidth !== newWidth || oldHeight !== newHeight) {
       writable.__width = newWidth;
       writable.__height = newHeight;
-      console.log(`YouTubeNode 크기 업데이트: ${oldWidth}x${oldHeight} → ${newWidth}x${newHeight}`);
 
       // 노드 변경 사항을 에디터에 알림
       writable.markDirty();
@@ -127,7 +128,7 @@ export class YouTubeNode extends DecoratorBlockNode {
     return this.__height;
   }
 
-  getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
+  getTextContent(): string {
     return `https://www.youtube.com/watch?v=${this.__id}`;
   }
 
