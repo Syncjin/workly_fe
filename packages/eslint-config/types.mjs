@@ -6,15 +6,8 @@ export default [
   { ignores: ['dist/**', 'build/**', 'coverage/**', '.turbo/**', '*.config.mjs', '*.config.ts'] },
 
   js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked, 
+  ...tseslint.configs.recommended,
   {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,  
-        tsconfigRootDir: process.cwd(),
-        sourceType: 'module',
-      },
-    },
     plugins: { import: importPlugin },
     rules: {
       // import 정렬 정도만

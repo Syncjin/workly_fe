@@ -8,15 +8,8 @@ export default [
   { ignores: ['dist/**', 'build/**', 'coverage/**', '.turbo/**', '*.config.mjs', '*.config.ts'] },
 
   js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommended,
   {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: process.cwd(),
-        sourceType: 'module',
-      },
-    },
     plugins: { react, 'react-hooks': reactHooks, import: importPlugin },
     settings: { react: { version: 'detect' } },
     rules: {
