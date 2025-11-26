@@ -2,6 +2,7 @@
   "name": "workly",
   "version": "0.1.0",
   "private": true,
+  "prettier": "@workly/prettier-config",
   "scripts": {
     "dev": "next dev",
     "dev:staging": "NEXT_PUBLIC_ENV=staging next dev",
@@ -13,6 +14,7 @@
     "start:staging": "NEXT_PUBLIC_ENV=staging next start",
     "start:production": "NEXT_PUBLIC_ENV=production next start",
     "lint": "next lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -52,15 +54,14 @@
     "@vanilla-extract/vite-plugin": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@workly/eslint-config": "workspace:*",
+    "@workly/prettier-config": "workspace:*",
     "@workly/tsconfig": "workspace:*",
     "@workly/types": "workspace:*",
     "eslint": "catalog:",
     "eslint-config-next": "catalog:",
-    "eslint-config-prettier": "catalog:",
-    "eslint-plugin-prettier": "catalog:",
     "msw": "^2.11.1",
     "node-mocks-http": "^1.17.2",
-    "prettier": "^3.6.2",
+    "prettier": "catalog:",
     "ts-node": "catalog:",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "catalog:",

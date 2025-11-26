@@ -12,4 +12,3 @@ export const Popup = Object.assign(PopupRoot, {
 
 export { usePopupRef } from "./context";
 export * from "./types";
-

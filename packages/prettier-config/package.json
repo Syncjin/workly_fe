@@ -1,0 +1,9 @@
+{
+  "name": "@workly/prettier-config",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.cjs",
+  "peerDependencies": {
+    "prettier": ">= 3"
+  }
+}

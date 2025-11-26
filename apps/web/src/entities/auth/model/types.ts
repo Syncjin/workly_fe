@@ -4,10 +4,14 @@
  * Auth 인증 관련
  */
 
-import type { UserLoginRequest as UserLoginRequestDTO, UserLoginResponse as UserLoginResponseDTO } from "@workly/types/domain";
+import type { UserLoginRequest as UserLoginRequestDTO, UserLoginResponse as UserLoginResponseDTO } from "@workly/types";
 
-export interface UserLoginRequest extends UserLoginRequestDTO {}
+export type { AuthForgotIdRequest, AuthForgotIdResponse, AuthForgotPasswordRequest, AuthForgotPasswordResponse, AuthResetPasswordRequest, AuthResetPasswordResponse, AuthRevokeRequest } from "@workly/types";
 
-export interface UserLoginResponse extends UserLoginResponseDTO {
+export type UserLoginRequest = UserLoginRequestDTO & {
+  autoLogin?: boolean;
+};
+
+export type UserLoginResponse = UserLoginResponseDTO & {
   csrfToken?: string;
-}
+};

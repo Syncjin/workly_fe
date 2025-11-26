@@ -12,7 +12,9 @@ interface ApiPagination<T = unknown> {
   data?: T[];
 }
 import React, { useMemo } from "react";
+
 import Icon from "../Icon";
+
 import * as s from "./pagination.css";
 
 interface PaginationProps<T = unknown> {
@@ -37,17 +39,20 @@ export default function Pagination<T = unknown>({ pagination, onPageChange, sibl
     }
 
     if (typeof page !== "number" || page < 1 || page > totalPages) {
+      // eslint-disable-next-line no-console
       console.warn("Pagination: Invalid page number", page);
       return [];
     }
 
     if (typeof totalItems !== "number" || totalItems < 0) {
+      // eslint-disable-next-line no-console
       console.warn("Pagination: Invalid totalItems", totalItems);
       return [];
     }
 
     // Additional validation for boolean properties
     if (typeof hasPrev !== "boolean" || typeof hasNext !== "boolean") {
+      // eslint-disable-next-line no-console
       console.warn("Pagination: Invalid hasPrev or hasNext values");
       return [];
     }
@@ -100,6 +105,7 @@ export default function Pagination<T = unknown>({ pagination, onPageChange, sibl
   }
 
   if (!onPageChange) {
+    // eslint-disable-next-line no-console
     console.warn("Pagination: onPageChange callback is required");
     return null;
   }

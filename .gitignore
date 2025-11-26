@@ -129,3 +129,6 @@ Thumbs.db
 .jest/
 test-results/
 playwright-report/
+
+# AI
+.kiro/

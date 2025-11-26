@@ -1,6 +1,6 @@
 import "./layers.order.css.ts";
 
-import "./fonts.css.ts"; // Pretendard @font-face
+// Pretendard font is now loaded via Next.js font optimization in layout.tsx
 import "./theme.css.ts"; // --background / --foreground, 다크모드
 import "./tokens.css.ts"; // createGlobalTheme로 --color-* 바인딩
 
@@ -14,12 +14,20 @@ globalStyle("h1, h2, h3, h4, h5, h6", {
   "@layer": { [layers.components]: { margin: 0 } },
 });
 
-// body 기본 폰트/배경/전경
+// html, body 기본 폰트 설정
+globalStyle("html, body", {
+  "@layer": {
+    [layers.components]: {
+      fontFamily: "var(--font-pretendard), system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    },
+  },
+});
+
+// body 기본 스타일
 globalStyle("body", {
   "@layer": {
     [layers.components]: {
       margin: 0,
-      fontFamily: ["Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui", "Roboto", '"Helvetica Neue"', '"Segoe UI"', '"Apple SD Gothic Neo"', '"Noto Sans KR"', '"Malgun Gothic"', "sans-serif"].join(", "),
       backgroundColor: "var(--background)",
       color: "var(--foreground)",
     },

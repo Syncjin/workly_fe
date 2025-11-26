@@ -1,5 +1,6 @@
 import { style, styleVariants } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
+
 import { colorGroups, colorLevels, type ColorVariant } from "../../theme/colorTokens";
 import { buildVariantMap } from "../../theme/colorVariants";
 
@@ -44,15 +45,17 @@ export const sizeVariants = styleVariants({
   },
 });
 
-export const variantStyles = buildVariantMap(colorGroups, colorLevels, (group, level) => style({
-  backgroundColor: `var(--color-${group}-${level})`,
-  color: "#222",
-  selectors: {
-    "&:focus": {
-      borderColor: `var(--color-${group}-${level})`,
+export const variantStyles = buildVariantMap(colorGroups, colorLevels, (group, level) =>
+  style({
+    backgroundColor: `var(--color-${group}-${level})`,
+    color: "#222",
+    selectors: {
+      "&:focus": {
+        borderColor: `var(--color-${group}-${level})`,
+      },
     },
-  },
-}));
+  })
+);
 
 export const inputStatus = styleVariants({
   default: {

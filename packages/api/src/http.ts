@@ -1,4 +1,6 @@
 // packages/api/src/http.ts
+import { isPublicApiEndpoint } from "./auth-config";
+
 import type { ApiResponse } from "@workly/types/common";
 
 export type ServiceKey = "main" | "admin";
@@ -12,15 +14,16 @@ export interface AuthConfig {
   getAccessToken?: () => string | null | undefined;
   getCsrfToken?: () => string | null | undefined;
   refreshAccessToken?: () => Promise<string | null | undefined>;
+  publicApiPatterns?: readonly string[];
 }
 
 export interface HttpClientOptions {
   baseUrls: BaseUrls;
   defaultService?: ServiceKey;
-  routeOverrides?: Record<string, string>;    // e.g. {"/auth/login": "/api/auth/login"}
-  serviceRules?: ServiceRule[];               // e.g. [/^\/admin/ => "admin"]
+  routeOverrides?: Record<string, string>; // e.g. {"/auth/login": "/api/auth/login"}
+  serviceRules?: ServiceRule[]; // e.g. [/^\/admin/ => "admin"]
   auth?: AuthConfig;
-  environment?: string;                       // X-Environment 헤더용
+  environment?: string; // X-Environment 헤더용
   debug?: boolean;
 }
 
@@ -50,15 +53,7 @@ async function parseApiJsonSafe<T>(res: Response): Promise<ApiResponse<T>> {
 }
 
 export function createHttpClient(opts: HttpClientOptions) {
-  const {
-    baseUrls,
-    defaultService = "main",
-    routeOverrides = {},
-    serviceRules = [{ pattern: /^\/admin(\/|$)/i, service: "admin" }],
-    auth,
-    environment,
-    debug = false,
-  } = opts;
+  const { baseUrls, defaultService = "main", routeOverrides = {}, serviceRules = [{ pattern: /^\/admin(\/|$)/i, service: "admin" }], auth, environment, debug = false } = opts;
 
   const normalize = (ep: string) => (ep.startsWith("/") ? ep : `/${ep}`);
   const getBaseUrl = (service: ServiceKey) => {
@@ -88,81 +83,113 @@ export function createHttpClient(opts: HttpClientOptions) {
     return `${base}/${ep}`;
   };
 
-  async function ensureAccessTokenIfNeeded(endpoint: string) {
-    const key = normalize(endpoint);
-    const skip = Object.prototype.hasOwnProperty.call(routeOverrides, key);
-    if (skip || !auth?.refreshAccessToken || auth?.getAccessToken?.()) return;
+  function isFormDataBody(b: unknown): b is FormData {
+    return typeof FormData !== "undefined" && b instanceof FormData;
+  }
 
+  async function refreshAndRetry<T>(req: RequestInit, url: string): Promise<ApiResponse<T>> {
     if (!inflightRefresh) {
-      inflightRefresh = auth.refreshAccessToken().finally(() => {
+      inflightRefresh = auth!.refreshAccessToken!().finally(() => {
         inflightRefresh = null;
       });
     }
-    await inflightRefresh;
+
+    const newToken = await inflightRefresh;
+
+    if (newToken) {
+      // 새 토큰으로 헤더 교체
+      const newHeaders = new Headers(req.headers);
+      newHeaders.set("Authorization", `Bearer ${newToken}`);
+
+      const retryRes = await fetch(url, { ...req, headers: newHeaders });
+
+      if (retryRes.ok) return parseApiJsonSafe<T>(retryRes);
+
+      // 재시도도 실패하면 에러
+      const retryText = await retryRes.text().catch(() => "");
+      const error = new Error(retryText || `HTTP ${retryRes.status}`);
+      Object.assign(error, { status: retryRes.status });
+      throw error;
+    } else {
+      const error = new Error("Session expired, unable to refresh.");
+      Object.assign(error, { status: 401 });
+      throw error;
+    }
   }
-
   async function request<T>(method: string, endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
-    await ensureAccessTokenIfNeeded(endpoint);
-
     const service = resolveService(endpoint, options.service);
     const url = getFullUrl(endpoint, service, options.absolute);
 
-    const defaultHeaders: HeadersInit = {
-      "Content-Type": "application/json",
+    const baseHeaders: Record<string, string> = {
       ...(environment ? { "X-Environment": environment } : {}),
     };
 
     const at = auth?.getAccessToken?.();
-    if (at) (defaultHeaders as any).Authorization = `Bearer ${at}`;
-
+    if (at) baseHeaders.Authorization = `Bearer ${at}`;
     const csrf = auth?.getCsrfToken?.();
-    if (csrf) (defaultHeaders as any)["X-CSRF-TOKEN"] = csrf;
+    if (csrf) baseHeaders["x-csrf-token"] = csrf;
+
+    const body = options.body == null ? undefined : isFormDataBody(options.body) ? options.body : typeof options.body === "string" ? options.body : options.body;
+
+    // Content-Type 결정: FormData면 지정하지 않음(브라우저가 boundary 포함 자동 설정)
+    const isForm = isFormDataBody(body);
+
+    const headers: HeadersInit = {
+      ...(isForm ? {} : { "Content-Type": "application/json" }),
+      ...baseHeaders,
+      ...(options.headers ?? {}),
+    };
 
     const isLocalApi = typeof url === "string" && url.startsWith("/api/");
     const req: RequestInit = {
       method,
-      headers: { ...defaultHeaders, ...options.headers },
+      headers,
       credentials: isLocalApi ? "include" : options.credentials,
       ...options,
+      body, // 위에서 결정한 body 사용
     };
 
-    if (debug) console.debug("[http]", method, url, req);
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.debug("[http]", method, url, req);
+    }
 
     const res = await fetch(url, req);
 
     if (!res.ok) {
-      if (res.status === 401 && auth?.refreshAccessToken) {
-        const newToken = await auth.refreshAccessToken();
-        if (newToken) {
-          const retryHeaders: any = { ...defaultHeaders, ...options.headers, Authorization: `Bearer ${newToken}` };
-          const retryCsrf = auth.getCsrfToken?.();
-          if (retryCsrf) retryHeaders["X-CSRF-TOKEN"] = retryCsrf;
+      // 공개 API 엔드포인트는 refresh 로직 제외
+      const shouldSkipRefresh = isPublicApiEndpoint(url, auth?.publicApiPatterns);
 
-          const retryRes = await fetch(url, { ...req, headers: retryHeaders });
-          if (retryRes.ok) return parseApiJsonSafe<T>(retryRes);
-          const retryText = await retryRes.text().catch(() => "");
-          throw { message: retryText || `HTTP ${retryRes.status}`, status: retryRes.status } as any;
+      if (res.status === 401 && auth?.refreshAccessToken && !shouldSkipRefresh) {
+        if (debug) {
+          // eslint-disable-next-line no-console
+          console.debug("[http]", "Token expired (401). Attempting refresh and retry...");
         }
+        return refreshAndRetry<T>(req, url);
       }
       const text = await res.text().catch(() => "");
-      let json: any = {};
-      try { json = text ? JSON.parse(text) : {}; } catch {}
-      throw { message: json.message || `HTTP ${res.status}`, status: res.status, code: json.code } as any;
+      let json: { message?: string; code?: string } = {};
+      try {
+        json = text ? (JSON.parse(text) as { message?: string; code?: string }) : {};
+      } catch {
+        // ignore parse error
+      }
+      const error = new Error(json.message || `HTTP ${res.status}`);
+      Object.assign(error, { status: res.status, code: json.code });
+      throw error;
     }
 
     return parseApiJsonSafe<T>(res);
   }
 
   return {
-    get:  <T>(endpoint: string, options?: RequestOptions) => request<T>("GET", endpoint, options),
-    post: <T>(endpoint: string, body?: any, options?: RequestOptions) =>
-      request<T>("POST", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
-    put:  <T>(endpoint: string, body?: any, options?: RequestOptions) =>
-      request<T>("PUT", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
-    patch:<T>(endpoint: string, body?: any, options?: RequestOptions) =>
-      request<T>("PATCH", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
-    delete:<T>(endpoint: string, body?: any, options?: RequestOptions) =>
-      request<T>("DELETE", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    get: <T>(endpoint: string, options?: RequestOptions) => request<T>("GET", endpoint, options),
+    post: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("POST", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    postMultipart: <T>(endpoint: string, form: FormData, options?: RequestOptions) => request<T>("POST", endpoint, { ...options, body: form }),
+    put: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("PUT", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    patch: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("PATCH", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    patchMultipart: <T>(endpoint: string, form: FormData, options?: RequestOptions) => request<T>("PATCH", endpoint, { ...options, body: form }),
+    delete: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("DELETE", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
 
     // 간단 업로드(필요 시 확장)
     upload: async <T>(endpoint: string, file: File, options: RequestOptions = {}) => {
@@ -172,10 +199,12 @@ export function createHttpClient(opts: HttpClientOptions) {
       const fd = new FormData();
       fd.append("file", file);
 
-      const headers: HeadersInit = {};
-      const at = auth?.getAccessToken?.(); if (at) (headers as any).Authorization = `Bearer ${at}`;
-      const csrf = auth?.getCsrfToken?.(); if (csrf) (headers as any)["X-CSRF-TOKEN"] = csrf;
-      if (environment) (headers as any)["X-Environment"] = environment;
+      const headers: Record<string, string> = {};
+      const at = auth?.getAccessToken?.();
+      if (at) headers.Authorization = `Bearer ${at}`;
+      const csrf = auth?.getCsrfToken?.();
+      if (csrf) headers["x-csrf-token"] = csrf;
+      if (environment) headers["X-Environment"] = environment;
 
       const isLocalApi = url.startsWith("/api/");
       const res = await fetch(url, {

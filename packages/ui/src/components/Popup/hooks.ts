@@ -29,12 +29,7 @@ export function useEscapeClose(enabled: boolean, onClose?: () => void) {
 }
 
 /** 오버레이 클릭 시 닫기(팝업 내부 클릭 제외) */
-export function useOutsideClose(
-  popupRef: RefLike,
-  overlayRef: RefLike,
-  enabled: boolean,
-  onClose?: () => void
-) {
+export function useOutsideClose(popupRef: RefLike, overlayRef: RefLike, enabled: boolean, onClose?: () => void) {
   useEffect(() => {
     if (!enabled) return;
     const handler = (e: MouseEvent) => {
@@ -56,7 +51,9 @@ export function useVisibility(open: boolean, animationMs: number) {
 
   useEffect(() => {
     if (open) {
-      setVisible(true);
+      requestAnimationFrame(() => {
+        setVisible(true);
+      });
       return;
     }
     if (visible) {
@@ -90,16 +87,19 @@ export function useFocusTrap(open: boolean, trap: boolean, rootRef: RefLike) {
 
     const node = rootRef.current;
     const q = 'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"]):not([disabled])';
-    const list = Array.from(node.querySelectorAll(q)) as HTMLElement[];
+    const list = Array.from(node.querySelectorAll<HTMLElement>(q));
     list[0]?.focus();
 
     const keyHandler = (e: KeyboardEvent) => {
       if (e.key !== "Tab" || list.length === 0) return;
-      const first = list[0], last = list[list.length - 1];
+      const first = list[0],
+        last = list[list.length - 1];
       if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
+        e.preventDefault();
+        last.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
+        e.preventDefault();
+        first.focus();
       }
     };
 

@@ -1,6 +1,8 @@
 import { style } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
 
+import { components } from "../../theme/layers.css";
+
 export const selectContainer = style({
   display: "inline-block",
   position: "relative",
@@ -8,24 +10,59 @@ export const selectContainer = style({
 
 export const trigger = recipe({
   base: {
-    padding: "10px 14px",
-    border: "1px solid var(--color-gray-300)",
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    cursor: "pointer",
-    minWidth: "320px",
-    boxSizing: "border-box",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "8px",
-    transition: "box-shadow 0.2s",
+    "@layer": {
+      [components]: {
+        padding: "10px 14px",
+        border: "1px solid var(--color-gray-300)",
+        borderRadius: "8px",
+        backgroundColor: "#fff",
+        cursor: "pointer",
+        minWidth: "320px",
+        boxSizing: "border-box",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "8px",
+        transition: "box-shadow 0.2s",
+      },
+    },
   },
   variants: {
     focused: {
-      true: { boxShadow: "0 1px 2px 0 rgba(10, 13, 18, 0.05), 0 0 0 4px #E0EAFF" },
-      false: { boxShadow: "none" },
+      true: {
+        "@layer": {
+          [components]: {
+            boxShadow: "0 1px 2px 0 rgba(10, 13, 18, 0.05), 0 0 0 4px #E0EAFF",
+          },
+        },
+      },
+      false: {
+        "@layer": {
+          [components]: {
+            boxShadow: "none",
+          },
+        },
+      },
     },
+    variant: {
+      default: {},
+      iconButton: {
+        "@layer": {
+          [components]: {
+            padding: "8px",
+            minWidth: "40px",
+            maxWidth: "40px",
+            width: "40px",
+            height: "40px",
+            justifyContent: "center",
+            gap: "0",
+          },
+        },
+      },
+    },
+  },
+  defaultVariants: {
+    variant: "default",
   },
 });
 

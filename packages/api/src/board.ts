@@ -1,14 +1,18 @@
-import type { ApiResponse } from "@workly/types/common";
-import type { BoardDTO, BoardParams } from "@workly/types/domain";
+import { qs } from "@workly/utils";
+
+import type { ApiResponse, BoardDetailParams, BoardDTO, BoardParams } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createBoardApi(http: HttpClient) {
   return {
-    getBoards: async (): Promise<ApiResponse<BoardDTO[]>> => {
-      return http.get<BoardDTO[]>("/boards");
+    getBoards: async (params?: BoardParams): Promise<ApiResponse<BoardDTO[]>> => {
+      const query: string = qs({
+        categoryId: params?.categoryId ?? undefined,
+      });
+      return await http.get<BoardDTO[]>(`/boards${query}`);
     },
-    getBoardById: async (params: BoardParams): Promise<ApiResponse<BoardDTO>> => {
-      return http.get<BoardDTO>(`/boards/${params.boardId}`);
+    getBoardById: async (params: BoardDetailParams): Promise<ApiResponse<BoardDTO>> => {
+      return await http.get<BoardDTO>(`/boards/${params.boardId}`);
     },
   };
 }

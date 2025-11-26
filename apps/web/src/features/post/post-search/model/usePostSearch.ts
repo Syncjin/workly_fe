@@ -14,7 +14,7 @@ export const usePostSearch = (initialKeyword?: string): PostSearchState => {
     if (initialKeyword !== undefined && initialKeyword !== keyword) {
       setKeyword(initialKeyword);
     }
-  }, [initialKeyword]);
+  }, [initialKeyword, keyword]);
 
   const clearSearch = useCallback(() => {
     setKeyword("");

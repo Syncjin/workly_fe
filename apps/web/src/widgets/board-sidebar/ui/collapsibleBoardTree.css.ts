@@ -2,8 +2,13 @@ import { style } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
 
 export const nav = style({
-  padding: "4px 8px 16px",
+  padding: "4px 8px",
   flex: 1,
+  selectors: {
+    '&[data-empty="true"]': {
+      padding: 0,
+    },
+  },
 });
 export const rootList = style({ listStyle: "none", margin: 0, padding: 0 });
 export const categoryItem = style({ marginBottom: 6 });
@@ -19,6 +24,11 @@ export const headerButton = recipe({
     background: "transparent",
     cursor: "pointer",
     userSelect: "none",
+    selectors: {
+      "&:focus": {
+        outline: "none",
+      },
+    },
   },
   variants: {
     open: {
@@ -64,10 +74,21 @@ export const boardButton = recipe({
     cursor: "pointer",
     selectors: {
       "&:hover": { background: "var(--color-gray-200)" },
+      "&:focus": { outline: "none" },
       '&[aria-current="true"]': {
         background: "#eef2ff",
         color: "#1d4ed8",
         fontWeight: 600,
+      },
+    },
+    "@media": {
+      "(prefers-reduced-motion: reduce)": {
+        transition: "background-color 200ms ease, color 200ms ease",
+        selectors: {
+          "&:hover": {
+            transform: "none",
+          },
+        },
       },
     },
   },

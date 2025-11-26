@@ -1,5 +1,4 @@
-import type { ApiResponse } from "@workly/types/common";
-import type { BoardCategoryDTO } from "@workly/types/domain";
+import type { ApiResponse, BoardCategoryDTO } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createBoardCategoryApi(http: HttpClient) {

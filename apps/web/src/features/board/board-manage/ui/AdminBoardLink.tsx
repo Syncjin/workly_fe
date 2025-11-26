@@ -1,8 +1,10 @@
 "use client";
 
+import { PermissionGate } from "@/entities/permission";
+import { PERM } from "@/entities/permission/lib/policies";
+import { useBoardManagePermission } from "@/features/board/board-manage/model";
 import Link, { LinkProps } from "next/link";
 import { MouseEvent, useCallback } from "react";
-import { useBoardManagePermission } from "../model/useBoardManagePermission";
 
 type AdminBoardLinkProps = Omit<React.ComponentProps<typeof Link>, "href"> & {
   href?: LinkProps["href"];
@@ -11,20 +13,22 @@ type AdminBoardLinkProps = Omit<React.ComponentProps<typeof Link>, "href"> & {
 };
 
 export function AdminBoardLink({ className, children = "관리" }: AdminBoardLinkProps) {
-  const { isPermitted, isLoading, isError } = useBoardManagePermission();
+  const { allowed, isPending, isError } = useBoardManagePermission();
 
   const onClick = useCallback(
     (e: MouseEvent<HTMLAnchorElement>) => {
-      if (isLoading || isError || !isPermitted) e.preventDefault();
+      if (isPending || isError || !allowed) e.preventDefault();
     },
-    [isLoading, isError, isPermitted]
+    [isPending, isError, allowed]
   );
 
-  const disabled = isLoading || isError || !isPermitted;
+  const disabled = isPending || isError || !allowed;
 
   return (
-    <Link href="/admin/board" onClick={onClick} aria-disabled={disabled || undefined} className={[className].filter(Boolean).join(" ")}>
-      {children}
-    </Link>
+    <PermissionGate perm={PERM.BOARD_MANAGE} fallback={null}>
+      <Link href="/admin/board" onClick={onClick} aria-disabled={disabled || undefined} className={[className].filter(Boolean).join(" ")}>
+        {children}
+      </Link>
+    </PermissionGate>
   );
 }

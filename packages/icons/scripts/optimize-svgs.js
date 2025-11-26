@@ -27,7 +27,7 @@ for (const file of files) {
   const result = optimize(original, {
     path: file,
     ...svgoConfig,
-  });
+});
 
   fs.writeFileSync(file, result.data, "utf8");
   console.log(`Optimized: ${path.basename(file)}`);

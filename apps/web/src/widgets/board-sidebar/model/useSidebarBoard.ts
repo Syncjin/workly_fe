@@ -20,13 +20,13 @@ export function useSidebarBoardsSuspense() {
     select: selectCatMap,
   });
 
-  const boardQ = useBoardListSuspense<SidebarBoard[]>({
+  const boardQ = useBoardListSuspense<SidebarBoard[]>(undefined, {
     select: selectBoards,
   });
 
   const data = useMemo<SidebarGroup[]>(() => buildGroups(catQ.data, boardQ.data), [catQ.data, boardQ.data]);
 
-  const isFetching = catQ.isFetching || boardQ.isPending;
+  const isFetching = catQ.isFetching || boardQ.isFetching;
   const refetch = async () => Promise.all([catQ.refetch(), boardQ.refetch()]);
   return { data, isFetching, refetch };
 }

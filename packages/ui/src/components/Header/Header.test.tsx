@@ -1,90 +1,86 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
 import { Header } from "./index";
 
-// Mock the CSS module
-jest.mock("./Header.css", () => ({
-  header: "mock-header-class",
+// CSS 모듈 모킹
+vi.mock("./Header.css", () => ({
+  header: "mock-header",
   leftSection: "mock-left-section",
+  centerSection: "mock-center-section",
   rightSection: "mock-right-section",
+  menuButton: "mock-menu-button",
   logo: "mock-logo",
   iconButton: "mock-icon-button",
+  badge: "mock-badge",
+  avatar: "mock-avatar",
 }));
 
-// Mock the Icon component
-jest.mock("@/shared/ui/Icon", () => {
-  return function MockIcon({ name }: { name: string }) {
-    return <span data-testid={`icon-${name}`}>{name}</span>;
-  };
-});
-
-// Mock the Avatar component
-jest.mock("../Avatar", () => {
-  return function MockAvatar({ src, alt, size }: { src?: string; alt?: string; size: string }) {
-    return (
-      <div data-testid="avatar" data-src={src} data-alt={alt} data-size={size}>
-        Avatar
-      </div>
+describe("Header 컴포넌트", () => {
+  it("섹션들과 함께 Header가 렌더링된다", () => {
+    render(
+      <Header>
+        <Header.Left>
+          <div>왼쪽 콘텐츠</div>
+        </Header.Left>
+        <Header.Center>
+          <div>중앙 콘텐츠</div>
+        </Header.Center>
+        <Header.Right>
+          <div>오른쪽 콘텐츠</div>
+        </Header.Right>
+      </Header>
     );
-  };
-});
 
-describe("Header Component", () => {
-  it("should render with default styles when no className is provided", () => {
-    const { container } = render(<Header />);
-    const header = container.querySelector("header");
-
-    expect(header).toBeInTheDocument();
-    expect(header?.className).toContain("mock-header-class"); // Should contain the default style
+    expect(screen.getByText("왼쪽 콘텐츠")).toBeInTheDocument();
+    expect(screen.getByText("중앙 콘텐츠")).toBeInTheDocument();
+    expect(screen.getByText("오른쪽 콘텐츠")).toBeInTheDocument();
   });
 
-  it("should apply custom className alongside default styles", () => {
-    const customClass = "custom-header-class";
-    const { container } = render(<Header className={customClass} />);
-    const header = container.querySelector("header");
+  it("unstyled 속성을 올바르게 적용한다", () => {
+    const { container } = render(
+      <Header unstyled className="custom-header">
+        <Header.Left className="custom-left">왼쪽</Header.Left>
+      </Header>
+    );
 
-    expect(header).toBeInTheDocument();
-    expect(header?.className).toContain("mock-header-class"); // Should contain the default style
-    expect(header?.className).toContain(customClass); // Should contain the custom class
+    const header = container.querySelector("header");
+    expect(header).toHaveClass("custom-header");
+    expect(header).not.toHaveClass("mock-header"); // 기본 스타일이 없어야 함
   });
 
-  it("should handle empty className gracefully", () => {
-    const { container } = render(<Header className="" />);
-    const header = container.querySelector("header");
+  it("커스텀 as 속성을 지원한다", () => {
+    render(
+      <Header as="div" data-testid="custom-header">
+        <Header.Left>왼쪽</Header.Left>
+      </Header>
+    );
 
-    expect(header).toBeInTheDocument();
-    expect(header?.className).toContain("mock-header-class"); // Should contain the default style
-    expect(header?.className).not.toContain("  "); // Should not have double spaces
+    expect(screen.getByTestId("custom-header").tagName).toBe("DIV");
   });
 
-  it("should handle undefined className gracefully", () => {
-    const { container } = render(<Header className={undefined} />);
-    const header = container.querySelector("header");
+  it("Header 컨텍스트 외부에서 사용 시 에러를 발생시킨다", () => {
+    // 테스트를 위해 console.error 억제
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(header).toBeInTheDocument();
-    expect(header?.className).toContain("mock-header-class"); // Should contain the default style
+    expect(() => {
+      render(<Header.Left>왼쪽</Header.Left>);
+    }).toThrow("Header 하위 컴포넌트는 Header 내부에서만 사용할 수 있습니다.");
+
+    consoleSpy.mockRestore();
   });
 
-  it("should preserve all existing functionality with className prop", () => {
-    const mockHandlers = {
-      onLogoClick: jest.fn(),
-      onMenuClick: jest.fn(),
-      onSettingsClick: jest.fn(),
-      onNotificationsClick: jest.fn(),
-      onAvatarClick: jest.fn(),
-    };
+  it("MenuButton 컴포넌트를 렌더링한다", () => {
+    const handleClick = vi.fn();
+    render(
+      <Header>
+        <Header.Left>
+          <Header.MenuButton onClick={handleClick}>메뉴</Header.MenuButton>
+        </Header.Left>
+      </Header>
+    );
 
-    const { container } = render(<Header className="test-class" avatarUrl="test-avatar.jpg" {...mockHandlers} />);
-
-    const header = container.querySelector("header");
-    expect(header).toBeInTheDocument();
-    expect(header?.className).toContain("mock-header-class");
-    expect(header?.className).toContain("test-class");
-
-    // Verify all elements are still rendered
-    expect(container.querySelector('[data-testid="icon-menu-line"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="icon-logo-horizontal"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="icon-checkbox-line"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="icon-settings-2-line"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="avatar"]')).toBeInTheDocument();
+    const menuButton = screen.getByRole("button", { name: "메뉴" });
+    expect(menuButton).toBeInTheDocument();
   });
 });

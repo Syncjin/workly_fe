@@ -1,4 +1,4 @@
-import { styleVariants, style } from "@vanilla-extract/css";
+import { style, styleVariants } from "@vanilla-extract/css";
 
 export const baseTextarea = style({
   fontSize: "16px",

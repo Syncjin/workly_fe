@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+
 import Icon from "../Icon";
+
 import { checkboxBase, checkboxChecked, checkboxContainer, checkboxIconWrapper, checkboxSize } from "./checkbox.css";
 
 interface CheckBoxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -47,4 +49,3 @@ export const CheckBox: React.FC<CheckBoxProps> = ({ size = "md", checked, indete
     </span>
   );
 };
-

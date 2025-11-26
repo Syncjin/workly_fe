@@ -14,14 +14,25 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
-    "./overlays": { "types": "./dist/overlays/index.d.ts", "import": "./dist/overlays/index.js" }
+    "./overlays": {
+      "types": "./dist/overlays/index.d.ts",
+      "import": "./dist/overlays/index.js"
+    }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "prettier": "@workly/prettier-config",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@vanilla-extract/css": "catalog:",
@@ -41,6 +52,19 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vanilla-extract/esbuild-plugin": "^2.3.18",
-    "typescript": "catalog:"
+    "@vanilla-extract/vite-plugin": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@workly/eslint-config": "workspace:*",
+    "@workly/prettier-config": "workspace:*",
+    "@workly/tsconfig": "workspace:*",
+    "typescript": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "vitest": "catalog:",
+    "jsdom": "^20.0.3",
+    "vite-tsconfig-paths": "catalog:"
   }
 }

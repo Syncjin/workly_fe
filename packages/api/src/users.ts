@@ -1,5 +1,4 @@
-import type { ApiResponse } from "@workly/types/common";
-import type { UserDTO } from "@workly/types/domain";
+import type { ApiResponse, UserDTO } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createUsersApi(http: HttpClient) {

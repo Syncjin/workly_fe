@@ -21,6 +21,7 @@ catalog:
 
   "ts-node": ^10.9.2
   "typescript": ^5.8.3
+  "prettier": ^3.6.2
   "eslint-plugin-prettier": ^5.5.3
   "eslint-config-prettier": ^10.1.8
   "eslint-config-next": 15.4.1

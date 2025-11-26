@@ -13,6 +13,6 @@
     "declarationMap": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "*.config.ts", "*.config.mjs"],
   "exclude": ["node_modules", "dist"]
 }

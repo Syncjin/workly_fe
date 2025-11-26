@@ -1,4 +1,5 @@
 import React from "react";
+
 import { CheckBox } from "./CheckBox";
 import { descriptionStyle, fieldWrapper } from "./checkboxField.css";
 
@@ -34,4 +35,3 @@ export const CheckBoxField: React.FC<CheckBoxFieldProps> = ({ label, description
     )}
   </div>
 );
-

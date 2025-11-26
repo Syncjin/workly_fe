@@ -1,10 +1,7 @@
-/**
- * URL search parameters management hook
- * Provides centralized URL parameter updates with prefetch optimization
- */
+"use client";
 
+import type { PostListParams } from "@/entities/post";
 import { postApi, postQueryKeys } from "@/entities/post";
-import type { PostListParams } from "@/entities/post/model/types";
 import { log } from "@/lib/logger";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

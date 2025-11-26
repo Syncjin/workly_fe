@@ -3,6 +3,7 @@
 import { assignInlineVars } from "@vanilla-extract/dynamic";
 import { Dropdown, useDropdown } from "@workly/ui";
 import { useMemo, useState } from "react";
+
 import * as s from "./dropdownColorPicker.css";
 import { colorVar } from "./dropdownColorPicker.css";
 
@@ -22,7 +23,7 @@ export function DropdownColorPicker({ value, onChange, colors = DEFAULT_COLORS, 
   );
 
   return (
-    <Dropdown>
+    <Dropdown align="start">
       <Dropdown.Trigger>{trigger}</Dropdown.Trigger>
       <Dropdown.Menu>
         <MenuPanel title={title} value={value ?? ""} colors={colors} recent={recent} onChange={onChange} onRecentChange={onRecentChange} />

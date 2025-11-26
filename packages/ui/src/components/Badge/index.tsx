@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { badgeRecipe, sizeVariants, BadgeColor } from "./badge.css";
+
+import { BadgeColor, badgeRecipe, sizeVariants } from "./badge.css";
 
 type BadgeSize = keyof typeof sizeVariants;
 
@@ -22,12 +23,12 @@ export const Badge: React.FC<BadgeProps> = ({ size = "md", color = "brand-50", i
     if (iconPosition === "left") {
       style = {
         ...style,
-        paddingLeft: paddingMap[size as keyof typeof paddingMap],
+        paddingLeft: paddingMap[size],
       };
     } else {
       style = {
         ...style,
-        paddingRight: paddingMap[size as keyof typeof paddingMap],
+        paddingRight: paddingMap[size],
       };
     }
   }

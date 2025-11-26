@@ -1,5 +1,6 @@
 import { keyframes, style } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
+
 import { components } from "../../theme/layers.css";
 
 /* --- Animations --- */
@@ -40,6 +41,10 @@ export const overlay = recipe({
         zIndex: 1000,
         padding: "16px",
         boxSizing: "border-box",
+        opacity: 1,
+        visibility: "visible",
+        contain: "layout style paint",
+        willChange: "opacity",
       },
     },
   },
@@ -60,6 +65,9 @@ const basePopup = style({
       borderRadius: "8px",
       position: "relative",
       outline: "none",
+      willChange: "transform, opacity",
+      transform: "scale(0.95)",
+      opacity: 0,
       maxHeight: "90vh",
       overflow: "auto",
       boxSizing: "border-box",

@@ -2,12 +2,15 @@
 
 import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
+
 import { cx } from "../../theme/classes";
+
 import { PopupProvider } from "./context";
 import { useEscapeClose, useFocusTrap, useOutsideClose, usePortalContainer, useVisibility } from "./hooks";
 import * as styles from "./popup.css";
 import { useImperativePopupRef } from "./ref";
-import type { PopupPosition, PopupProps, PopupSize, PopupVariant } from "./types";
+
+import type { PopupProps } from "./types";
 
 const PopupRoot: FC<PopupProps> = (props) => {
   const {
@@ -39,24 +42,16 @@ const PopupRoot: FC<PopupProps> = (props) => {
   const getPopup = useCallback(() => popupRef.current, []);
   const getOverlay = useCallback(() => overlayRef.current, []);
   const getRect = useCallback(() => popupRef.current?.getBoundingClientRect() ?? null, []);
-  const getFocusable = useCallback(() => {
+  const getFocusable = useCallback((): HTMLElement[] => {
     const el = popupRef.current;
     if (!el) return [];
-    return Array.from(
-      el.querySelectorAll(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
-      )
-    ) as HTMLElement[];
+    return Array.from(el.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'));
   }, []);
 
   // 외부 ref + 내부 ref 동기화
-  const handleRefCallback = useImperativePopupRef(
-    ref,
-    getPopup,
-    getOverlay,
-    getFocusable,
-    (node) => { popupRef.current = node; }
-  );
+  const handleRefCallback = useImperativePopupRef(ref, getPopup, getOverlay, getFocusable, (node) => {
+    popupRef.current = node;
+  });
 
   const portal = usePortalContainer();
   useEscapeClose(closeOnEscape && open, onClose);
@@ -65,7 +60,7 @@ const PopupRoot: FC<PopupProps> = (props) => {
 
   useEffect(() => {
     if (!open || !onOpen) return;
-    (async () => {
+    void (async () => {
       try {
         const r = await onOpen();
         onSuccess?.(r);
@@ -81,7 +76,7 @@ const PopupRoot: FC<PopupProps> = (props) => {
     () => ({
       isOpen: open,
       onClose,
-      variant: variant as PopupVariant,
+      variant: variant,
       loading,
       classes,
       getPopupElement: getPopup,
@@ -94,17 +89,13 @@ const PopupRoot: FC<PopupProps> = (props) => {
 
   if (!visible || !portal) return null;
 
-  const overlayClasses = cx(
-    styles.overlay({ variant: variant as PopupVariant }),
-    classes?.overlay,
-    variant === "modal" ? className : undefined
-  );
+  const overlayClasses = cx(styles.overlay({ variant: variant }), classes?.overlay, variant === "modal" ? className : undefined);
 
   const popupClasses = cx(
     styles.popupRecipe({
-      variant: variant as PopupVariant,
-      size: size as PopupSize,
-      position: position as PopupPosition,
+      variant: variant,
+      size: size,
+      position: position,
       state: open ? "open" : "closed",
     }),
     classes?.content,
@@ -123,17 +114,7 @@ const PopupRoot: FC<PopupProps> = (props) => {
           if (e.target === e.currentTarget && closeOnOutsideClick) onClose?.();
         }}
       >
-        <div
-          ref={handleRefCallback}
-          className={popupClasses}
-          role={role}
-          aria-modal={variant === "modal" ? true : undefined}
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy}
-          aria-describedby={ariaDescribedBy}
-          data-slot="popup"
-          style={{ animationDuration: `${animationDuration}ms` }}
-        >
+        <div ref={handleRefCallback} className={popupClasses} role={role} aria-modal={variant === "modal" ? true : undefined} aria-label={ariaLabel} aria-labelledby={ariaLabelledBy} aria-describedby={ariaDescribedBy} data-slot="popup" style={{ animationDuration: `${animationDuration}ms` }}>
           {children}
         </div>
       </div>

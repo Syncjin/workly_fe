@@ -15,7 +15,12 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "peerDependencies": {
     "react": ">=18"
@@ -23,7 +28,11 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@workly/tsconfig": "workspace:*",
+    "@workly/eslint-config": "workspace:*",
+    "@workly/prettier-config": "workspace:*",
     "typescript": "catalog:",
-    "@workly/tsconfig": "workspace:*"
+    "eslint": "catalog:",
+    "prettier": "catalog:"
   }
 }

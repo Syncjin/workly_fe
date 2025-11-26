@@ -1,4 +1,5 @@
 import { EditorThemeClasses } from "lexical";
+
 import * as s from "./editor.css";
 
 export const lexicalTheme: EditorThemeClasses = {

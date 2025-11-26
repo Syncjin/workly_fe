@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import * as styles from "./button.css";
 
 type ButtonSize = keyof typeof styles.sizeVariants;
@@ -20,9 +21,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export const Button: React.FC<ButtonProps> = ({ size = "md", variant = "solid", color = "brand-600", loading = false, loadingIcon, loadingPosition = "end", unstyled, children, className, ...rest }) => {
-  const spinner = loading && loadingIcon ? (
-    <span className={styles.spin1s}>{loadingIcon}</span>
-  ) : null;
+  const spinner = loading && loadingIcon ? <span className={styles.spin1s}>{loadingIcon}</span> : null;
   const showLeft = !!(spinner && loadingPosition === "start");
   const showRight = !!(spinner && loadingPosition === "end");
 

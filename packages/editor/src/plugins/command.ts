@@ -1,5 +1,7 @@
 import { createCommand } from "lexical";
 
-export const CLEAR_FORMAT_COMMAND = createCommand<string>("CLEAR_FORMAT");
+import { InsertYouTubePayload } from "./YoutubePlugin";
+
+export const CLEAR_FORMAT_COMMAND = createCommand("CLEAR_FORMAT");
 export const CODE_LANGUAGE_COMMAND = createCommand<string>();
-export const INSERT_YOUTUBE_COMMAND = createCommand<string>("INSERT_YOUTUBE_COMMAND");
+export const INSERT_YOUTUBE_COMMAND = createCommand<InsertYouTubePayload | string>("INSERT_YOUTUBE_COMMAND");

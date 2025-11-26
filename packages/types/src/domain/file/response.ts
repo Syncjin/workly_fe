@@ -7,3 +7,9 @@ export interface FileInfoDTO {
   contentType: string; //파일 MIME 타입
   uploadedAt: string;
 }
+
+export interface FileDownloadDTO {
+  additionalProp1: string;
+  additionalProp2: string;
+  additionalProp3: string;
+}

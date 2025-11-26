@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext } from "react";
+
 import type { PopupClassNames, PopupVariant } from "./types";
 
 export interface PopupContextValue {
@@ -21,8 +22,12 @@ export const PopupProvider = PopupContext.Provider;
 export const usePopupRef = () => {
   const ctx = useContext(PopupContext);
   if (!ctx) throw new Error("usePopupRef must be used within Popup");
-  const { getPopupElement, getOverlayElement, getPopupRect, getFocusableElements } = ctx;
-  return { getPopupElement, getOverlayElement, getPopupRect, getFocusableElements };
+  return {
+    getPopupElement: ctx.getPopupElement.bind(ctx),
+    getOverlayElement: ctx.getOverlayElement.bind(ctx),
+    getPopupRect: ctx.getPopupRect.bind(ctx),
+    getFocusableElements: ctx.getFocusableElements.bind(ctx),
+  };
 };
 
 export default PopupContext;

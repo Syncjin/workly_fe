@@ -3,7 +3,9 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { COMMAND_PRIORITY_LOW } from "lexical";
 import { useEffect } from "react";
+
 import { clearFormatting } from "../lib/clearFormatting";
+
 import { CLEAR_FORMAT_COMMAND } from "./command";
 
 const FormatClearPlugin = () => {

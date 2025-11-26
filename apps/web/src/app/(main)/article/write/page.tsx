@@ -1,5 +1,13 @@
-import { EditorContainer } from "@/widgets/post-editor";
+import { EditorContainer, EditorEditContainer } from "@/widgets/post-editor";
 
-export default function ArticleWritePage() {
-  return <EditorContainer />;
+type PageProps = {
+  searchParams: Promise<{ postId: string }>;
+};
+
+export default async function ArticleWritePage({ searchParams }: PageProps) {
+  const { postId } = await searchParams;
+
+  const id = Number(postId);
+  const isEdit = Number.isFinite(id) && id > 0;
+  return isEdit ? <EditorEditContainer postId={id} /> : <EditorContainer />;
 }

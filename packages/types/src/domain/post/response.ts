@@ -1,6 +1,4 @@
-import type { BoardDTO } from "@workly/types/domain/board/response";
-import type { FileInfoDTO } from "@workly/types/domain/file/response";
-import type { UserDTO } from "@workly/types/domain/users/request";
+import type { BoardDTO, FileInfoDTO, UserDTO } from "@workly/types";
 
 type BoardSummary = Pick<BoardDTO, "boardId" | "boardName">;
 
@@ -22,4 +20,11 @@ export interface PostDTO {
   mustRead: boolean;
   isRead: boolean;
   readCount: number;
+}
+
+export interface PostMoveResponse {
+  boardId: number;
+  requestedCount: number;
+  movedCount: number;
+  movedIds: number[];
 }

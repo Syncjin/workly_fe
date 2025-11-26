@@ -1,8 +1,8 @@
-// pages/api/[...proxy].ts
 import { log } from "@/lib/logger";
 import { NextApiRequest, NextApiResponse } from "next";
+import { isStateChangingMethod, validateCsrfToken } from "../../shared/lib/csrf-utils";
 // 인증이 필요한 API 경로들
-const protectedPaths = ["/boards", "/admin", "/profile", "/dashboard", "/settings"];
+const protectedPaths = ["/board", "/admin", "/profile", "/dashboard", "/settings", "/must-read", "/my-posts", "/bookmarks", "/trash"];
 
 // 특별 처리가 필요한 경로들 (프록시하지 않음)
 const specialPaths = ["/auth/login", "/auth/refresh", "/auth/logout"];
@@ -37,21 +37,17 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
   }
 }
 
-// 공유 토큰 갱신 함수 (동시 요청 시 한 번만 실행)
 async function getRefreshedToken(refreshToken: string): Promise<string | null> {
-  // 이미 진행 중인 토큰 갱신이 있다면 그 결과를 기다림
   if (refreshPromise) {
     return refreshPromise;
   }
 
-  // 새로운 토큰 갱신 시작
   refreshPromise = refreshAccessToken(refreshToken);
 
   try {
     const result = await refreshPromise;
     return result;
   } finally {
-    // 완료되면 Promise 초기화
     refreshPromise = null;
   }
 }
@@ -71,9 +67,7 @@ async function makeApiRequest(apiPath: string, req: NextApiRequest, authHeader?:
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log("---------handler");
   const { proxy } = req.query;
-
   const apiPath = Array.isArray(proxy) ? `/${proxy.join("/")}` : `/${proxy}`;
 
   // 특별 처리 경로는 건너뛰기
@@ -86,6 +80,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
+  // CSRF 검증 (상태 변경 요청에만 적용)
+  if (isStateChangingMethod(req.method || "GET")) {
+    const csrfCookie = req.cookies.csrfToken;
+    const csrfHeader = req.headers["x-csrf-token"] as string | undefined;
+
+    const validation = validateCsrfToken(csrfCookie, csrfHeader);
+
+    if (!validation.valid) {
+      log.warn("Proxy API: CSRF 검증 실패", {
+        operation: "proxy-api",
+        path: apiPath,
+        method: req.method,
+        hasCookie: !!csrfCookie,
+        hasHeader: !!csrfHeader,
+        error: validation.error,
+      });
+
+      return res.status(403).json({
+        status: 403,
+        code: "CSRF_TOKEN_INVALID",
+        message: validation.error || "CSRF token validation failed",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    log.debug("Proxy API: CSRF 검증 성공", {
+      operation: "proxy-api",
+      path: apiPath,
+      method: req.method,
+    });
+  }
+
   // 인증이 필요한 경로인지 확인
   const needsAuth = protectedPaths.some((path) => apiPath.startsWith(path));
 
@@ -93,8 +119,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Authorization 헤더에서 토큰 확인
     const authHeader = req.headers.authorization;
     const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    console.log("authHeader", authHeader);
-    console.log("token", token);
     if (!token) {
       return res.status(401).json({
         status: 401,
@@ -133,13 +157,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // 백엔드의 Set-Cookie 헤더가 있다면 전달
     const backendCookies = response.headers.get("set-cookie");
     if (backendCookies) {
       res.setHeader("Set-Cookie", backendCookies);
     }
 
-    // 백엔드 응답을 그대로 전달
     res.status(response.status).json(data);
   } catch (error) {
     console.error("API Proxy error:", error);

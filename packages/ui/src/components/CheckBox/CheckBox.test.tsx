@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
-import CheckBox from "./index";
+import { describe, expect, it, vi } from "vitest";
 
-// Mock the CSS module
+import { CheckBox } from "./index";
+
+// CSS 모듈 모킹
 vi.mock("./checkbox.css", () => ({
   checkboxBase: "mock-checkbox-base",
   checkboxChecked: "mock-checkbox-checked",
@@ -15,41 +16,44 @@ vi.mock("./checkbox.css", () => ({
   },
 }));
 
-// Mock the Icon component
-vi.mock("@/shared/ui/Icon", () => ({
+// Icon 컴포넌트 모킹
+vi.mock("../Icon", () => ({
   default: function MockIcon({ name }: { name: string }) {
     return <span data-testid={`icon-${name}`}>{name}</span>;
   },
 }));
 
-describe("CheckBox Component", () => {
-  it("renders with indeterminate state", () => {
+describe("CheckBox 컴포넌트", () => {
+  it("중간 상태(indeterminate)로 렌더링된다", () => {
     render(<CheckBox indeterminate={true} data-testid="checkbox" />);
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const checkbox = screen.getByTestId("checkbox") as HTMLInputElement;
     expect(checkbox.indeterminate).toBe(true);
   });
 
-  it("shows indeterminate icon when indeterminate is true", () => {
+  it("중간 상태일 때 중간 상태 아이콘을 표시한다", () => {
     render(<CheckBox indeterminate={true} />);
 
-    // The indeterminate icon should be rendered
+    // 중간 상태 아이콘이 렌더링되어야 함
     const icon = screen.getByTestId("icon-checkbox-indeterminate-line");
     expect(icon).toBeInTheDocument();
   });
 
-  it("shows check icon when checked is true and indeterminate is false", () => {
-    render(<CheckBox checked={true} indeterminate={false} />);
+  it("체크 상태이고 중간 상태가 아닐 때 체크 아이콘을 표시한다", () => {
+    const handleChange = vi.fn();
+    render(<CheckBox checked={true} indeterminate={false} onChange={handleChange} />);
 
-    // The check icon should be rendered
+    // 체크 아이콘이 렌더링되어야 함
     const icon = screen.getByTestId("icon-check-line");
     expect(icon).toBeInTheDocument();
   });
 
-  it("prioritizes indeterminate over checked state for icon display", () => {
-    render(<CheckBox checked={true} indeterminate={true} />);
+  it("중간 상태가 체크 상태보다 우선순위가 높다", () => {
+    const handleChange = vi.fn();
+    render(<CheckBox checked={true} indeterminate={true} onChange={handleChange} />);
 
-    // Should show indeterminate icon, not check icon
+    // 중간 상태 아이콘이 표시되고 체크 아이콘은 표시되지 않아야 함
     const indeterminateIcon = screen.queryByTestId("icon-checkbox-indeterminate-line");
     const checkIcon = screen.queryByTestId("icon-check-line");
 
@@ -57,22 +61,24 @@ describe("CheckBox Component", () => {
     expect(checkIcon).not.toBeInTheDocument();
   });
 
-  it("applies checked styling when indeterminate is true", () => {
+  it("중간 상태일 때 체크된 스타일을 적용한다", () => {
     const { container } = render(<CheckBox indeterminate={true} />);
 
     const checkbox = container.querySelector('input[type="checkbox"]');
     expect(checkbox).toHaveClass("mock-checkbox-checked");
   });
 
-  it("applies checked styling when checked is true", () => {
-    const { container } = render(<CheckBox checked={true} />);
+  it("체크 상태일 때 체크된 스타일을 적용한다", () => {
+    const handleChange = vi.fn();
+    const { container } = render(<CheckBox checked={true} onChange={handleChange} />);
 
     const checkbox = container.querySelector('input[type="checkbox"]');
     expect(checkbox).toHaveClass("mock-checkbox-checked");
   });
 
-  it("does not apply checked styling when neither checked nor indeterminate", () => {
-    const { container } = render(<CheckBox checked={false} indeterminate={false} />);
+  it("체크되지 않고 중간 상태도 아닐 때 체크된 스타일을 적용하지 않는다", () => {
+    const handleChange = vi.fn();
+    const { container } = render(<CheckBox checked={false} indeterminate={false} onChange={handleChange} />);
 
     const checkbox = container.querySelector('input[type="checkbox"]');
     expect(checkbox).not.toHaveClass("mock-checkbox-checked");

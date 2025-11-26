@@ -1,0 +1,153 @@
+"use client";
+
+import { Comment, CommentItem, useCommentListInfinite } from "@/entities/comment";
+import * as itemStyles from "@/entities/comment/ui/commentItem.css";
+import { CommentCreate } from "@/features/comment/comment-create";
+import { DeleteCommentButton, useCommentDeleteAction } from "@/features/comment/comment-delete";
+import { CommentUpdate, UpdateCommentButton } from "@/features/comment/comment-update";
+import { closeLoadingOverlay, openConfirm, openLoadingOverlay } from "@/shared/ui/modal/openers";
+import { useCommentThreadActions } from "@/widgets/comment-thread/model";
+import { Button, Dropdown, Icon } from "@workly/ui";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import * as styles from "./commentList.css";
+
+const RightMenu = ({ comment, setEditingId }: { comment: Comment; setEditingId: Dispatch<SetStateAction<number | null>> }) => {
+  const { run } = useCommentDeleteAction();
+
+  const handleUpdate = useCallback(() => {
+    setEditingId(comment.commentId);
+  }, [comment.commentId, setEditingId]);
+
+  const handleDelete = useCallback(async () => {
+    const res = await openConfirm({ header: "댓글 삭제", title: "댓글을 삭제하시겠습니까?" });
+    if (res && comment.commentId && comment.postId) {
+      openLoadingOverlay();
+      await run({ commentId: comment.commentId, postId: comment.postId });
+      closeLoadingOverlay();
+    }
+  }, [comment.commentId, comment.postId, run]);
+
+  const renderOnUpdate = useCallback(() => {
+    return <Dropdown.Item text="수정" onClick={handleUpdate} />;
+  }, [handleUpdate]);
+
+  const renderOnDelete = useCallback(() => {
+    return <Dropdown.Item text="삭제" onClick={handleDelete} />;
+  }, [handleDelete]);
+
+  return (
+    <Dropdown align="end" classes={{ menu: styles.menu, item: styles.menuItem }}>
+      <Dropdown.Trigger>
+        <button className={styles.iconButton}>
+          <Icon name="more-2-line" size={{ width: 16, height: 16 }} />
+        </button>
+      </Dropdown.Trigger>
+      <Dropdown.Menu>
+        <UpdateCommentButton ownerId={comment.user.userId}>{renderOnUpdate}</UpdateCommentButton>
+        <DeleteCommentButton ownerId={comment.user.userId}>{renderOnDelete}</DeleteCommentButton>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+};
+
+export const CommentList = ({ postId }: { postId: number }) => {
+  const { setCommentCnt } = useCommentThreadActions();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useCommentListInfinite({ postId });
+
+  const items = data?.pages.flatMap((page) => page.data.items ?? []) ?? [];
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+
+  const handleReply = useCallback((comment: Comment) => {
+    setReplyingTo(comment.commentId);
+  }, []);
+
+  const handleCancelReply = useCallback(() => {
+    setReplyingTo(null);
+  }, []);
+
+  const bottomRef = useRef<HTMLLIElement | null>(null);
+
+  useEffect(() => {
+    if (!hasNextPage) return;
+    const el = bottomRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver((entries) => {
+      const [entry] = entries;
+      if (entry.isIntersecting) {
+        fetchNextPage();
+      }
+    });
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    const totalCnt = data?.pages?.[0]?.data?.totalItems;
+    if (totalCnt || totalCnt === 0) {
+      setCommentCnt(totalCnt);
+    }
+  }, [data, setCommentCnt]);
+
+  if (!isPending && items.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul className={styles.container}>
+      {items.map((comment) => {
+        const isEditing = editingId === comment.commentId;
+        const isReplying = replyingTo === comment.commentId;
+        if (!isEditing) {
+          const isReply = comment.parentId !== undefined;
+          return (
+            <CommentItem.Root
+              key={comment.commentId}
+              comment={comment}
+              replyOnClick={handleReply}
+              className={isReply ? styles.replyItem : undefined}
+              right={<RightMenu comment={comment} setEditingId={setEditingId} />}
+              footer={
+                <>
+                  <CommentItem.ReactionButton />
+                  <CommentItem.ReplyButton />
+                </>
+              }
+              replyForm={
+                isReplying ? (
+                  <li className={styles.replyForm}>
+                    <CommentCreate postId={postId} parentId={comment.parentId ?? comment.commentId} onCancel={handleCancelReply} />
+                  </li>
+                ) : undefined
+              }
+            />
+          );
+        }
+        const isReply = comment.parentId !== undefined;
+        return (
+          <CommentItem.Root key={comment.commentId} comment={comment} className={isReply ? styles.replyItem : undefined}>
+            <CommentItem.Profile />
+            <div className={itemStyles.main}>
+              <CommentItem.HeaderSlot />
+              <CommentItem.ContentSlot>
+                <CommentUpdate postId={comment.postId} comment={comment} onCancel={() => setEditingId(null)} />
+              </CommentItem.ContentSlot>
+            </div>
+          </CommentItem.Root>
+        );
+      })}
+
+      {hasNextPage && (
+        <li ref={bottomRef} className={styles.loadMore}>
+          <Button variant="ghost" loading={isFetchingNextPage} loadingIcon={<Icon name="loader-2-line" color="var(--color-brand-500)" />}>
+            {isFetchingNextPage ? "" : "더 보기"}
+          </Button>
+        </li>
+      )}
+    </ul>
+  );
+};
+
+CommentList.displayName = "CommentList";

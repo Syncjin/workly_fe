@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useRef } from "react";
+
+import { cx } from "../../theme/classes";
+
 import { baseTextarea, textareaStatus } from "./textarea.css";
 
 export type TextareaSize = "sm" | "md" | "lg" | "xl";
@@ -14,10 +17,8 @@ interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaEl
   style?: React.CSSProperties;
 }
 
-const Textarea: React.FC<TextareaProps> = ({ size = "md", variant = "gray-50", status = "default", className, style, ...rest }) => {
+export const Textarea: React.FC<TextareaProps> = ({ status = "default", className, style, ...rest }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  return <textarea ref={textareaRef} className={[baseTextarea, textareaStatus[status], className].filter(Boolean).join(" ")} style={style} {...rest} />;
+  return <textarea ref={textareaRef} className={cx(baseTextarea, textareaStatus[status], className)} style={style} {...rest} />;
 };
-
-export default Textarea;
