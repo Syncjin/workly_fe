@@ -4,7 +4,7 @@
  */
 
 import { authApi } from "@/entities/auth/api/authApi";
-import type { AuthForgotIdRequest, AuthForgotPasswordRequest, AuthResetPasswordRequest, UserLoginRequest, UserLoginResponse } from "@/entities/auth/model";
+import type { AuthForgotIdRequest, AuthForgotIdResponse, AuthForgotPasswordRequest, AuthForgotPasswordResponse, AuthResetPasswordRequest, AuthResetPasswordResponse, UserLoginRequest, UserLoginResponse } from "@/entities/auth/model";
 import { useApiMutation } from "@/shared/api/hooks";
 
 /**
@@ -18,19 +18,19 @@ export const useLogin = () => {
  * 아이디 찾기 React Query 훅
  */
 export const useForgotId = () => {
-  return useApiMutation<any, AuthForgotIdRequest>((params) => authApi.postForgotId(params), {});
+  return useApiMutation<AuthForgotIdResponse, AuthForgotIdRequest>((params) => authApi.postForgotId(params), {});
 };
 
 /**
  * 비밀번호 찾기 React Query 훅
  */
 export const useForgotPassword = () => {
-  return useApiMutation<any, AuthForgotPasswordRequest>((params) => authApi.postForgotPassword(params), {});
+  return useApiMutation<AuthForgotPasswordResponse, AuthForgotPasswordRequest>((params) => authApi.postForgotPassword(params), {});
 };
 
 /**
  * 비밀번호 재설정 React Query 훅
  */
 export const useResetPassword = () => {
-  return useApiMutation<any, AuthResetPasswordRequest>((params) => authApi.postResetPassword(params), {});
+  return useApiMutation<AuthResetPasswordResponse, AuthResetPasswordRequest>((params) => authApi.postResetPassword(params), {});
 };

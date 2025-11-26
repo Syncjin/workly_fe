@@ -148,7 +148,7 @@ type RootProps = React.PropsWithChildren<
 >;
 
 function Root({ as = "li", className, children, hideLeft, hideRight, hideBottomMeta, onClick, ...ctx }: RootProps) {
-  const Comp: any = as;
+  const Comp = as as React.ElementType;
   return (
     <Ctx.Provider value={ctx}>
       <Comp role={as === "li" ? "listitem" : undefined} onClick={onClick ? () => onClick(ctx.post) : undefined} data-active={ctx.active ? "true" : "false"} data-checked={ctx.checked ? "true" : "false"} aria-selected={ctx.checked ?? false} className={cx(postListItemStyles.container, className)}>

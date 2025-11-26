@@ -7,7 +7,7 @@ import { errorMessage, form, submitButton, successMessage } from "./formContent.
 
 interface ForgotPasswordFormContentProps {
   action: {
-    run: (data: ForgotPasswordFormData) => Promise<any>;
+    run: (data: ForgotPasswordFormData) => Promise<{ status: number; message?: string }>;
     isPending: boolean;
   };
 }
@@ -39,8 +39,8 @@ export function ForgotPasswordFormContent({ action }: ForgotPasswordFormContentP
       } else {
         setError(response.message || "비밀번호 찾기에 실패했습니다. 다시 시도해주세요.");
       }
-    } catch (e: any) {
-      const errorMsg = e?.message || "비밀번호 찾기에 실패했습니다. 다시 시도해주세요.";
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : "비밀번호 찾기에 실패했습니다. 다시 시도해주세요.";
       setError(errorMsg);
     }
   };

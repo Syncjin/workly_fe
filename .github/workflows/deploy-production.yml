@@ -1,0 +1,316 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '배포 버전 (선택사항)'
+        required: false
+        type: string
+        default: 'latest'
+      rollback:
+        description: '롤백 모드 활성화'
+        required: false
+        type: boolean
+        default: false
+      skip-tests:
+        description: '테스트 건너뛰기 (긴급 배포용)'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    name: 환경 설정
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 및 의존성 설정
+        uses: ./.github/actions/setup
+        with:
+          node-version: '20'
+          pnpm-version: '9.9.0'
+
+      - name: 설치 확인
+        run: |
+          node --version
+          pnpm --version
+          echo "환경 설정 완료"
+          echo "배포 버전: ${{ github.event.inputs.version }}"
+          echo "롤백 모드: ${{ github.event.inputs.rollback }}"
+
+  build-production:
+    name: Production 빌드
+    runs-on: ubuntu-latest
+    needs: setup
+    env:
+      NEXT_PUBLIC_ENV: production
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 및 의존성 설정
+        uses: ./.github/actions/setup
+        with:
+          node-version: '20'
+          pnpm-version: '9.9.0'
+
+      - name: Turborepo 캐시 상태 확인 (빌드 전)
+        run: |
+          echo "=== Turborepo 캐시 상태 (빌드 전) ==="
+          if [ -d ".turbo" ]; then
+            echo "✓ .turbo 디렉토리 존재"
+            echo "캐시 파일 수: $(find .turbo -type f | wc -l)"
+          else
+            echo "✗ .turbo 디렉토리 없음 (첫 실행)"
+          fi
+          echo "=================================="
+
+      - name: Production 환경 빌드
+        run: pnpm turbo build
+        env:
+          NEXT_PUBLIC_ENV: production
+
+      - name: Turborepo 캐시 상태 확인 (빌드 후)
+        run: |
+          echo "=== Turborepo 캐시 상태 (빌드 후) ==="
+          if [ -d ".turbo" ]; then
+            echo "✓ .turbo 디렉토리 생성됨"
+            echo "캐시 파일 수: $(find .turbo -type f | wc -l)"
+            echo "캐시 크기: $(du -sh .turbo 2>/dev/null || echo 'N/A')"
+          fi
+          echo "=================================="
+
+      - name: 빌드 아티팩트 검증
+        run: |
+          echo "빌드 아티팩트 검증 중..."
+          if [ -d "apps/web/.next" ]; then
+            echo "✓ Web 앱 빌드 성공"
+          else
+            echo "✗ Web 앱 빌드 실패"
+            exit 1
+          fi
+
+      - name: 빌드 아티팩트 저장
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: |
+            apps/web/.next
+            apps/web/public
+            apps/web/package.json
+          retention-days: 30
+
+  build-docker-image:
+    name: Docker 이미지 빌드 및 푸시
+    runs-on: ubuntu-latest
+    needs: build-production
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: GitHub Container Registry 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker 메타데이터 추출
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/workly-web
+          tags: |
+            type=raw,value=production
+            type=raw,value=latest
+            type=sha,prefix=prod-
+            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event.inputs.version != '' }}
+
+      - name: Docker 이미지 빌드 및 푸시
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/web/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_ENV=production
+
+      - name: 이미지 정보 출력
+        run: |
+          echo "🐳 Docker 이미지 빌드 완료!"
+          echo "Registry: ghcr.io"
+          echo "Tags: ${{ steps.meta.outputs.tags }}"
+
+  deploy-production:
+    name: Production 서버 배포
+    runs-on: ubuntu-latest
+    needs: build-docker-image
+    environment:
+      name: production
+      url: https://worklyteam.cloud
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 롤백 모드 확인
+        if: github.event.inputs.rollback == 'true'
+        run: |
+          echo "⚠️ 롤백 모드가 활성화되었습니다"
+          echo "이전 배포로 롤백을 진행합니다"
+
+      - name: SSH 키 설정
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VULTR_WEB_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VULTR_WEB_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 배포 파일 전송
+        if: github.event.inputs.rollback != 'true'
+        run: |
+          scp -r deployment/web/* root@${{ secrets.VULTR_WEB_HOST }}:/opt/workly/deployment/web/
+          scp deployment/scripts/* root@${{ secrets.VULTR_WEB_HOST }}:/opt/workly/scripts/
+
+      - name: Docker 이미지 풀 및 배포
+        if: github.event.inputs.rollback != 'true'
+        run: |
+          ssh root@${{ secrets.VULTR_WEB_HOST }} << 'EOF'
+            cd /opt/workly/deployment/web
+            
+            # GitHub Container Registry 로그인
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 환경 변수 설정
+            export DOCKER_IMAGE="ghcr.io/${{ github.repository }}/workly-web:production"
+            export DEPLOY_ENV="production"
+            
+            # 배포 스크립트 실행
+            bash scripts/deploy-sequential.sh
+          EOF
+
+      - name: 롤백 실행
+        if: github.event.inputs.rollback == 'true'
+        run: |
+          ssh root@${{ secrets.VULTR_WEB_HOST }} << 'EOF'
+            cd /opt/workly/deployment/web
+            bash /opt/workly/scripts/rollback.sh web
+          EOF
+
+      - name: 배포 완료
+        run: |
+          echo "🚀 Production 배포 완료!"
+          echo "URL: https://worklyteam.cloud"
+          echo "배포 버전: ${{ github.event.inputs.version }}"
+
+  verify-production:
+    name: Production 배포 검증
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    steps:
+      - name: 배포 성공 확인
+        run: |
+          echo "✓ Production 배포가 성공적으로 완료되었습니다"
+          echo "배포 환경: production"
+          echo "배포 버전: ${{ github.event.inputs.version }}"
+
+      - name: 헬스 체크
+        run: |
+          echo "헬스 체크 엔드포인트 호출..."
+          HEALTH_URL="https://worklyteam.cloud/api/health"
+          MAX_RETRIES=5
+          RETRY_DELAY=10
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "헬스 체크 시도 $i/$MAX_RETRIES..."
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✓ 헬스 체크 통과"
+              exit 0
+            fi
+            if [ $i -lt $MAX_RETRIES ]; then
+              echo "재시도 대기 중... (${RETRY_DELAY}초)"
+              sleep $RETRY_DELAY
+            fi
+          done
+          echo "⚠️ 헬스 체크 실패 - 수동 확인 필요"
+          exit 1
+
+      - name: 배포 완료 알림
+        run: |
+          echo "::notice::Production 배포가 성공적으로 완료되었습니다"
+          echo "배포 URL: https://worklyteam.cloud"
+
+  notify-failure:
+    name: 실패 알림 및 롤백 가이드
+    runs-on: ubuntu-latest
+    needs: [build-production, deploy-production, verify-production]
+    if: failure()
+    steps:
+      - name: 실패 정보 수집
+        id: failure-info
+        run: |
+          echo "WORKFLOW_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+          echo "COMMIT_SHA=${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "DEPLOY_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+
+      - name: GitHub 알림 (기본)
+        run: |
+          echo "::error::Production 배포 실패"
+          echo "워크플로우: ${{ steps.failure-info.outputs.WORKFLOW_URL }}"
+          echo "커밋: ${{ steps.failure-info.outputs.COMMIT_SHA }}"
+          echo "배포 버전: ${{ steps.failure-info.outputs.DEPLOY_VERSION }}"
+
+      - name: 롤백 가이드 출력
+        run: |
+          echo "::warning::롤백 가이드"
+          echo ""
+          echo "수동 롤백 방법:"
+          echo "1. GitHub Actions에서 이 워크플로우를 다시 실행"
+          echo "2. 'rollback' 옵션을 true로 설정"
+          echo "3. 또는 서버에 SSH 접속하여 수동 롤백:"
+          echo "   ssh root@${{ secrets.VULTR_WEB_HOST }}"
+          echo "   cd /opt/workly/deployment/web"
+          echo "   bash /opt/workly/scripts/rollback.sh web"
+          echo ""
+          echo "긴급 연락처:"
+          echo "- DevOps 팀에 즉시 연락하세요"
+
+      # Slack 알림 (선택사항 - SLACK_WEBHOOK_URL secret 설정 시 활성화)
+      - name: Slack 알림
+        if: secrets.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          payload: |
+            {
+              "text": "🚨 Production 배포 실패",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*🚨 Production 배포 실패*\n워크플로우: <${{ steps.failure-info.outputs.WORKFLOW_URL }}|실행 로그 보기>\n커밋: `${{ steps.failure-info.outputs.COMMIT_SHA }}`\n배포 버전: `${{ steps.failure-info.outputs.DEPLOY_VERSION }}`\n환경: Production"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*롤백 방법:*\n1. GitHub Actions에서 워크플로우 재실행 (rollback 옵션 활성화)\n2. 서버 SSH 접속하여 수동 롤백"
+                  }
+                }
+              ]
+            }

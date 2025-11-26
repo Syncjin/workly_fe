@@ -1,8 +1,8 @@
 import { type QueryClient } from "@tanstack/react-query";
 import { isPostListKey } from "./query-utils";
 
-export function createOptimisticUpdater<T>(queryClient: QueryClient, dataTransformer: (oldData: unknown, payload: T) => unknown) {
-  return async (payload: T, mutationFn: () => Promise<any>) => {
+export function createOptimisticUpdater<T, R = unknown>(queryClient: QueryClient, dataTransformer: (oldData: unknown, payload: T) => unknown) {
+  return async (payload: T, mutationFn: () => Promise<R>) => {
     // 쿼리 취소
     await queryClient.cancelQueries({
       predicate: ({ queryKey }) => isPostListKey(queryKey),
