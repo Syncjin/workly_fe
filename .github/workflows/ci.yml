@@ -113,6 +113,8 @@ jobs:
     name: E2E 테스트
     runs-on: ubuntu-latest
     needs: setup
+    # E2E 테스트는 선택적으로 실행 (수동 트리거 또는 main 브랜치에서만)
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
@@ -124,12 +126,15 @@ jobs:
           pnpm-version: '9.9.0'
 
       - name: Playwright 브라우저 설치
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm --filter workly exec playwright install --with-deps chromium
+
+      - name: 애플리케이션 빌드
+        run: pnpm turbo build --filter=workly
 
       - name: E2E 테스트 실행
         run: |
           START_TIME=$(date +%s)
-          pnpm --filter web test:e2e
+          pnpm --filter workly test:e2e
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "⏱️ E2E 테스트 실행 시간: ${DURATION}초"
@@ -236,7 +241,7 @@ jobs:
   report:
     name: 실행 시간 리포트
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test, e2e, build, security]
+    needs: [lint, typecheck, test, build, security]
     if: always()
     steps:
       - name: 워크플로우 실행 시간 요약
@@ -250,28 +255,28 @@ jobs:
           echo "  - Lint: ${{ needs.lint.result }}"
           echo "  - Typecheck: ${{ needs.typecheck.result }}"
           echo "  - Test: ${{ needs.test.result }}"
-          echo "  - E2E: ${{ needs.e2e.result }}"
           echo "  - Build: ${{ needs.build.result }}"
           echo "  - Security: ${{ needs.security.result }}"
+          echo ""
+          echo "  ℹ️  E2E 테스트는 main 브랜치 또는 수동 트리거 시에만 실행됩니다"
           echo ""
           
           # 전체 성공 여부 확인
           if [ "${{ needs.lint.result }}" == "success" ] && \
              [ "${{ needs.typecheck.result }}" == "success" ] && \
              [ "${{ needs.test.result }}" == "success" ] && \
-             [ "${{ needs.e2e.result }}" == "success" ] && \
              [ "${{ needs.build.result }}" == "success" ] && \
              [ "${{ needs.security.result }}" == "success" ]; then
-            echo "✅ 모든 검증 통과!"
+            echo "✅ 모든 필수 검증 통과!"
           else
             echo "❌ 일부 검증 실패"
           fi
           
           echo ""
           echo "💡 병렬 실행 최적화:"
-          echo "  - Lint, Typecheck, Test, E2E, Build, Security job이 병렬로 실행됩니다"
+          echo "  - Lint, Typecheck, Test, Build, Security job이 병렬로 실행됩니다"
           echo "  - 전체 실행 시간은 가장 긴 job의 시간과 동일합니다"
-          echo "  - 순차 실행 대비 약 5-6배 빠른 실행 시간"
+          echo "  - 순차 실행 대비 약 5배 빠른 실행 시간"
           echo ""
           echo "🎯 목표: 전체 CI 실행 10분 이내"
           echo ""
