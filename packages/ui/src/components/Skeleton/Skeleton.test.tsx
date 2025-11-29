@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import Skeleton from "./index";
+
 import * as styles from "./skeleton.css";
+
+import Skeleton from "./index";
 
 describe("Skeleton 컴포넌트", () => {
   it("기본 스켈레톤이 렌더링된다", () => {

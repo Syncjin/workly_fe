@@ -15,7 +15,7 @@ export const PostDetailContainer = ({ postId }: { postId: number }) => {
   const searchParams = useSearchParams();
 
   const handleBoardName = useCallback(async () => {
-    if (!data) {
+    if (!data?.board?.boardId) {
       return;
     }
     const res = await qc.ensureQueryData({
@@ -28,7 +28,7 @@ export const PostDetailContainer = ({ postId }: { postId: number }) => {
     startTransition(() => {
       router.push(`/board?${sp.toString()}`, { scroll: false });
     });
-  }, [data.board.boardId]);
+  }, [data.board.boardId, qc, router, searchParams]);
 
   return (
     <div className={styles.container}>

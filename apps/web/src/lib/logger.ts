@@ -5,14 +5,14 @@ type LogLevel = "debug" | "info" | "warn" | "error";
 interface LogEntry {
   level: LogLevel;
   message: string;
-  data?: any;
+  data?: unknown;
   timestamp: string;
 }
 
 class Logger {
   private isDevelopment = config.NEXT_PUBLIC_ENV === "development";
 
-  private formatMessage(level: LogLevel, message: string, data?: any): LogEntry {
+  private formatMessage(level: LogLevel, message: string, data?: unknown): LogEntry {
     return {
       level,
       message,
@@ -21,7 +21,7 @@ class Logger {
     };
   }
 
-  private log(level: LogLevel, message: string, data?: any) {
+  private log(level: LogLevel, message: string, data?: unknown) {
     const entry = this.formatMessage(level, message, data);
 
     if (this.isDevelopment) {
@@ -36,19 +36,19 @@ class Logger {
     }
   }
 
-  debug(message: string, data?: any) {
+  debug(message: string, data?: unknown) {
     this.log("debug", message, data);
   }
 
-  info(message: string, data?: any) {
+  info(message: string, data?: unknown) {
     this.log("info", message, data);
   }
 
-  warn(message: string, data?: any) {
+  warn(message: string, data?: unknown) {
     this.log("warn", message, data);
   }
 
-  error(message: string, data?: any) {
+  error(message: string, data?: unknown) {
     this.log("error", message, data);
   }
 

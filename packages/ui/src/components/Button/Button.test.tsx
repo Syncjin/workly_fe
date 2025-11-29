@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
 import { Button } from "./index";
 
 describe("Button 컴포넌트", () => {

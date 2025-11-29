@@ -12,7 +12,7 @@ export function useCommentCreateAction() {
   const run = useCallback(
     async ({ content, postId, parentId }: CommentCreateRequest) => {
       // 관련 쿼리들을 취소하여 경쟁 상태 방지
-      const cancelData = await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
+      await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
 
       // 현재 데이터의 스냅샷 저장 (롤백용)
       const previousData = qc.getQueryData<InfiniteData<ApiResponse<PageData>>>(commentQueryKeys.infinite({ postId }));

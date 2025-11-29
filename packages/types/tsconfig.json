@@ -13,5 +13,5 @@
       "@workly/types/domain/*": ["src/domain/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "*.config.mjs"]
 }

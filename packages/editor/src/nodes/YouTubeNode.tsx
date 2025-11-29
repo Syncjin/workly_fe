@@ -1,8 +1,10 @@
 import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { DecoratorBlockNode, SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
-import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 import { JSX } from "react";
+
 import { YouTubeView } from "./YouTubeView";
+
+import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 
 export type SerializedYouTubeNode = Spread<
   {
@@ -104,17 +106,12 @@ export class YouTubeNode extends DecoratorBlockNode {
     const oldWidth = writable.__width;
     const oldHeight = writable.__height;
 
-    // 최소 크기 200x200 적용
     const newWidth = width && width >= 200 ? width : undefined;
     const newHeight = height && height >= 200 ? height : undefined;
 
-    // 실제로 변경된 경우에만 업데이트
     if (oldWidth !== newWidth || oldHeight !== newHeight) {
       writable.__width = newWidth;
       writable.__height = newHeight;
-      console.log(`YouTubeNode 크기 업데이트: ${oldWidth}x${oldHeight} → ${newWidth}x${newHeight}`);
-
-      // 노드 변경 사항을 에디터에 알림
       writable.markDirty();
     }
   }
@@ -127,12 +124,11 @@ export class YouTubeNode extends DecoratorBlockNode {
     return this.__height;
   }
 
-  getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
+  getTextContent(): string {
     return `https://www.youtube.com/watch?v=${this.__id}`;
   }
 
   decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
-    // 에디터의 편집 가능 상태 확인 ImageNode와 동일
     const isEditable = editor?.isEditable() ?? true;
     const maxW = YouTubeNode.__containerMaxWidth;
     const embedBlockTheme = config.theme.embedBlock || {};

@@ -1,6 +1,8 @@
-import type { IconName } from "@workly/icons";
 import React from "react";
+
 import { iconCache, type IconLoadingState } from "./IconCache";
+
+import type { IconName } from "@workly/icons";
 
 export interface UseIconCacheResult {
   component: React.ComponentType<React.SVGProps<SVGSVGElement>> | null;

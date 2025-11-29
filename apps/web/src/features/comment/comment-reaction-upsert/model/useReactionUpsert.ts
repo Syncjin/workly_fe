@@ -38,7 +38,7 @@ export function useReactionUpsert({ comment, onSuccess, onError }: UseReactionUp
         setLoading(false);
       }
     },
-    [comment?.commentId, comment?.myReaction, upsertAction, deleteAction, onSuccess, onError]
+    [comment, upsertAction, deleteAction, onSuccess, onError]
   );
 
   const isLoading = loading || upsertAction.isPending || deleteAction.isPending;

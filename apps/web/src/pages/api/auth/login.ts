@@ -2,11 +2,11 @@ import { createCsrfTokenCookie } from "@/shared/lib/cookie-utils";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 function getBackendSetCookiesArray(loginRes: Response): string[] {
-  const anyHeaders = loginRes.headers as any;
+  const headers = loginRes.headers as Headers & { raw?: () => Record<string, string[]> };
   let setCookieHeader: string | string[] | undefined;
 
-  if (typeof anyHeaders.raw === "function") {
-    const raw = anyHeaders.raw();
+  if (typeof headers.raw === "function") {
+    const raw = headers.raw();
     setCookieHeader = raw && raw["set-cookie"];
   } else {
     const single = loginRes.headers.get("set-cookie");
@@ -41,10 +41,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const backendCookiesArr = getBackendSetCookiesArray(loginRes);
     if (backendCookiesArr.length > 0) {
-      const forwardedCookies = backendCookiesArr.map((c) => (process.env.NODE_ENV === "development" ? c.replace(/;\s*Secure/gi, "") : c));
+      backendCookiesArr.map((c) => (process.env.NODE_ENV === "development" ? c.replace(/;\s*Secure/gi, "") : c));
 
       let extractedCsrfToken: string | null = null;
-      let filteredForwardedCookies: string[] = [];
+      const filteredForwardedCookies: string[] = [];
 
       backendCookiesArr.forEach((c) => {
         const csrfMatch = c.match(/(?:^|;\s*)csrfToken=([^;]+)/i);

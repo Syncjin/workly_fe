@@ -1,3 +1,4 @@
+import { SelectBoard, SelectCategory } from "@/features/board";
 import { openBoardSelect } from "@/shared/ui/modal/openers";
 import { usePostEditorActions, usePostEditorStore } from "@/widgets/post-editor/model";
 import { useCurrentBoard } from "@/widgets/post-editor/model/useCurrentBoard";
@@ -28,11 +29,11 @@ const BoardSelector = () => {
   const handleBoardSelect = useCallback(async () => {
     const res = await openBoardSelect({ initialBoardId: board ? board.id : boardId });
     if (res) {
-      setBoard(res.board);
+      setBoard(res.board as SelectBoard);
       setBoardId(res.board.id);
-      setCategory(res.category);
+      setCategory(res.category as SelectCategory);
     }
-  }, [boardId, board]);
+  }, [boardId, board, setBoard, setBoardId, setCategory]);
 
   return (
     <div className={s.boardSelector.container}>

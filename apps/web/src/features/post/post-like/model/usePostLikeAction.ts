@@ -18,7 +18,7 @@ export function usePostLikeAction() {
 
       return result;
     },
-    [qc, mutateAsync]
+    [updater, qc, mutateAsync]
   );
 
   return { run, isPending };

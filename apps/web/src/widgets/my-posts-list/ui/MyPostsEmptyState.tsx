@@ -9,7 +9,7 @@ import * as styles from "./myPostsList.css";
 export const MyPostsEmptyState = () => {
   return (
     <div className={styles.emptyState}>
-      <Icon name="file-text-line" size={48} color="var(--color-gray-400)" />
+      <Icon name="file-list-line" size={48} color="var(--color-gray-400)" />
       <h3 className={styles.emptyTitle}>작성한 게시글이 없습니다</h3>
       <p className={styles.emptyDescription}>
         아직 작성한 게시글이 없습니다.

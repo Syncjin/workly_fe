@@ -3,16 +3,16 @@ import type { ApiResponse, Pagination } from "@workly/types/common";
 import { postQueryKeys } from "./keys";
 
 // 타입 가드들
-export function isApiRespPagination<T>(v: any): v is ApiResponse<Pagination<T>> {
-  return v && v.data && Array.isArray(v.data.items);
+export function isApiRespPagination<T>(v: unknown): v is ApiResponse<Pagination<T>> {
+  return typeof v === "object" && v !== null && "data" in v && typeof v.data === "object" && v.data !== null && "items" in v.data && Array.isArray(v.data.items);
 }
 
-export function isApiRespArray<T>(v: any): v is ApiResponse<T[]> {
-  return v && Array.isArray(v.data);
+export function isApiRespArray<T>(v: unknown): v is ApiResponse<T[]> {
+  return typeof v === "object" && v !== null && "data" in v && Array.isArray(v.data);
 }
 
-export function isInfiniteData<T>(v: any): v is InfiniteData<T> {
-  return v && Array.isArray(v.pages);
+export function isInfiniteData<T>(v: unknown): v is InfiniteData<T> {
+  return typeof v === "object" && v !== null && "pages" in v && Array.isArray(v.pages);
 }
 
 // 쿼리 키 매칭

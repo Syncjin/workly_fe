@@ -129,7 +129,7 @@ export function useSyncVisibleIds(ids: number[]) {
 
   React.useEffect(() => {
     setVisible(ids);
-  }, [setVisible, idsString]); // 문자열 비교로 불필요한 리렌더링 방지
+  }, [setVisible, ids, idsString]); // 문자열 비교로 불필요한 리렌더링 방지
 }
 
 /** 개별 액션 훅들 - 안정적인 참조 보장 */

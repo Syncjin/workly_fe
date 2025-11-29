@@ -1,6 +1,7 @@
 // packages/api/src/http.ts
-import type { ApiResponse } from "@workly/types/common";
 import { isPublicApiEndpoint } from "./auth-config";
+
+import type { ApiResponse } from "@workly/types/common";
 
 export type ServiceKey = "main" | "admin";
 
@@ -106,23 +107,27 @@ export function createHttpClient(opts: HttpClientOptions) {
 
       // 재시도도 실패하면 에러
       const retryText = await retryRes.text().catch(() => "");
-      throw { message: retryText || `HTTP ${retryRes.status}`, status: retryRes.status } as any;
+      const error = new Error(retryText || `HTTP ${retryRes.status}`);
+      Object.assign(error, { status: retryRes.status });
+      throw error;
     } else {
-      throw { message: "Session expired, unable to refresh.", status: 401 } as any;
+      const error = new Error("Session expired, unable to refresh.");
+      Object.assign(error, { status: 401 });
+      throw error;
     }
   }
   async function request<T>(method: string, endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
     const service = resolveService(endpoint, options.service);
     const url = getFullUrl(endpoint, service, options.absolute);
 
-    const baseHeaders: HeadersInit = {
+    const baseHeaders: Record<string, string> = {
       ...(environment ? { "X-Environment": environment } : {}),
     };
 
     const at = auth?.getAccessToken?.();
-    if (at) (baseHeaders as any).Authorization = `Bearer ${at}`;
+    if (at) baseHeaders.Authorization = `Bearer ${at}`;
     const csrf = auth?.getCsrfToken?.();
-    if (csrf) (baseHeaders as any)["x-csrf-token"] = csrf;
+    if (csrf) baseHeaders["x-csrf-token"] = csrf;
 
     const body = options.body == null ? undefined : isFormDataBody(options.body) ? options.body : typeof options.body === "string" ? options.body : options.body;
 
@@ -144,7 +149,10 @@ export function createHttpClient(opts: HttpClientOptions) {
       body, // 위에서 결정한 body 사용
     };
 
-    if (debug) console.debug("[http]", method, url, req);
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.debug("[http]", method, url, req);
+    }
 
     const res = await fetch(url, req);
 
@@ -153,15 +161,22 @@ export function createHttpClient(opts: HttpClientOptions) {
       const shouldSkipRefresh = isPublicApiEndpoint(url, auth?.publicApiPatterns);
 
       if (res.status === 401 && auth?.refreshAccessToken && !shouldSkipRefresh) {
-        if (debug) console.debug("[http]", "Token expired (401). Attempting refresh and retry...");
+        if (debug) {
+          // eslint-disable-next-line no-console
+          console.debug("[http]", "Token expired (401). Attempting refresh and retry...");
+        }
         return refreshAndRetry<T>(req, url);
       }
       const text = await res.text().catch(() => "");
-      let json: any = {};
+      let json: { message?: string; code?: string } = {};
       try {
-        json = text ? JSON.parse(text) : {};
-      } catch {}
-      throw { message: json.message || `HTTP ${res.status}`, status: res.status, code: json.code } as any;
+        json = text ? (JSON.parse(text) as { message?: string; code?: string }) : {};
+      } catch {
+        // ignore parse error
+      }
+      const error = new Error(json.message || `HTTP ${res.status}`);
+      Object.assign(error, { status: res.status, code: json.code });
+      throw error;
     }
 
     return parseApiJsonSafe<T>(res);
@@ -169,12 +184,12 @@ export function createHttpClient(opts: HttpClientOptions) {
 
   return {
     get: <T>(endpoint: string, options?: RequestOptions) => request<T>("GET", endpoint, options),
-    post: <T>(endpoint: string, body?: any, options?: RequestOptions) => request<T>("POST", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    post: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("POST", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
     postMultipart: <T>(endpoint: string, form: FormData, options?: RequestOptions) => request<T>("POST", endpoint, { ...options, body: form }),
-    put: <T>(endpoint: string, body?: any, options?: RequestOptions) => request<T>("PUT", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
-    patch: <T>(endpoint: string, body?: any, options?: RequestOptions) => request<T>("PATCH", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    put: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("PUT", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    patch: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("PATCH", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
     patchMultipart: <T>(endpoint: string, form: FormData, options?: RequestOptions) => request<T>("PATCH", endpoint, { ...options, body: form }),
-    delete: <T>(endpoint: string, body?: any, options?: RequestOptions) => request<T>("DELETE", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
+    delete: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => request<T>("DELETE", endpoint, { ...options, body: body ? JSON.stringify(body) : undefined }),
 
     // 간단 업로드(필요 시 확장)
     upload: async <T>(endpoint: string, file: File, options: RequestOptions = {}) => {
@@ -184,12 +199,12 @@ export function createHttpClient(opts: HttpClientOptions) {
       const fd = new FormData();
       fd.append("file", file);
 
-      const headers: HeadersInit = {};
+      const headers: Record<string, string> = {};
       const at = auth?.getAccessToken?.();
-      if (at) (headers as any).Authorization = `Bearer ${at}`;
+      if (at) headers.Authorization = `Bearer ${at}`;
       const csrf = auth?.getCsrfToken?.();
-      if (csrf) (headers as any)["x-csrf-token"] = csrf;
-      if (environment) (headers as any)["X-Environment"] = environment;
+      if (csrf) headers["x-csrf-token"] = csrf;
+      if (environment) headers["X-Environment"] = environment;
 
       const isLocalApi = url.startsWith("/api/");
       const res = await fetch(url, {

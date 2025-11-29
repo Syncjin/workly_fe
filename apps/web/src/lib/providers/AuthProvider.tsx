@@ -48,7 +48,7 @@ export function AuthProvider({ children, fallback = <div>Loading authentication.
         });
 
         const text = await res.text();
-        let body: any = null;
+        let body: { data?: { accessToken?: string }; accessToken?: string; token?: string; code?: string; errorCode?: string; error?: string } | null = null;
         try {
           body = text ? JSON.parse(text) : null;
         } catch {
@@ -74,7 +74,7 @@ export function AuthProvider({ children, fallback = <div>Loading authentication.
           }
           await logout();
         }
-      } catch (e: any) {
+      } catch {
         if (autoLoginEnabled) {
           removeAutoLoginFlag();
         }

@@ -15,6 +15,7 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import { $createParagraphNode, $getRoot, LexicalEditor, type Klass, type LexicalNode } from "lexical";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
+
 import * as s from "./editor.css";
 import { defaultNodes } from "./nodes";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
@@ -26,6 +27,7 @@ import { IMESafeHotkeyPlugin } from "./plugins/IMESafeHotkeyPlugin";
 import YouTubePlugin from "./plugins/YoutubePlugin";
 import { lexicalTheme as defaultTheme } from "./theme.css";
 import { Toolbar } from "./Toolbar";
+
 import type { FileDeleteAdapter, FileUploadAdapter, SubmitOptions } from "./types";
 
 type Props = {
@@ -37,7 +39,7 @@ type Props = {
   placeholder?: string;
   onPickImageFile?: () => Promise<File | null>; // 파일 선택기
   onPickYoutubeVideo?: () => Promise<string | null>; // YouTube URL 또는 비디오 ID 선택기
-  theme?: Record<string, any>;
+  theme?: Record<string, string>;
   nodes?: ReadonlyArray<Klass<LexicalNode>>;
   onError?: (e: Error) => void;
   contentMaxWidth?: number;
@@ -67,7 +69,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
     onPickYoutubeVideo,
     theme = defaultTheme,
     nodes = defaultNodes,
-    onError = (e) => console.error(e),
+    onError,
     contentMaxWidth,
     uploadAPI,
     deleteAPI,
@@ -83,21 +85,22 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
     namespace,
     theme,
     nodes,
-    onError,
-    editorState: (editor: LexicalEditor) => {
-      if (!initialJSON) return;
-      try {
-        const parsed = JSON.parse(initialJSON);
-        editor.setEditorState(editor.parseEditorState(parsed));
-      } catch (err) {
-        console.log("parsed err", err);
-        editor.update(() => {
-          const root = $getRoot();
-          if (root.isEmpty()) root.append($createParagraphNode());
-        });
-      }
-    },
-  } as const;
+    // eslint-disable-next-line no-console
+    onError: onError || ((e: Error) => console.error(e)),
+    editorState: initialJSON
+      ? (editor: LexicalEditor) => {
+          try {
+            const parsed = JSON.parse(initialJSON) as Parameters<typeof editor.parseEditorState>[0];
+            editor.setEditorState(editor.parseEditorState(parsed));
+          } catch {
+            editor.update(() => {
+              const root = $getRoot();
+              if (root.isEmpty()) root.append($createParagraphNode());
+            });
+          }
+        }
+      : undefined,
+  };
 
   // 파일 저장
   const rememberFile = useCallback((tempId: string, file: File) => {
@@ -106,7 +109,7 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
 
   const submit = useCallback(
     async (options?: SubmitOptions) => {
-      return fileManagerRef.current.submit(uploadAPI, deleteAPI, options, {
+      return await fileManagerRef.current.submit(uploadAPI, deleteAPI, options, {
         onUploadStart,
         onUploadProgress,
         onUploadComplete,
@@ -131,17 +134,18 @@ export const Editor = forwardRef<EditorRef, Props>(function Editor(
 
   // 초기 이미지 상태 세팅
   useEffect(() => {
-    fileManagerRef.current.setInitialImageState(initialJSON);
+    void fileManagerRef.current.setInitialImageState(initialJSON);
   }, [initialJSON]);
 
   // 언마운트 시 파일 저장소 정리
   useEffect(() => {
-    return () => fileManagerRef.current.clearFileStore();
+    const fileManager = fileManagerRef.current;
+    return () => fileManager.clearFileStore();
   }, []);
 
   // 콘텐츠 변경 핸들러 (빈 컨텐츠 → 빈 문자열 제공)
   const handleChange = useCallback(
-    (editorState: any) => {
+    (editorState: { read: (fn: () => void) => void; toJSON: () => unknown }) => {
       if (!onChangeJSON) return;
       try {
         editorState.read(() => {

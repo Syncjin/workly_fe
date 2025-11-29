@@ -21,11 +21,12 @@ type Props = {
 export const ConfirmDialog: FC<Props> = () => {
   const modalState = useModalStore((state) => state.current);
   const isOpen = modalState.type === CONFIRM_MODAL_KEY;
-  const header = modalState.props?.params?.header as string | undefined;
-  const title = modalState.props?.params?.title as string | undefined;
-  const content = modalState.props?.params?.content as string | undefined;
-  const oneBtnText = modalState.props?.params?.oneBtnText as string | undefined;
-  const twoBtnText = modalState.props?.params?.twoBtnText as string | undefined;
+  const props = modalState.props as Props | undefined;
+  const header = props?.params?.header;
+  const title = props?.params?.title;
+  const content = props?.params?.content;
+  const oneBtnText = props?.params?.oneBtnText;
+  const twoBtnText = props?.params?.twoBtnText;
 
   const handleOne = useCallback(() => modalClient.resolve(false), []);
   const handleTwo = useCallback(() => modalClient.resolve(true), []);

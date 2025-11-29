@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
+
 import { useModal, useModalState } from "./context";
 
-type ModalLoader = () => Promise<{ default: React.ComponentType<any> }>;
+type ModalLoader = () => Promise<{ default: React.ComponentType<unknown> }>;
 type LoaderRegistry = Record<string, ModalLoader>;
 
 export function ModalHost({ loaders, fallback }: { loaders: LoaderRegistry; fallback?: React.ReactNode }) {
@@ -19,6 +20,7 @@ export function ModalHost({ loaders, fallback }: { loaders: LoaderRegistry; fall
 
   return (
     <React.Suspense fallback={fallback ?? null}>
+      {/* @ts-expect-error - LazyComp props are dynamically loaded */}
       <LazyComp open onClose={cancel} onResolve={resolve} {...(props || {})} />
     </React.Suspense>
   );

@@ -1,0 +1,93 @@
+name: 'Setup Node.js and Dependencies'
+description: '공통 설정: Node.js, pnpm 설치 및 의존성 캐싱'
+
+inputs:
+  node-version:
+    description: 'Node.js 버전'
+    required: false
+    default: '20'
+  pnpm-version:
+    description: 'pnpm 버전'
+    required: false
+    default: '9.9.0'
+
+outputs:
+  cache-hit:
+    description: '캐시 히트 여부'
+    value: ${{ steps.cache-deps.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 시작 시간 기록
+      shell: bash
+      run: echo "SETUP_START_TIME=$(date +%s)" >> $GITHUB_ENV
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      id: cache-deps
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      id: cache-node-modules
+      with:
+        path: |
+          **/node_modules
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+
+    - name: Cache Turborepo
+      uses: actions/cache@v4
+      id: cache-turbo
+      with:
+        path: |
+          .turbo
+          **/.turbo
+        key: ${{ runner.os }}-turbo-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-
+
+    - name: 캐시 상태 로깅
+      shell: bash
+      run: |
+        echo "=== 캐시 히트 상태 ==="
+        echo "pnpm store 캐시: ${{ steps.cache-deps.outputs.cache-hit == 'true' && '✓ HIT' || '✗ MISS' }}"
+        echo "node_modules 캐시: ${{ steps.cache-node-modules.outputs.cache-hit == 'true' && '✓ HIT' || '✗ MISS' }}"
+        echo "Turborepo 캐시: ${{ steps.cache-turbo.outputs.cache-hit == 'true' && '✓ HIT' || '✗ MISS' }}"
+        echo "pnpm-lock.yaml 해시: ${{ hashFiles('**/pnpm-lock.yaml') }}"
+        echo "====================="
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: 실행 시간 측정
+      shell: bash
+      run: |
+        SETUP_END_TIME=$(date +%s)
+        SETUP_DURATION=$((SETUP_END_TIME - SETUP_START_TIME))
+        echo "=== Setup 실행 시간 ==="
+        echo "소요 시간: ${SETUP_DURATION}초"
+        echo "======================="

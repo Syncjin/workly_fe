@@ -7,9 +7,10 @@ export const queryClient = new QueryClient({
       // 기본 설정
       staleTime: 5 * 60 * 1000, // 5분
       gcTime: 10 * 60 * 1000, // 10분 (이전 cacheTime)
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // 4xx 에러는 재시도하지 않음
-        if (error?.status >= 400 && error?.status < 500) {
+        const status = (error as { status?: number })?.status;
+        if (status && status >= 400 && status < 500) {
           return false;
         }
         // 최대 3번 재시도
@@ -23,7 +24,7 @@ export const queryClient = new QueryClient({
     mutations: {
       // 뮤테이션 기본 설정
       retry: false,
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         log.error("Mutation error", error);
       },
     },

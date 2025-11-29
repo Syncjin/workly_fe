@@ -5,6 +5,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { $getNearestNodeOfType, mergeRegister } from "@lexical/utils";
 import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor } from "lexical";
 import { useEffect } from "react";
+
 import { CODE_LANGUAGE_COMMAND } from "./command";
 
 export default function CodeHighlightPlugin() {

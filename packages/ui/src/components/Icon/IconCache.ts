@@ -1,5 +1,6 @@
-import type { IconName } from "@workly/icons";
 import React from "react";
+
+import type { IconName } from "@workly/icons";
 
 interface IconCacheEntry {
   component: React.ComponentType<React.SVGProps<SVGSVGElement>> | null;
@@ -154,11 +155,14 @@ export class IconCache {
   private async loadIcon(name: IconName): Promise<React.ComponentType<React.SVGProps<SVGSVGElement>> | null> {
     try {
       // @workly/icons/svgs에서 SVG 파일을 동적으로 import
-      const svgModule = await import(`@workly/icons/svgs/${name}.svg`);
+      const svgModule = (await import(`@workly/icons/svgs/${name}.svg`)) as {
+        default: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+      };
       return svgModule.default;
     } catch (error) {
       // 테스트 환경에서는 경고를 출력하지 않음
       if (process.env.NODE_ENV !== "test") {
+        // eslint-disable-next-line no-console
         console.warn(`Failed to load icon: ${name}`, error);
       }
       throw error;
@@ -202,6 +206,7 @@ export class IconCache {
         try {
           callback();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(`Error in icon cache subscriber for ${name}:`, error);
         }
       });

@@ -29,7 +29,10 @@
     "dev": "tsup --watch",
     "clean": "rimraf dist",
     "optimize-svgs": "node scripts/optimize-svgs.js",
-    "generate-types": "node scripts/generate-types.js"
+    "generate-types": "node scripts/generate-types.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'No lint for icons package'",
+    "format": "echo 'No format for icons package'"
   },
   "dependencies": {
     "fast-glob": "^3.3.2",

@@ -7,7 +7,7 @@ import { errorMessage, form, submitButton, successMessage } from "./formContent.
 
 interface ForgotIdFormContentProps {
   action: {
-    run: (data: ForgotIdFormData) => Promise<any>;
+    run: (data: ForgotIdFormData) => Promise<{ status: number; message?: string }>;
     isPending: boolean;
   };
 }
@@ -39,8 +39,8 @@ export function ForgotIdFormContent({ action }: ForgotIdFormContentProps) {
       } else {
         setError(response.message || "아이디 찾기에 실패했습니다. 다시 시도해주세요.");
       }
-    } catch (e: any) {
-      const errorMsg = e?.message || "아이디 찾기에 실패했습니다. 다시 시도해주세요.";
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : "아이디 찾기에 실패했습니다. 다시 시도해주세요.";
       setError(errorMsg);
     }
   };

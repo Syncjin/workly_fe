@@ -1,5 +1,6 @@
 import type { User } from "@/entities/users";
 
+import { UserRole } from "@workly/types";
 import { ROLE_PERMS, type PermissionKey } from "./policies";
 
 export function hasPermission(user: User | null | undefined, perm: PermissionKey): boolean {
@@ -32,7 +33,7 @@ export function can(
   if (iAmOwner) return true;
 
   // 관리자 우회
-  const isAdmin = Array.isArray(user?.role) ? user!.role.includes("ROLE_ADMIN" as any) : user?.role === ("ROLE_ADMIN" as any);
+  const isAdmin = Array.isArray(user?.role) ? user!.role.includes("ROLE_ADMIN" as UserRole) : user?.role === ("ROLE_ADMIN" as UserRole);
 
   return allowAdminBypass ? !!isAdmin : false;
 }

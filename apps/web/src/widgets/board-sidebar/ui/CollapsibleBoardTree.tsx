@@ -78,7 +78,7 @@ export const CollapsibleBoardTree = ({ data, activeBoardId, onSelectBoard, defau
           const expandedNow = isExpanded(category.id);
 
           return (
-            <li key={category.id} role="treeitem" aria-expanded={expandedNow} className={styles.categoryItem}>
+            <li key={category.id} role="treeitem" aria-expanded={expandedNow} aria-selected={false} className={styles.categoryItem}>
               <button
                 type="button"
                 onClick={() => toggle(category.id)}

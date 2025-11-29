@@ -7,7 +7,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "dependencies": {
     "@workly/types": "workspace:*",
@@ -28,7 +31,11 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "peerDependencies": {
     "typescript": ">=5.2.0"

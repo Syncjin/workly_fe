@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
 import { Select } from "./index";
 
 describe("Select 컴포넌트", () => {
@@ -237,6 +238,7 @@ describe("Select 컴포넌트", () => {
 
     it("메뉴가 화면 오른쪽을 벗어날 때 위치 조정 로직이 실행된다", () => {
       // getBoundingClientRect 모킹 - 화면을 벗어나는 경우
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
 
       render(<Select options={options} />);
@@ -247,20 +249,17 @@ describe("Select 컴포넌트", () => {
       const menu = screen.getByRole("listbox");
 
       // 화면을 벗어나는 경우 모킹
-      menu.getBoundingClientRect = vi.fn(
-        () =>
-          ({
-            right: 1200, // window.innerWidth(1024)보다 큰 값
-            left: 900,
-            top: 100,
-            bottom: 300,
-            width: 300,
-            height: 200,
-            x: 900,
-            y: 100,
-            toJSON: () => ({}),
-          }) as DOMRect
-      );
+      menu.getBoundingClientRect = vi.fn().mockReturnValue({
+        right: 1200, // window.innerWidth(1024)보다 큰 값
+        left: 900,
+        top: 100,
+        bottom: 300,
+        width: 300,
+        height: 200,
+        x: 900,
+        y: 100,
+        toJSON: () => ({}),
+      } as DOMRect);
 
       // 메뉴를 다시 열어서 useEffect 트리거
       fireEvent.click(selectButton); // 닫기
@@ -274,6 +273,7 @@ describe("Select 컴포넌트", () => {
     });
 
     it("메뉴가 화면 왼쪽을 벗어날 때 위치 조정 로직이 실행된다", () => {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
 
       render(<Select options={options} />);
@@ -284,20 +284,17 @@ describe("Select 컴포넌트", () => {
       const menu = screen.getByRole("listbox");
 
       // 왼쪽을 벗어나는 경우 모킹
-      menu.getBoundingClientRect = vi.fn(
-        () =>
-          ({
-            right: 100,
-            left: -50, // 음수 값으로 왼쪽을 벗어남
-            top: 100,
-            bottom: 300,
-            width: 150,
-            height: 200,
-            x: -50,
-            y: 100,
-            toJSON: () => ({}),
-          }) as DOMRect
-      );
+      menu.getBoundingClientRect = vi.fn().mockReturnValue({
+        right: 100,
+        left: -50, // 음수 값으로 왼쪽을 벗어남
+        top: 100,
+        bottom: 300,
+        width: 150,
+        height: 200,
+        x: -50,
+        y: 100,
+        toJSON: () => ({}),
+      } as DOMRect);
 
       // 메뉴를 다시 열어서 useEffect 트리거
       fireEvent.click(selectButton); // 닫기
@@ -310,6 +307,7 @@ describe("Select 컴포넌트", () => {
     });
 
     it("메뉴가 화면 안에 있을 때는 위치 조정이 되지 않는다", () => {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
 
       render(<Select options={options} />);
@@ -320,20 +318,17 @@ describe("Select 컴포넌트", () => {
       const menu = screen.getByRole("listbox");
 
       // 정상 범위 내 모킹
-      menu.getBoundingClientRect = vi.fn(
-        () =>
-          ({
-            right: 500, // window.innerWidth(1024) 안에 있음
-            left: 300,
-            top: 100,
-            bottom: 300,
-            width: 200,
-            height: 200,
-            x: 300,
-            y: 100,
-            toJSON: () => ({}),
-          }) as DOMRect
-      );
+      menu.getBoundingClientRect = vi.fn().mockReturnValue({
+        right: 500, // window.innerWidth(1024) 안에 있음
+        left: 300,
+        top: 100,
+        bottom: 300,
+        width: 200,
+        height: 200,
+        x: 300,
+        y: 100,
+        toJSON: () => ({}),
+      } as DOMRect);
 
       // 메뉴를 다시 열어서 useEffect 트리거
       fireEvent.click(selectButton); // 닫기

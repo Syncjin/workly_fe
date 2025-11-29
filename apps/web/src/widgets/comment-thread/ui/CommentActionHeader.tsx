@@ -14,7 +14,7 @@ export const CommentActionHeader = ({ postId }: { postId: number }) => {
 
   const reactionOnClick = useCallback(() => {
     run(postId);
-  }, [postId]);
+  }, [postId, run]);
 
   const replyOnClick = useCallback(() => {}, []);
 

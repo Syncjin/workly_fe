@@ -360,6 +360,304 @@ cd packages/editor && pnpm test
 - **E2E 테스트**: `apps/web/tests/` 디렉토리
 - **테스트 설정**: `vitest.config.ts`, `playwright.config.ts`
 
+## 🚀 CI/CD 파이프라인
+
+이 프로젝트는 GitHub Actions를 사용하여 완전 자동화된 CI/CD 파이프라인을 구축하고 있습니다.
+
+### 파이프라인 개요
+
+#### 1. CI (Continuous Integration)
+Pull Request 생성 시 자동으로 실행되어 코드 품질을 검증합니다.
+
+**실행 조건:**
+- Pull Request 생성 또는 업데이트
+- `main` 또는 `develop` 브랜치로의 push
+
+**검증 항목:**
+- ✅ **Lint**: ESLint를 통한 코드 스타일 검증
+- ✅ **Typecheck**: TypeScript 타입 안정성 검증
+- ✅ **Test**: Vitest 단위 테스트 실행 (커버리지 포함)
+- ✅ **E2E**: Playwright E2E 테스트 실행
+- ✅ **Build**: 프로덕션 빌드 검증
+- ✅ **Security**: pnpm audit를 통한 보안 취약점 스캔
+
+**성능 최적화:**
+- 🚀 병렬 실행: 6개 job이 동시에 실행되어 전체 시간 단축
+- 💾 캐싱: pnpm store, node_modules, Turborepo 캐시 활용
+- ⚡ 목표 실행 시간: 10분 이내 (캐시 히트 시 3-5분)
+
+#### 2. Deploy Staging
+`main` 브랜치에 코드가 병합되면 자동으로 staging 환경에 배포됩니다.
+
+**실행 조건:**
+- `main` 브랜치로의 push (자동)
+
+**배포 프로세스:**
+1. 환경 설정 및 의존성 설치
+2. Staging 환경 빌드 (`NEXT_PUBLIC_ENV=staging`)
+3. Docker 이미지 빌드 및 Docker Hub에 푸시
+4. Vultr 서버에 SSH 접속하여 배포
+5. Blue-Green 배포 방식으로 무중단 배포
+6. 배포 검증 및 헬스 체크
+7. 실패 시 Slack 알림 발송 (선택)
+
+**배포 URL:**
+- Staging: `https://staging.worklyteam.cloud`
+
+#### 3. Deploy Production
+수동 승인을 통해 production 환경에 배포합니다.
+
+**실행 조건:**
+- 수동 트리거 (GitHub Actions UI에서 실행)
+
+**배포 옵션:**
+- `version`: 배포 버전 지정 (선택사항)
+- `rollback`: 롤백 모드 활성화
+- `skip-tests`: 긴급 배포 시 테스트 건너뛰기
+
+**배포 프로세스:**
+1. 환경 설정 및 의존성 설치
+2. Production 환경 빌드 (`NEXT_PUBLIC_ENV=production`)
+3. Docker 이미지 빌드 및 Docker Hub에 푸시
+4. Vultr 서버에 SSH 접속하여 배포
+5. Blue-Green 배포 방식으로 무중단 배포
+6. 배포 검증 및 헬스 체크
+7. 실패 시 Slack 알림 및 롤백 가이드 제공
+
+**배포 URL:**
+- Production: `https://worklyteam.cloud`
+
+### 배포 프로세스
+
+#### Staging 배포
+```bash
+# 자동 배포 (main 브랜치 병합 시)
+git checkout main
+git merge feature-branch
+git push origin main
+# → GitHub Actions가 자동으로 다음을 수행:
+#    1. Docker 이미지 빌드 및 푸시
+#    2. Vultr 서버에 배포 파일 전송
+#    3. Blue-Green 배포 실행
+```
+
+#### Production 배포
+```bash
+# 1. GitHub 저장소로 이동
+# 2. Actions 탭 클릭
+# 3. "Deploy Production" 워크플로우 선택
+# 4. "Run workflow" 버튼 클릭
+# 5. 배포 옵션 설정:
+#    - version: 배포 버전 (예: v1.2.3)
+#    - rollback: 롤백 모드 (기본: false)
+#    - skip-tests: 테스트 건너뛰기 (기본: false)
+# 6. "Run workflow" 확인
+# → GitHub Actions가 자동으로 다음을 수행:
+#    1. Docker 이미지 빌드 및 푸시
+#    2. Vultr 서버에 배포 파일 전송
+#    3. Blue-Green 배포 실행
+#    4. 헬스 체크 수행
+```
+
+#### 롤백
+```bash
+# 방법 1: GitHub Actions에서 롤백
+# 1. Actions 탭 → Deploy Production 선택
+# 2. Run workflow 클릭
+# 3. rollback 옵션을 true로 설정
+# 4. Run workflow 실행
+
+# 방법 2: 서버에서 직접 롤백
+ssh root@<server-ip>
+cd /opt/workly/deployment/web
+bash /opt/workly/scripts/rollback.sh web
+```
+
+### 캐싱 전략
+
+파이프라인은 다음 캐싱 전략을 사용하여 실행 속도를 최적화합니다:
+
+1. **pnpm Store 캐싱**
+   - 캐시 키: `pnpm-lock.yaml` 해시
+   - 효과: 패키지 다운로드 시간 단축
+
+2. **node_modules 캐싱**
+   - 캐시 키: `pnpm-lock.yaml` 해시
+   - 효과: 의존성 설치 시간 단축
+
+3. **Turborepo 캐싱**
+   - 캐시 키: 커밋 SHA
+   - 효과: 빌드 및 테스트 결과 재사용
+
+**예상 성능:**
+- 첫 실행 (캐시 없음): ~8-10분
+- 캐시 히트: ~3-5분 (50-60% 단축)
+- 병렬 실행: 순차 실행 대비 5-6배 빠름
+
+### 트러블슈팅
+
+#### CI 실패 시
+
+**1. Lint 실패**
+```bash
+# 로컬에서 lint 실행 및 자동 수정
+pnpm lint --fix
+
+# 수정 후 커밋
+git add .
+git commit -m "fix: lint 오류 수정"
+git push
+```
+
+**2. Typecheck 실패**
+```bash
+# 로컬에서 타입 체크
+pnpm typecheck
+
+# 타입 오류 확인 및 수정
+# 수정 후 커밋
+git add .
+git commit -m "fix: 타입 오류 수정"
+git push
+```
+
+**3. Test 실패**
+```bash
+# 로컬에서 테스트 실행
+pnpm test
+
+# 실패한 테스트 확인 및 수정
+# 수정 후 커밋
+git add .
+git commit -m "fix: 테스트 오류 수정"
+git push
+```
+
+**4. Build 실패**
+```bash
+# 로컬에서 빌드 실행
+pnpm build
+
+# 빌드 오류 확인 및 수정
+# 수정 후 커밋
+git add .
+git commit -m "fix: 빌드 오류 수정"
+git push
+```
+
+**5. Security 스캔 실패**
+```bash
+# 로컬에서 보안 스캔 실행
+pnpm audit
+
+# Critical 취약점 확인
+pnpm audit --audit-level=critical
+
+# 취약점 수정
+pnpm audit fix
+
+# 수동 업데이트가 필요한 경우
+pnpm update <package-name>
+
+# 수정 후 커밋
+git add pnpm-lock.yaml
+git commit -m "fix: 보안 취약점 수정"
+git push
+```
+
+#### 배포 실패 시
+
+**Staging 배포 실패**
+1. GitHub Actions 로그 확인
+2. 실패 원인 파악 (빌드 오류, 환경 변수 누락 등)
+3. 문제 수정 후 `main` 브랜치에 다시 push
+4. 자동으로 재배포 시작
+
+**Production 배포 실패**
+1. GitHub Actions 로그 확인
+2. 실패 원인 파악
+3. 문제 수정 후 다시 수동 배포 트리거
+4. 또는 롤백 옵션을 활성화하여 이전 버전으로 복구
+
+**롤백 방법:**
+```bash
+# 방법 1: GitHub Actions에서 롤백
+# 1. Actions 탭 → Deploy Production 선택
+# 2. Run workflow 클릭
+# 3. rollback 옵션을 true로 설정
+# 4. Run workflow 실행
+
+# 방법 2: 서버에서 직접 롤백
+ssh root@<server-ip>
+cd /opt/workly/deployment/web
+bash /opt/workly/scripts/rollback.sh web
+```
+
+#### 캐시 문제
+
+**캐시가 제대로 작동하지 않는 경우:**
+```bash
+# 1. pnpm-lock.yaml이 변경되었는지 확인
+git status
+
+# 2. GitHub Actions에서 캐시 로그 확인
+# Setup action의 "Restore cache" 단계 확인
+
+# 3. 캐시 강제 무효화 (필요 시)
+# pnpm-lock.yaml을 수정하거나
+# GitHub Actions 캐시를 수동으로 삭제
+```
+
+**Turborepo 캐시 문제:**
+```bash
+# 로컬 캐시 삭제
+rm -rf .turbo
+
+# 다시 빌드
+pnpm build
+```
+
+#### 환경 변수 문제
+
+**환경 변수가 누락된 경우:**
+1. GitHub 저장소 → Settings → Secrets and variables → Actions
+2. 필요한 secrets 확인 및 추가:
+   - `VULTR_WEB_SSH_KEY` - Vultr 웹 서버 SSH 개인 키
+   - `VULTR_WEB_HOST` - Vultr 웹 서버 IP 주소
+   - `SLACK_WEBHOOK_URL` (선택사항) - Slack 알림용 웹훅 URL
+
+**참고:** Docker 이미지는 GitHub Container Registry를 사용하므로 `GITHUB_TOKEN`이 자동으로 사용됩니다.
+
+#### 알림 문제
+
+**Slack 알림이 오지 않는 경우:**
+1. GitHub Actions 기본 알림 설정 확인
+2. Slack webhook URL이 올바른지 확인
+3. Secret이 제대로 설정되었는지 확인
+4. Slack 앱 권한 확인
+
+### 워크플로우 파일 위치
+
+```
+.github/
+├── workflows/
+│   ├── ci.yml                    # CI 워크플로우
+│   ├── deploy-staging.yml        # Staging 배포
+│   └── deploy-production.yml     # Production 배포
+└── actions/
+    └── setup/
+        └── action.yml            # 공통 설정 액션
+```
+
+### 추가 리소스
+
+- [GitHub Actions 문서](https://docs.github.com/en/actions)
+- [Turborepo 캐싱 가이드](https://turbo.build/repo/docs/core-concepts/caching)
+- [Docker 문서](https://docs.docker.com/)
+- [Vultr 문서](https://www.vultr.com/docs/)
+- [pnpm 워크스페이스](https://pnpm.io/workspaces)
+- [배포 스크립트 가이드](deployment/scripts/README.md)
+
 ## 📦 패키지 상세 정보
 
 ### Apps

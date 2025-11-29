@@ -133,14 +133,14 @@ export const useBookmarkedPostsSuspense = <TSelected = ApiResponse<Pagination<Po
  * 게시글 복원 훅
  */
 export const usePostRestore = () => {
-  return useApiMutation<any, PostRestoreRequest>((params) => postApi.postPostsRestore(params), {});
+  return useApiMutation<void, PostRestoreRequest>((params) => postApi.postPostsRestore(params), {});
 };
 
 /**
  * 휴지통 전체 비우기 (영구 삭제) 훅
  */
 export const usePostTrash = () => {
-  return useApiMutation<any, void>(() => postApi.deletePostsTrash(), {});
+  return useApiMutation<void, void>(() => postApi.deletePostsTrash(), {});
 };
 
 /**

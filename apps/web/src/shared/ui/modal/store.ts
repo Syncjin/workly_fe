@@ -2,7 +2,7 @@
 import type { ModalKey } from "@workly/ui/overlays";
 import { create } from "zustand";
 
-type Resolver = ((v: any) => void) | null;
+type Resolver = ((v: unknown) => void) | null;
 
 // 스크롤 락 관리를 위한 유틸리티
 let scrollLockCount = 0;
@@ -46,10 +46,10 @@ function unlockBodyScroll() {
 }
 
 type ModalSlice = {
-  current: { type: ModalKey | null; props?: any };
+  current: { type: ModalKey | null; props?: unknown };
   _resolver: Resolver; // 프라미스 resolve를 저장
-  open: (type: ModalKey, props?: any) => Promise<any | null>;
-  resolve: (result: any, key?: ModalKey) => void;
+  open: (type: ModalKey, props?: unknown) => Promise<unknown>;
+  resolve: (result: unknown, key?: ModalKey) => void;
   cancel: (key?: ModalKey) => void;
 };
 

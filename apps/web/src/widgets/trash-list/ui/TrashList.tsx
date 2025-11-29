@@ -40,11 +40,6 @@ export const TrashList = React.memo(() => {
     [searchParams, router]
   );
 
-  const handlePostClick = useCallback((item: Post) => {
-    // 휴지통에서는 게시글 상세조회 불가능
-    // 클릭 이벤트를 무시합니다
-  }, []);
-
   if (isLoading) {
     return null; // 스켈레톤은 Boundary에서 처리
   }
@@ -62,7 +57,7 @@ export const TrashList = React.memo(() => {
   return (
     <div className={styles.listView}>
       {posts.map((post) => {
-        return <TrashPostRow key={post.postId} post={post} onToggle={toggle} handlePostClick={handlePostClick} />;
+        return <TrashPostRow key={post.postId} post={post} onToggle={toggle} />;
       })}
 
       {posts.length > 0 && data?.data && data.data.totalPages > 1 && <Pagination pagination={data.data} onPageChange={handlePageChange} />}
@@ -72,7 +67,7 @@ export const TrashList = React.memo(() => {
 
 TrashList.displayName = "TrashList";
 
-const TrashPostRow = memo(({ post, onToggle, handlePostClick }: { post: Post; onToggle: (id: number, next?: boolean) => void; handlePostClick: (item: Post) => void }) => {
+const TrashPostRow = memo(({ post, onToggle }: { post: Post; onToggle: (id: number, next?: boolean) => void }) => {
   const checked = useIsSelected(post.postId);
 
   const handleCheckedChange = useCallback((next: boolean) => onToggle(post.postId, next), [onToggle, post.postId]);

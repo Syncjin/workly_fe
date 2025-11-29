@@ -47,7 +47,7 @@ function Author() {
 
 function Date() {
   const { comment } = useItem();
-  let date = comment.updatedDateTime ? formatYMDHM(comment.updatedDateTime) : formatYMDHM(comment.createdDateTime);
+  const date = comment.updatedDateTime ? formatYMDHM(comment.updatedDateTime) : formatYMDHM(comment.createdDateTime);
   return <span className={styles.date}>{date}</span>;
 }
 
@@ -144,7 +144,7 @@ type RootProps = React.PropsWithChildren<
 >;
 
 function Root({ as = "li", className, children, right, footer, replyForm, ...ctx }: RootProps) {
-  const Comp: any = as;
+  const Comp = as as React.ElementType;
   const isReply = ctx.comment.parentId ? true : false;
 
   const defaultContent = (

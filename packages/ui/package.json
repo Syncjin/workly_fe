@@ -27,7 +27,12 @@
     "dev": "tsup --watch",
     "clean": "rimraf dist",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@vanilla-extract/css": "catalog:",
@@ -52,6 +57,7 @@
     "@testing-library/react": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/user-event": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "@workly/eslint-config": "workspace:*",
     "@workly/prettier-config": "workspace:*",
     "@workly/tsconfig": "workspace:*",

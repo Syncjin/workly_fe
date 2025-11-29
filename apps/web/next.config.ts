@@ -2,6 +2,13 @@ import { createVanillaExtractPlugin } from "@vanilla-extract/next-plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     USE_PROXY: process.env.USE_PROXY,

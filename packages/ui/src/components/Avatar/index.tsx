@@ -1,5 +1,7 @@
 import React, { cloneElement, isValidElement, ReactElement } from "react";
+
 import Icon from "../Icon";
+
 import { avatarBase, avatarDot, avatarDotSize, avatarIcon, avatarIconSize, avatarImage, avatarSize } from "./avatar.css";
 
 interface AvatarProps {

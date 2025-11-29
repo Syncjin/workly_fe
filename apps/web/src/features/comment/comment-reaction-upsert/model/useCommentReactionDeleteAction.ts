@@ -10,7 +10,7 @@ export function useCommentReactionDeleteAction() {
 
   const run = useCallback(
     async ({ commentId }: CommentReactionDeleteRequest) => {
-      const cancelData = await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
+      await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
 
       const reactionQk = commentQueryKeys.reaction(commentId);
       await qc.cancelQueries({ queryKey: reactionQk });

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { createContext, forwardRef, useContext } from "react";
+
 import { cx } from "../../theme/classes";
+
 import * as styles from "./Header.css";
 
 // Context 타입 정의
@@ -17,6 +19,7 @@ const useHeaderContext = () => {
   const context = useContext(HeaderContext);
   if (!context) {
     if (process.env.NODE_ENV === "development") {
+      // eslint-disable-next-line no-console
       console.warn("Header 하위 컴포넌트가 Header Context 외부에서 사용되었습니다. Header 컴포넌트 내부에서만 사용해주세요.");
     }
     throw new Error("Header 하위 컴포넌트는 Header 내부에서만 사용할 수 있습니다.");
@@ -160,7 +163,7 @@ const HeaderLogo = forwardRef<HTMLElement, HeaderLogoProps>(({ children, href, a
     if ((Component === "a" || Component === "button" || onClick) && event.key === "Enter") {
       event.preventDefault();
       if (onClick) {
-        onClick(event as any);
+        onClick(event as unknown as React.MouseEvent<HTMLElement, MouseEvent>);
       } else if (Component === "a" && href) {
         // 링크의 경우 기본 동작 허용
         return;
@@ -245,7 +248,7 @@ const HeaderAvatar = forwardRef<HTMLElement, HeaderAvatarProps>(({ children, as:
     if ((Component === "button" || onClick) && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
       if (onClick) {
-        onClick(event as any);
+        onClick(event as unknown as React.MouseEvent<HTMLElement, MouseEvent>);
       }
     }
 

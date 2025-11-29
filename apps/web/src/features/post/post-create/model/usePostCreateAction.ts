@@ -1,5 +1,4 @@
 import { usePostCreate } from "@/entities/post";
-import { useQueryClient } from "@tanstack/react-query";
 import { PostCreateRequest } from "@workly/types";
 import { useCallback } from "react";
 
@@ -9,7 +8,6 @@ type RunArgs = {
 };
 
 export function usePostCreateAction() {
-  const qc = useQueryClient();
   const { mutateAsync, isPending } = usePostCreate();
 
   const run = useCallback(
@@ -20,7 +18,7 @@ export function usePostCreateAction() {
 
       return await mutateAsync({ post, files });
     },
-    [qc, mutateAsync]
+    [mutateAsync]
   );
 
   return { run, isPending };

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
 import Avatar from "./index";
 
 describe("Avatar 컴포넌트", () => {

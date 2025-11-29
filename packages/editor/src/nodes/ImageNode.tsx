@@ -1,5 +1,6 @@
-import { DecoratorNode, LexicalEditor, type EditorConfig, type LexicalNode, type NodeKey } from "lexical";
+import { DecoratorNode, LexicalEditor, type EditorConfig, type LexicalNode, type NodeKey, type SerializedLexicalNode, type Spread } from "lexical";
 import { JSX } from "react";
+
 import { ImageView } from "./ImageView";
 
 export type InsertImagePayload = {
@@ -10,6 +11,17 @@ export type InsertImagePayload = {
   // 지연 업로드용 메타
   tempId?: string | null; // blob 이미지면 식별자(예: uuid), 서버 업로드 후 null
 };
+
+export type SerializedImageNode = Spread<
+  {
+    src: string;
+    altText: string;
+    tempId: string | null;
+    width?: number;
+    height?: number;
+  },
+  SerializedLexicalNode
+>;
 
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
@@ -40,34 +52,26 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   // 직렬화/역직렬화
-  static importJSON(json: any): ImageNode {
+  static importJSON(json: SerializedImageNode): ImageNode {
     return new ImageNode({
       src: json.src,
       altText: json.altText || "",
-      width: json.width > 0 ? json.width : undefined,
-      height: json.height > 0 ? json.height : undefined,
+      width: json.width && json.width > 0 ? json.width : undefined,
+      height: json.height && json.height > 0 ? json.height : undefined,
       tempId: json.tempId ?? null,
     });
   }
 
-  exportJSON() {
-    const json: any = {
+  exportJSON(): SerializedImageNode {
+    return {
       type: "image",
       version: 1,
       src: this.__src,
       altText: this.__altText,
       tempId: this.__tempId,
+      width: this.__width,
+      height: this.__height,
     };
-
-    // width와 height는 undefined가 아닐 때만 포함
-    if (this.__width !== undefined) {
-      json.width = this.__width;
-    }
-    if (this.__height !== undefined) {
-      json.height = this.__height;
-    }
-
-    return json;
   }
 
   createDOM(config: EditorConfig): HTMLElement {
@@ -104,7 +108,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
       // 에디터 상태 변경 알림
       writable.markDirty();
-      console.log(`ImageNode 크기 업데이트 성공: ${oldWidth}x${oldHeight} → ${newWidth}x${newHeight}`);
     }
   }
 

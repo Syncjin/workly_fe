@@ -10,6 +10,7 @@ import { $getNearestNodeOfType } from "@lexical/utils";
 import { Icon, Select, type OptionShape } from "@workly/ui";
 import { $createParagraphNode, $getSelection, $isRangeSelection, COMMAND_PRIORITY_LOW, FORMAT_TEXT_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND } from "lexical";
 import { useCallback, useEffect, useState } from "react";
+
 import * as s from "./editor.css";
 import { CLEAR_FORMAT_COMMAND, CODE_LANGUAGE_COMMAND } from "./plugins/command";
 import { INSERT_IMAGE_COMMAND } from "./plugins/ImagePlugin";
@@ -218,7 +219,7 @@ export function Toolbar({ onPickImageFile, onPickYoutubeVideo, rememberFile }: T
         case "capitalize": {
           if (selection.isCollapsed()) return;
           const text = selection.getTextContent();
-          const replaced = value === "lowercase" ? text.toLowerCase() : value === "uppercase" ? text.toUpperCase() : text.replace(/\b(\p{L})(\p{L}*)/gu, (_, a, b) => a.toUpperCase() + b.toLowerCase());
+          const replaced = value === "lowercase" ? text.toLowerCase() : value === "uppercase" ? text.toUpperCase() : text.replace(/\b(\p{L})(\p{L}*)/gu, (_, a: string, b: string) => a.toUpperCase() + b.toLowerCase());
           selection.insertText(replaced);
           break;
         }
@@ -316,7 +317,6 @@ export function Toolbar({ onPickImageFile, onPickYoutubeVideo, rememberFile }: T
       }
 
       if (!file) {
-        console.log("파일 선택이 취소되었습니다.");
         return;
       }
 
@@ -340,10 +340,7 @@ export function Toolbar({ onPickImageFile, onPickYoutubeVideo, rememberFile }: T
         altText: file.name || "선택된 이미지",
         tempId,
       });
-
-      console.log("이미지가 성공적으로 삽입되었습니다:", file.name);
-    } catch (error) {
-      console.error("이미지 추가 중 오류:", error);
+    } catch {
       alert("이미지 추가 중 오류가 발생했습니다.");
     }
   };
@@ -445,7 +442,13 @@ export function Toolbar({ onPickImageFile, onPickYoutubeVideo, rememberFile }: T
       />
 
       {/* Image */}
-      <button className={s.btn} title="Insert Image" onClick={addImage}>
+      <button
+        className={s.btn}
+        title="Insert Image"
+        onClick={() => {
+          void addImage();
+        }}
+      >
         <Icon name="image-add-line" size={{ width: 20, height: 20 }} color="var(--color-gray-900)" />
       </button>
 

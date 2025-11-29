@@ -10,7 +10,7 @@ export function useCommentReactionUpsertAction() {
 
   const run = useCallback(
     async ({ commentId, commentReaction }: CommentReactionUpsertRequest) => {
-      const cancelData = await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
+      await qc.cancelQueries({ queryKey: commentQueryKeys.infiniteLists() });
       const reactionQk = commentQueryKeys.reaction(commentId);
       await qc.cancelQueries({ queryKey: reactionQk });
 

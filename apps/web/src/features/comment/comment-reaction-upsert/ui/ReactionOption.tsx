@@ -11,7 +11,7 @@ interface ReactionOptionProps {
   disabled?: boolean;
 }
 
-export const ReactionOption = ({ type, emoji, label, count, isSelected = false, onClick, disabled = false }: ReactionOptionProps) => {
+export const ReactionOption = ({ emoji, label, count, isSelected = false, onClick, disabled = false }: ReactionOptionProps) => {
   return (
     <button type="button" className={`${styles.reactionOption} ${isSelected ? styles.reactionOptionSelected : ""}`} onClick={onClick} disabled={disabled} aria-label={`${label} 반응${count ? ` (${count}개)` : ""}`} title={label}>
       <span className={styles.reactionEmoji}>{emoji}</span>

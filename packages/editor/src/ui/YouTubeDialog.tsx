@@ -1,8 +1,10 @@
 import { Button, Icon, Input, Popup } from "@workly/ui";
 import { LexicalEditor } from "lexical";
 import { useState } from "react";
+
 import { INSERT_YOUTUBE_COMMAND } from "../plugins/command";
 import { parseYouTubeInput } from "../utils/youtubeUtils";
+
 import * as s from "./youtubeDialog.css";
 
 type YouTubeDialogProps = {
@@ -111,15 +113,8 @@ export function YouTubeDialog({ editor, onPickYoutubeVideo, className }: YouTube
         height: 315,
       });
 
-      console.log("YouTube 비디오가 성공적으로 삽입되었습니다:", {
-        videoId,
-        input: input,
-        attempts: youtubePopup.attempts + 1,
-      });
-
       handleYoutubePopupClose();
-    } catch (error) {
-      console.error("YouTube 비디오 삽입 중 오류:", error);
+    } catch {
       setYoutubePopup((prev) => ({
         ...prev,
         error: "비디오 삽입 중 오류가 발생했습니다. 다시 시도해주세요.",
@@ -132,42 +127,39 @@ export function YouTubeDialog({ editor, onPickYoutubeVideo, className }: YouTube
     handleYoutubePopupClose();
   };
 
-  const addYouTube = async () => {
-    try {
-      if (onPickYoutubeVideo) {
-        try {
-          const input = await onPickYoutubeVideo();
+  const addYouTube = () => {
+    void (async () => {
+      try {
+        if (onPickYoutubeVideo) {
+          try {
+            const input = await onPickYoutubeVideo();
 
-          if (!input) {
-            console.log("YouTube 비디오 선택이 취소되었습니다.");
-            return;
+            if (!input) {
+              return;
+            }
+
+            const videoId = parseYouTubeInput(input.trim());
+
+            if (!videoId) {
+              alert("유효하지 않은 YouTube URL 또는 비디오 ID입니다.");
+              return;
+            }
+
+            editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, {
+              videoID: videoId,
+              width: 560,
+              height: 315,
+            });
+          } catch {
+            alert("YouTube 비디오 선택 중 오류가 발생했습니다.");
           }
-
-          const videoId = parseYouTubeInput(input.trim());
-
-          if (!videoId) {
-            alert("유효하지 않은 YouTube URL 또는 비디오 ID입니다.");
-            return;
-          }
-
-          editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, {
-            videoID: videoId,
-            width: 560,
-            height: 315,
-          });
-
-          console.log("YouTube 비디오가 성공적으로 삽입되었습니다:", videoId);
-        } catch (error) {
-          console.error("커스텀 YouTube 선택기 오류:", error);
-          alert("YouTube 비디오 선택 중 오류가 발생했습니다.");
+        } else {
+          handleYoutubePopupOpen();
         }
-      } else {
-        handleYoutubePopupOpen();
+      } catch {
+        alert("YouTube 비디오 추가 중 오류가 발생했습니다.");
       }
-    } catch (error) {
-      console.error("YouTube 비디오 추가 중 오류:", error);
-      alert("YouTube 비디오 추가 중 오류가 발생했습니다.");
-    }
+    })();
   };
 
   return (

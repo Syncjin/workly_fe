@@ -17,7 +17,8 @@ type Props = {
 export const BoardSelectDialog: FC<Props> = () => {
   const modalState = useModalStore((state) => state.current);
   const isOpen = modalState.type === BOARD_SELECT_MODAL_KEY;
-  const initialBoardId = modalState.props?.params?.initialBoardId as number | undefined;
+  const props = modalState.props as Props | undefined;
+  const initialBoardId = props?.params?.initialBoardId;
 
   const [activeBoardId, setActiveBoardId] = useState<number | undefined>();
   const [activeBoard, setActiveBoard] = useState<SelectBoard>();

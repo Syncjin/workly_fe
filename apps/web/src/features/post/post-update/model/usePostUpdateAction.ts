@@ -27,7 +27,9 @@ export function usePostUpdateAction() {
 
       try {
         return await mutateAsync({ params, post, files });
-      } catch (error) {
+      } catch (e) {
+        const errorMsg = e instanceof Error ? e.message : e;
+        console.log("usePostUpdateAction e", errorMsg);
       } finally {
         // 목록 업데이트도 필요
         qc.invalidateQueries({ predicate: ({ queryKey }) => isPostDetailKey(queryKey) });

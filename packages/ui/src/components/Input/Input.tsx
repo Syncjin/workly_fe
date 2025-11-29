@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useLayoutEffect, useRef, useState } from "react";
+
 import { InputColorVariant, inputRecipe, sizeVariants } from "./input.css";
 
 export type InputSize = keyof typeof sizeVariants;

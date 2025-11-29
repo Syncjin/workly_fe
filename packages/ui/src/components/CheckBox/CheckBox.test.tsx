@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
 import { CheckBox } from "./index";
 
 // CSS 모듈 모킹
@@ -26,6 +27,7 @@ describe("CheckBox 컴포넌트", () => {
   it("중간 상태(indeterminate)로 렌더링된다", () => {
     render(<CheckBox indeterminate={true} data-testid="checkbox" />);
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const checkbox = screen.getByTestId("checkbox") as HTMLInputElement;
     expect(checkbox.indeterminate).toBe(true);
   });

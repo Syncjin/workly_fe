@@ -31,7 +31,7 @@ type TokenStore = { accessToken: string | null };
 
 const createStore = (): TokenStore => ({ accessToken: null });
 
-const tokenStore: TokenStore = isBrowser ? ((globalThis as any).__tokenStore ||= createStore()) : createStore();
+const tokenStore: TokenStore = isBrowser ? ((globalThis as typeof globalThis & { __tokenStore?: TokenStore }).__tokenStore ||= createStore()) : createStore();
 
 /** ===== 타입 ===== */
 export interface TokenResponse {
@@ -55,7 +55,7 @@ export const getAccessToken = (): string | null => tokenStore.accessToken;
 export const setAccessToken = (token: string): void => {
   try {
     if (!token || typeof token !== "string") {
-      log.warn("setAccessToken: 유효하지 않은 토큰", { tokenType: typeof token, tokenLength: (token as any)?.length });
+      log.warn("setAccessToken: 유효하지 않은 토큰", { tokenType: typeof token, tokenLength: typeof token === "string" ? token.length : 0 });
       return;
     }
     tokenStore.accessToken = token;

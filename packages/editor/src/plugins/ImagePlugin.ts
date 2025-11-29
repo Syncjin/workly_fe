@@ -2,7 +2,9 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $insertNodes, createCommand } from "lexical";
 import { useCallback, useEffect } from "react";
+
 import { $createImageNode, ImageNode, type InsertImagePayload } from "../nodes/ImageNode";
+
 import { ImageFileManager } from "./ImageFileManager";
 
 export const INSERT_IMAGE_COMMAND = createCommand<InsertImagePayload>("INSERT_IMAGE_COMMAND");
@@ -42,7 +44,6 @@ export default function ImagePlugin({
   const handleError = useCallback(
     (e: unknown) => {
       const err = e instanceof Error ? e : new Error(String(e));
-      console.error("[ImagePlugin]", err);
       onError?.(err);
     },
     [onError]
@@ -58,7 +59,6 @@ export default function ImagePlugin({
       INSERT_IMAGE_COMMAND,
       (payload) => {
         try {
-          console.log("payload", payload);
           $insertNodes([$createImageNode(payload)]);
           return true;
         } catch (e) {
@@ -68,21 +68,6 @@ export default function ImagePlugin({
       },
       0
     );
-  }, [editor, handleError]);
-
-  useEffect(() => {
-    return editor.registerRootListener((rootElem, prevRootElem) => {
-      if (prevRootElem) {
-        prevRootElem.removeEventListener("paste", onPaste as EventListener);
-        prevRootElem.removeEventListener("drop", onDrop as EventListener);
-        prevRootElem.removeEventListener("dragover", onDragOver as EventListener);
-      }
-      if (rootElem) {
-        rootElem.addEventListener("paste", onPaste as EventListener);
-        rootElem.addEventListener("drop", onDrop as EventListener);
-        rootElem.addEventListener("dragover", onDragOver as EventListener);
-      }
-    });
   }, [editor, handleError]);
 
   const handleIncomingImage = useCallback(
@@ -112,7 +97,7 @@ export default function ImagePlugin({
     (e: ClipboardEvent) => {
       try {
         const files = Array.from(e.clipboardData?.files ?? []);
-        const img = files.find((f) => f.type.startsWith("image/"));
+        const img = files.find((f: File) => f.type.startsWith("image/"));
         if (!img) return;
 
         e.preventDefault();
@@ -128,7 +113,7 @@ export default function ImagePlugin({
     (e: DragEvent) => {
       try {
         const files = Array.from(e.dataTransfer?.files ?? []);
-        const img = files.find((f) => f.type.startsWith("image/"));
+        const img = files.find((f: File) => f.type.startsWith("image/"));
         if (!img) return;
 
         e.preventDefault();
@@ -142,9 +127,24 @@ export default function ImagePlugin({
 
   const onDragOver = useCallback((e: DragEvent) => {
     const files = Array.from(e.dataTransfer?.files ?? []);
-    const hasImage = files.some((f) => f.type.startsWith("image/"));
+    const hasImage = files.some((f: File) => f.type.startsWith("image/"));
     if (hasImage) e.preventDefault();
   }, []);
+
+  useEffect(() => {
+    return editor.registerRootListener((rootElem, prevRootElem) => {
+      if (prevRootElem) {
+        prevRootElem.removeEventListener("paste", onPaste as EventListener);
+        prevRootElem.removeEventListener("drop", onDrop as EventListener);
+        prevRootElem.removeEventListener("dragover", onDragOver as EventListener);
+      }
+      if (rootElem) {
+        rootElem.addEventListener("paste", onPaste as EventListener);
+        rootElem.addEventListener("drop", onDrop as EventListener);
+        rootElem.addEventListener("dragover", onDragOver as EventListener);
+      }
+    });
+  }, [editor, onPaste, onDrop, onDragOver]);
 
   useEffect(() => {
     ImageNode.setContainerMaxWidth(contentMaxWidth);

@@ -1,20 +1,22 @@
-import type { ApiResponse, CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentDTO, CommentListParams, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, Pagination, ReactionDTO } from "@workly/types";
 import { qs } from "@workly/utils";
+
+import type { ApiResponse, CommentCreateRequest, CommentDeleteRequest, CommentDetailRequest, CommentDTO, CommentListParams, CommentReactionDeleteRequest, CommentReactionParams, CommentReactionUpsertRequest, CommentUpdateRequest, Pagination, ReactionDTO } from "@workly/types";
 import type { HttpClient } from "./http";
 
 export function createCommentApi(http: HttpClient) {
   return {
     /** 댓글 목록 조회 */
     getCommentList: async (params?: CommentListParams): Promise<ApiResponse<Pagination<CommentDTO>>> => {
-      const query = qs({
-        page: params?.page,
-        size: params?.size,
+      const query: string = qs({
+        page: params?.page ?? undefined,
+        size: params?.size ?? undefined,
       });
-      return http.get<Pagination<CommentDTO>>(`/posts/${params?.postId}/comments${query}`);
+      const postId: number | string = params?.postId ?? "";
+      return await http.get<Pagination<CommentDTO>>(`/posts/${postId}/comments${query}`);
     },
     /** 댓글 단건 조회 */
     getCommentDetail: async (params: CommentDetailRequest): Promise<ApiResponse<CommentDTO>> => {
-      return http.get<CommentDTO>(`/posts/${params.postId}/comments/${params.commentId}`);
+      return await http.get<CommentDTO>(`/posts/${params.postId}/comments/${params.commentId}`);
     },
     /** 댓글 수정 */
     patchCommentUpdate: (params: CommentUpdateRequest): Promise<ApiResponse<CommentDTO>> => {
@@ -41,14 +43,14 @@ export function createCommentApi(http: HttpClient) {
     },
     /** 댓글 리액션 통계 조회 */
     getCommentReaction: async (params: CommentReactionParams): Promise<ApiResponse<ReactionDTO>> => {
-      return http.get<ReactionDTO>(`/comments/${params.commentId}/reaction`);
+      return await http.get<ReactionDTO>(`/comments/${params.commentId}/reaction`);
     },
     /** 댓글 리액션 작성/수정 */
     postCommentReaction: async (params: CommentReactionUpsertRequest): Promise<ApiResponse<CommentDTO>> => {
       const body = {
         commentReaction: params.commentReaction,
       };
-      return http.post<CommentDTO>(`/comments/${params.commentId}/reaction`, body);
+      return await http.post<CommentDTO>(`/comments/${params.commentId}/reaction`, body);
     },
   };
 }

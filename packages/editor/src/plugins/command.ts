@@ -1,4 +1,5 @@
 import { createCommand } from "lexical";
+
 import { InsertYouTubePayload } from "./YoutubePlugin";
 
 export const CLEAR_FORMAT_COMMAND = createCommand("CLEAR_FORMAT");
