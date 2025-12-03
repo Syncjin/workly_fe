@@ -352,7 +352,7 @@ jobs:
       - name: 헬스 체크
         run: |
           echo "헬스 체크 엔드포인트 호출..."
-          HEALTH_URL="https://${{ vars.WEB_PRODUCTION_DOMAIN }}/api/health"
+          HEALTH_URL="http://${{ vars.WEB_PRODUCTION_DOMAIN }}/api/health"
           MAX_RETRIES=5
           RETRY_DELAY=10
           
@@ -379,7 +379,7 @@ jobs:
       - name: 헬스 체크
         run: |
           echo "헬스 체크 엔드포인트 호출..."
-          HEALTH_URL="https://${{ vars.ADMIN_PRODUCTION_DOMAIN }}/api/health"
+          HEALTH_URL="http://${{ vars.ADMIN_PRODUCTION_DOMAIN }}/api/health"
           MAX_RETRIES=5
           RETRY_DELAY=10
           
