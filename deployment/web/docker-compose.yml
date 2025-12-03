@@ -9,8 +9,7 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_ENV=${DEPLOY_ENV}
-    env_file:
-      - .env
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
@@ -36,8 +35,7 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_ENV=${DEPLOY_ENV}
-    env_file:
-      - .env
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s

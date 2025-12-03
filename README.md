@@ -370,14 +370,14 @@ cd packages/editor && pnpm test
 Pull Request 생성 시 자동으로 실행되어 코드 품질을 검증합니다.
 
 **실행 조건:**
-- Pull Request 생성 또는 업데이트
-- `main` 또는 `develop` 브랜치로의 push
+- Pull Request 생성 또는 업데이트 (`main` 또는 `develop` 브랜치 대상)
+- `develop` 브랜치로의 push
 
 **검증 항목:**
 - ✅ **Lint**: ESLint를 통한 코드 스타일 검증
 - ✅ **Typecheck**: TypeScript 타입 안정성 검증
 - ✅ **Test**: Vitest 단위 테스트 실행 (커버리지 포함)
-- ✅ **E2E**: Playwright E2E 테스트 실행
+- ✅ **E2E**: Playwright E2E 테스트 실행 (main 브랜치 또는 수동 트리거 시)
 - ✅ **Build**: 프로덕션 빌드 검증
 - ✅ **Security**: pnpm audit를 통한 보안 취약점 스캔
 
@@ -386,23 +386,36 @@ Pull Request 생성 시 자동으로 실행되어 코드 품질을 검증합니�
 - 💾 캐싱: pnpm store, node_modules, Turborepo 캐시 활용
 - ⚡ 목표 실행 시간: 10분 이내 (캐시 히트 시 3-5분)
 
-#### 2. Deploy Staging
-`main` 브랜치에 코드가 병합되면 자동으로 staging 환경에 배포됩니다.
+#### 2. Deploy Staging (스마트 배포)
+`main` 브랜치에 코드가 병합되면 **변경된 앱만** 자동으로 staging 환경에 배포됩니다.
 
 **실행 조건:**
 - `main` 브랜치로의 push (자동)
+- 수동 트리거 (배포할 앱 선택 가능: web, admin, both)
+
+**스마트 배포 로직:**
+- 📦 `apps/web/**` 변경 → Web Staging만 배포
+- 📦 `apps/admin/**` 변경 → Admin Staging만 배포
+- 📦 `packages/**` 변경 → Web + Admin Staging 모두 배포
 
 **배포 프로세스:**
-1. 환경 설정 및 의존성 설치
-2. Staging 환경 빌드 (`NEXT_PUBLIC_ENV=staging`)
-3. Docker 이미지 빌드 및 Docker Hub에 푸시
-4. Vultr 서버에 SSH 접속하여 배포
-5. Blue-Green 배포 방식으로 무중단 배포
-6. 배포 검증 및 헬스 체크
-7. 실패 시 Slack 알림 발송 (선택)
+1. 변경 감지 (Path Filter)
+2. 환경 설정 및 의존성 설치
+3. 변경된 앱만 Staging 환경 빌드 (`NEXT_PUBLIC_ENV=staging`)
+4. Docker 이미지 빌드 (Blue/Green 태그)
+5. GitHub Container Registry에 푸시
+6. 서버별 SSH 접속하여 배포
+7. Blue-Green 배포 방식으로 무중단 배포
+8. 배포 검증 및 헬스 체크
 
 **배포 URL:**
-- Staging: `https://staging.worklyteam.cloud`
+- Web Staging: `https://staging.worklyteam.cloud`
+- Admin Staging: `https://admin-staging.worklyteam.cloud`
+
+**환경 변수:**
+- GitHub Secrets/Variables로 중앙 관리
+- 서버별 독립적인 SSH 키 및 호스트
+- 환경별 API URL 자동 주입
 
 #### 3. Deploy Production
 수동 승인을 통해 production 환경에 배포합니다.
@@ -411,52 +424,78 @@ Pull Request 생성 시 자동으로 실행되어 코드 품질을 검증합니�
 - 수동 트리거 (GitHub Actions UI에서 실행)
 
 **배포 옵션:**
+- `app`: 배포할 앱 선택 (web, admin, both)
 - `version`: 배포 버전 지정 (선택사항)
 - `rollback`: 롤백 모드 활성화
-- `skip-tests`: 긴급 배포 시 테스트 건너뛰기
 
 **배포 프로세스:**
-1. 환경 설정 및 의존성 설치
-2. Production 환경 빌드 (`NEXT_PUBLIC_ENV=production`)
-3. Docker 이미지 빌드 및 Docker Hub에 푸시
-4. Vultr 서버에 SSH 접속하여 배포
+1. 선택한 앱만 Production 환경 빌드 (`NEXT_PUBLIC_ENV=production`)
+2. Docker 이미지 빌드 (Blue/Green 태그)
+3. GitHub Container Registry에 푸시
+4. 서버별 SSH 접속하여 배포
 5. Blue-Green 배포 방식으로 무중단 배포
 6. 배포 검증 및 헬스 체크
-7. 실패 시 Slack 알림 및 롤백 가이드 제공
+7. 실패 시 롤백 가이드 제공
 
 **배포 URL:**
-- Production: `https://worklyteam.cloud`
+- Web Production: `https://worklyteam.cloud`
+- Admin Production: `https://admin.worklyteam.cloud`
+
+**환경 변수:**
+- GitHub Secrets/Variables로 중앙 관리
+- 서버별 독립적인 SSH 키 및 호스트
+- 환경별 API URL 자동 주입
 
 ### 배포 프로세스
 
-#### Staging 배포
+#### Staging 배포 (자동)
 ```bash
 # 자동 배포 (main 브랜치 병합 시)
 git checkout main
 git merge feature-branch
 git push origin main
+
 # → GitHub Actions가 자동으로 다음을 수행:
-#    1. Docker 이미지 빌드 및 푸시
-#    2. Vultr 서버에 배포 파일 전송
-#    3. Blue-Green 배포 실행
+#    1. 변경된 파일 감지 (apps/web, apps/admin, packages)
+#    2. 변경된 앱만 Docker 이미지 빌드
+#    3. GitHub Container Registry에 푸시
+#    4. 해당 서버에만 배포 파일 전송
+#    5. Blue-Green 배포 실행
+#    6. 헬스 체크 수행
+
+# 예시: apps/web만 변경 → Web Staging만 배포
+# 예시: packages 변경 → Web + Admin Staging 모두 배포
 ```
 
-#### Production 배포
+#### Staging 배포 (수동)
 ```bash
-# 1. GitHub 저장소로 이동
-# 2. Actions 탭 클릭
-# 3. "Deploy Production" 워크플로우 선택
-# 4. "Run workflow" 버튼 클릭
-# 5. 배포 옵션 설정:
-#    - version: 배포 버전 (예: v1.2.3)
+# 1. GitHub 저장소 → Actions 탭
+# 2. "Deploy Staging" 워크플로우 선택
+# 3. "Run workflow" 클릭
+# 4. 배포할 앱 선택:
+#    - web: Web Staging만 배포
+#    - admin: Admin Staging만 배포
+#    - both: 둘 다 배포
+# 5. "Run workflow" 실행
+```
+
+#### Production 배포 (수동)
+```bash
+# 1. GitHub 저장소 → Actions 탭
+# 2. "Deploy Production" 워크플로우 선택
+# 3. "Run workflow" 클릭
+# 4. 배포 옵션 설정:
+#    - app: 배포할 앱 (web, admin, both)
+#    - version: 배포 버전 (예: v1.2.3, 선택사항)
 #    - rollback: 롤백 모드 (기본: false)
-#    - skip-tests: 테스트 건너뛰기 (기본: false)
-# 6. "Run workflow" 확인
+# 5. "Run workflow" 실행
+
 # → GitHub Actions가 자동으로 다음을 수행:
-#    1. Docker 이미지 빌드 및 푸시
-#    2. Vultr 서버에 배포 파일 전송
-#    3. Blue-Green 배포 실행
-#    4. 헬스 체크 수행
+#    1. 선택한 앱만 Docker 이미지 빌드
+#    2. GitHub Container Registry에 푸시
+#    3. 해당 서버에만 배포 파일 전송
+#    4. Blue-Green 배포 실행
+#    5. 헬스 체크 수행
 ```
 
 #### 롤백
@@ -464,13 +503,20 @@ git push origin main
 # 방법 1: GitHub Actions에서 롤백
 # 1. Actions 탭 → Deploy Production 선택
 # 2. Run workflow 클릭
-# 3. rollback 옵션을 true로 설정
-# 4. Run workflow 실행
+# 3. app 선택 (web 또는 admin)
+# 4. rollback 옵션을 true로 설정
+# 5. Run workflow 실행
 
 # 방법 2: 서버에서 직접 롤백
-ssh root@<server-ip>
+# Web 서버
+ssh root@<web-server-ip>
 cd /opt/workly/deployment/web
 bash /opt/workly/scripts/rollback.sh web
+
+# Admin 서버
+ssh root@<admin-server-ip>
+cd /opt/workly/deployment/admin
+bash /opt/workly/scripts/rollback.sh admin
 ```
 
 ### 캐싱 전략
@@ -620,11 +666,36 @@ pnpm build
 #### 환경 변수 문제
 
 **환경 변수가 누락된 경우:**
-1. GitHub 저장소 → Settings → Secrets and variables → Actions
-2. 필요한 secrets 확인 및 추가:
-   - `VULTR_WEB_SSH_KEY` - Vultr 웹 서버 SSH 개인 키
-   - `VULTR_WEB_HOST` - Vultr 웹 서버 IP 주소
-   - `SLACK_WEBHOOK_URL` (선택사항) - Slack 알림용 웹훅 URL
+
+GitHub 저장소 → Settings → Secrets and variables → Actions
+
+**필수 Secrets (8개):**
+- `WEB_STAGING_SSH_KEY` - Web Staging 서버 SSH 개인 키
+- `WEB_STAGING_HOST` - Web Staging 서버 IP 주소
+- `WEB_PRODUCTION_SSH_KEY` - Web Production 서버 SSH 개인 키
+- `WEB_PRODUCTION_HOST` - Web Production 서버 IP 주소
+- `ADMIN_STAGING_SSH_KEY` - Admin Staging 서버 SSH 개인 키
+- `ADMIN_STAGING_HOST` - Admin Staging 서버 IP 주소
+- `ADMIN_PRODUCTION_SSH_KEY` - Admin Production 서버 SSH 개인 키
+- `ADMIN_PRODUCTION_HOST` - Admin Production 서버 IP 주소
+
+**필수 Variables (14개):**
+- `REPOSITORY_NAME` - GitHub 저장소 경로 (예: Syncjin/workly_fe)
+- `SSL_EMAIL` - SSL 인증서 발급용 이메일
+- `WEB_STAGING_DOMAIN`, `WEB_STAGING_API_URL`, `WEB_STAGING_ADMIN_API_URL`
+- `WEB_PRODUCTION_DOMAIN`, `WEB_PRODUCTION_API_URL`, `WEB_PRODUCTION_ADMIN_API_URL`
+- `ADMIN_STAGING_DOMAIN`, `ADMIN_STAGING_API_URL`, `ADMIN_STAGING_ADMIN_API_URL`
+- `ADMIN_PRODUCTION_DOMAIN`, `ADMIN_PRODUCTION_API_URL`, `ADMIN_PRODUCTION_ADMIN_API_URL`
+
+**환경 변수 매핑:**
+```
+GitHub Variables → 빌드 시 환경 변수
+
+WEB_STAGING_API_URL → NEXT_PUBLIC_API_URL
+WEB_STAGING_ADMIN_API_URL → NEXT_PUBLIC_API2_URL
+```
+
+**상세 설정 가이드:** [deployment/GITHUB_SETUP.md](deployment/GITHUB_SETUP.md)
 
 **참고:** Docker 이미지는 GitHub Container Registry를 사용하므로 `GITHUB_TOKEN`이 자동으로 사용됩니다.
 
@@ -641,12 +712,47 @@ pnpm build
 ```
 .github/
 ├── workflows/
-│   ├── ci.yml                    # CI 워크플로우
-│   ├── deploy-staging.yml        # Staging 배포
-│   └── deploy-production.yml     # Production 배포
+│   ├── ci.yml                    # CI 워크플로우 (PR 검증)
+│   ├── deploy-staging.yml        # Staging 자동 배포 (스마트 배포)
+│   └── deploy-production.yml     # Production 수동 배포
 └── actions/
     └── setup/
-        └── action.yml            # 공통 설정 액션
+        └── action.yml            # 공통 설정 액션 (캐싱 포함)
+
+deployment/
+├── web/
+│   ├── docker-compose.yml        # Web 서버 Docker 설정
+│   ├── nginx/                    # Nginx 설정
+│   └── scripts/                  # 배포 스크립트
+├── admin/
+│   ├── docker-compose.yml        # Admin 서버 Docker 설정
+│   ├── nginx/                    # Nginx 설정
+│   └── scripts/                  # 배포 스크립트
+├── scripts/                      # 공통 스크립트 (SSL, 롤백 등)
+├── README.md                     # 배포 설정 가이드
+└── GITHUB_SETUP.md              # GitHub Secrets/Variables 설정 가이드
+```
+
+### 배포 아키텍처
+
+```
+GitHub Actions
+  ↓
+변경 감지 (Path Filter)
+  ↓
+├─ apps/web/** 변경 → Web 빌드 → Web 서버 배포
+├─ apps/admin/** 변경 → Admin 빌드 → Admin 서버 배포
+└─ packages/** 변경 → 둘 다 빌드 → 모든 서버 배포
+  ↓
+Docker 이미지 (Blue/Green)
+  ↓
+GitHub Container Registry
+  ↓
+서버별 SSH 배포
+  ↓
+Blue-Green 무중단 배포
+  ↓
+헬스 체크 및 검증
 ```
 
 ### 추가 리소스
@@ -654,8 +760,9 @@ pnpm build
 - [GitHub Actions 문서](https://docs.github.com/en/actions)
 - [Turborepo 캐싱 가이드](https://turbo.build/repo/docs/core-concepts/caching)
 - [Docker 문서](https://docs.docker.com/)
-- [Vultr 문서](https://www.vultr.com/docs/)
 - [pnpm 워크스페이스](https://pnpm.io/workspaces)
+- [배포 설정 가이드](deployment/README.md)
+- [GitHub Secrets/Variables 설정](deployment/GITHUB_SETUP.md)
 - [배포 스크립트 가이드](deployment/scripts/README.md)
 
 ## 📦 패키지 상세 정보
