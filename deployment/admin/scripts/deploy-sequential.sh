@@ -267,6 +267,33 @@ start_container() {
 # 배포 함수
 ################################################################################
 
+# Nginx 컨테이너 확인 및 시작
+ensure_nginx_running() {
+    log_info "Nginx 컨테이너 확인 중..."
+    
+    if docker ps --format '{{.Names}}' | grep -q "^workly-nginx$"; then
+        log_success "✓ Nginx 컨테이너가 이미 실행 중입니다"
+        return 0
+    fi
+    
+    log_warning "Nginx 컨테이너가 실행되지 않았습니다. 시작합니다..."
+    
+    cd "$DEPLOYMENT_DIR"
+    if docker compose up -d nginx certbot 2>&1 | tee -a "$LOG_FILE"; then
+        sleep 3  # Nginx 시작 대기
+        if docker ps --format '{{.Names}}' | grep -q "^workly-nginx$"; then
+            log_success "✓ Nginx 컨테이너 시작 완료"
+            return 0
+        else
+            log_error "✗ Nginx 컨테이너 시작 실패"
+            return 1
+        fi
+    else
+        log_error "✗ Nginx 컨테이너 시작 명령 실패"
+        return 1
+    fi
+}
+
 # 배포 전 검증
 pre_deployment_checks() {
     log_info "배포 전 검증 시작..."
@@ -286,6 +313,12 @@ pre_deployment_checks() {
     # Docker 실행 확인
     if ! docker info > /dev/null 2>&1; then
         log_error "Docker가 실행 중이지 않습니다"
+        return 1
+    fi
+    
+    # Nginx 컨테이너 확인 및 시작
+    if ! ensure_nginx_running; then
+        log_error "Nginx 컨테이너 시작 실패"
         return 1
     fi
     
