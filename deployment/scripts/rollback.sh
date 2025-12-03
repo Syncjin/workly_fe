@@ -184,7 +184,7 @@ stop_container() {
     log_info "실패한 컨테이너 중지 중: $container_name"
     
     cd "$deployment_dir"
-    if docker-compose stop "$service_name" 2>/dev/null; then
+    if docker compose stop "$service_name" 2>/dev/null; then
         log_success "✓ 컨테이너 중지 완료"
         return 0
     else
@@ -202,7 +202,7 @@ start_container() {
     log_info "이전 컨테이너 시작 중: $container_name"
     
     cd "$deployment_dir"
-    if docker-compose up -d "$service_name"; then
+    if docker compose up -d "$service_name"; then
         log_success "✓ 컨테이너 시작 완료"
         return 0
     else
