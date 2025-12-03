@@ -220,7 +220,7 @@ pull_image() {
     log_info "Docker 이미지 풀 중: ${image_tag}"
     
     cd "$DEPLOYMENT_DIR"
-    if docker-compose pull "web-${env}"; then
+    if docker compose pull "web-${env}"; then
         log_success "✓ 이미지 풀 완료"
         return 0
     else
@@ -237,7 +237,7 @@ stop_container() {
     log_info "컨테이너 중지 중: $container"
     
     cd "$DEPLOYMENT_DIR"
-    if docker-compose stop "web-${env}"; then
+    if docker compose stop "web-${env}"; then
         log_success "✓ 컨테이너 중지 완료"
         return 0
     else
@@ -254,7 +254,7 @@ start_container() {
     log_info "컨테이너 시작 중: $container"
     
     cd "$DEPLOYMENT_DIR"
-    if docker-compose up -d "web-${env}"; then
+    if docker compose up -d "web-${env}"; then
         log_success "✓ 컨테이너 시작 완료"
         return 0
     else
