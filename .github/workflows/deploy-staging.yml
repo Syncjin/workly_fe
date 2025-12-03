@@ -9,6 +9,17 @@ on:
       - 'apps/admin/**'
       - 'packages/**'
       - '.github/workflows/deploy-staging.yml'
+  workflow_dispatch:
+    inputs:
+      app:
+        description: '배포할 앱'
+        required: true
+        type: choice
+        options:
+          - web
+          - admin
+          - both
+        default: 'both'
 
 concurrency:
   group: deploy-staging
@@ -19,13 +30,14 @@ jobs:
     name: 변경 감지
     runs-on: ubuntu-latest
     outputs:
-      web-changed: ${{ steps.filter.outputs.web }}
-      admin-changed: ${{ steps.filter.outputs.admin }}
+      web-changed: ${{ steps.changes.outputs.web }}
+      admin-changed: ${{ steps.changes.outputs.admin }}
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
 
       - name: 변경된 파일 필터링
+        if: github.event_name == 'push'
         uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -36,6 +48,28 @@ jobs:
             admin:
               - 'apps/admin/**'
               - 'packages/**'
+
+      - name: 변경 감지 결과 설정
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # 수동 트리거: 선택한 앱 배포
+            if [ "${{ github.event.inputs.app }}" = "web" ] || [ "${{ github.event.inputs.app }}" = "both" ]; then
+              echo "web=true" >> $GITHUB_OUTPUT
+            else
+              echo "web=false" >> $GITHUB_OUTPUT
+            fi
+            
+            if [ "${{ github.event.inputs.app }}" = "admin" ] || [ "${{ github.event.inputs.app }}" = "both" ]; then
+              echo "admin=true" >> $GITHUB_OUTPUT
+            else
+              echo "admin=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # 자동 트리거: 변경 감지 결과 사용
+            echo "web=${{ steps.filter.outputs.web }}" >> $GITHUB_OUTPUT
+            echo "admin=${{ steps.filter.outputs.admin }}" >> $GITHUB_OUTPUT
+          fi
 
   build-web:
     name: Web 앱 빌드

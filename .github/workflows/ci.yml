@@ -5,10 +5,23 @@ on:
     branches:
       - main
       - develop
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - '.github/workflows/ci.yml'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'turbo.json'
   push:
     branches:
-      - main
       - develop
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - '.github/workflows/ci.yml'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'turbo.json'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
