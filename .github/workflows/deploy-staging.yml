@@ -199,6 +199,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.WEB_STAGING_HOST }} >> ~/.ssh/known_hosts
 
+      - name: 서버 디렉토리 생성
+        run: |
+          ssh root@${{ secrets.WEB_STAGING_HOST }} "mkdir -p /opt/workly/deployment/web /opt/workly/scripts"
+
       - name: 배포 파일 전송
         run: |
           scp -r deployment/web/* root@${{ secrets.WEB_STAGING_HOST }}:/opt/workly/deployment/web/
@@ -260,6 +264,10 @@ jobs:
           echo "${{ secrets.ADMIN_STAGING_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.ADMIN_STAGING_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 서버 디렉토리 생성
+        run: |
+          ssh root@${{ secrets.ADMIN_STAGING_HOST }} "mkdir -p /opt/workly/deployment/admin /opt/workly/scripts"
 
       - name: 배포 파일 전송
         run: |

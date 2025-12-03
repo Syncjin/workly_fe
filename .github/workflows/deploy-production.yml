@@ -234,6 +234,11 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.WEB_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
 
+      - name: 서버 디렉토리 생성
+        if: github.event.inputs.rollback != 'true'
+        run: |
+          ssh root@${{ secrets.WEB_PRODUCTION_HOST }} "mkdir -p /opt/workly/deployment/web /opt/workly/scripts"
+
       - name: 배포 파일 전송
         if: github.event.inputs.rollback != 'true'
         run: |
@@ -295,6 +300,11 @@ jobs:
           echo "${{ secrets.ADMIN_PRODUCTION_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.ADMIN_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 서버 디렉토리 생성
+        if: github.event.inputs.rollback != 'true'
+        run: |
+          ssh root@${{ secrets.ADMIN_PRODUCTION_HOST }} "mkdir -p /opt/workly/deployment/admin /opt/workly/scripts"
 
       - name: 배포 파일 전송
         if: github.event.inputs.rollback != 'true'
