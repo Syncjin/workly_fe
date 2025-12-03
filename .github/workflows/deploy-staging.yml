@@ -87,7 +87,7 @@ jobs:
           pnpm-version: '9.9.0'
 
       - name: Web 앱 빌드
-        run: pnpm turbo build --filter=web
+        run: pnpm turbo build --filter=@workly/web
         env:
           NEXT_PUBLIC_ENV: staging
           NEXT_PUBLIC_API_URL: ${{ vars.WEB_STAGING_API_URL }}
@@ -142,7 +142,7 @@ jobs:
           pnpm-version: '9.9.0'
 
       - name: Admin 앱 빌드
-        run: pnpm turbo build --filter=admin
+        run: pnpm turbo build --filter=@workly/admin
         env:
           NEXT_PUBLIC_ENV: staging
           NEXT_PUBLIC_API_URL: ${{ vars.ADMIN_STAGING_API_URL }}

@@ -1,5 +1,5 @@
 {
-  "name": "workly",
+  "name": "@workly/web",
   "version": "0.1.0",
   "private": true,
   "prettier": "@workly/prettier-config",

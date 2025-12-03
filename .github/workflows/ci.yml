@@ -139,15 +139,15 @@ jobs:
           pnpm-version: '9.9.0'
 
       - name: Playwright 브라우저 설치
-        run: pnpm --filter workly exec playwright install --with-deps chromium
+        run: pnpm --filter @workly/web exec playwright install --with-deps chromium
 
       - name: 애플리케이션 빌드
-        run: pnpm turbo build --filter=workly
+        run: pnpm turbo build --filter=@workly/web
 
       - name: E2E 테스트 실행
         run: |
           START_TIME=$(date +%s)
-          pnpm --filter workly test:e2e
+          pnpm --filter @workly/web test:e2e
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "⏱️ E2E 테스트 실행 시간: ${DURATION}초"
