@@ -107,10 +107,24 @@ jobs:
             apps/web/package.json
           retention-days: 30
 
-  build-docker-image:
-    name: Docker 이미지 빌드 및 푸시
+  detect-changes:
+    name: 변경 감지
     runs-on: ubuntu-latest
-    needs: build-production
+    outputs:
+      web-changed: ${{ steps.check.outputs.web }}
+      admin-changed: ${{ steps.check.outputs.admin }}
+    steps:
+      - name: 변경 확인
+        id: check
+        run: |
+          echo "web=true" >> $GITHUB_OUTPUT
+          echo "admin=true" >> $GITHUB_OUTPUT
+
+  build-web-docker:
+    name: Web Docker 이미지 빌드
+    runs-on: ubuntu-latest
+    needs: [build-production, detect-changes]
+    if: needs.detect-changes.outputs.web-changed == 'true'
     permissions:
       contents: read
       packages: write
@@ -125,41 +139,84 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker 메타데이터 추출
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}/workly-web
-          tags: |
-            type=raw,value=production
-            type=raw,value=latest
-            type=sha,prefix=prod-
-            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event.inputs.version != '' }}
-
-      - name: Docker 이미지 빌드 및 푸시
+      - name: Docker 이미지 빌드 및 푸시 (Blue)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./apps/web/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ghcr.io/${{ vars.REPOSITORY_NAME }}:blue
           build-args: |
             NEXT_PUBLIC_ENV=production
+            NEXT_PUBLIC_API_URL=${{ vars.WEB_PRODUCTION_API_URL }}
+            NEXT_PUBLIC_API2_URL=${{ vars.WEB_PRODUCTION_ADMIN_API_URL }}
 
-      - name: 이미지 정보 출력
-        run: |
-          echo "🐳 Docker 이미지 빌드 완료!"
-          echo "Registry: ghcr.io"
-          echo "Tags: ${{ steps.meta.outputs.tags }}"
+      - name: Docker 이미지 빌드 및 푸시 (Green)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/web/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ vars.REPOSITORY_NAME }}:green
+          build-args: |
+            NEXT_PUBLIC_ENV=production
+            NEXT_PUBLIC_API_URL=${{ vars.WEB_PRODUCTION_API_URL }}
+            NEXT_PUBLIC_API2_URL=${{ vars.WEB_PRODUCTION_ADMIN_API_URL }}
 
-  deploy-production:
-    name: Production 서버 배포
+  build-admin-docker:
+    name: Admin Docker 이미지 빌드
     runs-on: ubuntu-latest
-    needs: build-docker-image
+    needs: [build-production, detect-changes]
+    if: needs.detect-changes.outputs.admin-changed == 'true'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: GitHub Container Registry 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker 이미지 빌드 및 푸시 (Blue)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/admin/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ vars.REPOSITORY_NAME }}:admin-blue
+          build-args: |
+            NEXT_PUBLIC_ENV=production
+            NEXT_PUBLIC_API_URL=${{ vars.ADMIN_PRODUCTION_API_URL }}
+            NEXT_PUBLIC_API2_URL=${{ vars.ADMIN_PRODUCTION_ADMIN_API_URL }}
+
+      - name: Docker 이미지 빌드 및 푸시 (Green)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/admin/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ vars.REPOSITORY_NAME }}:admin-green
+          build-args: |
+            NEXT_PUBLIC_ENV=production
+            NEXT_PUBLIC_API_URL=${{ vars.ADMIN_PRODUCTION_API_URL }}
+            NEXT_PUBLIC_API2_URL=${{ vars.ADMIN_PRODUCTION_ADMIN_API_URL }}
+
+  deploy-web-production:
+    name: Web Production 배포
+    runs-on: ubuntu-latest
+    needs: build-web-docker
     environment:
-      name: production
-      url: https://worklyteam.cloud
+      name: web-production
+      url: https://${{ vars.WEB_PRODUCTION_DOMAIN }}
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
@@ -173,28 +230,29 @@ jobs:
       - name: SSH 키 설정
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VULTR_WEB_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.WEB_PRODUCTION_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.VULTR_WEB_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.WEB_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
 
       - name: 배포 파일 전송
         if: github.event.inputs.rollback != 'true'
         run: |
-          scp -r deployment/web/* root@${{ secrets.VULTR_WEB_HOST }}:/opt/workly/deployment/web/
-          scp deployment/scripts/* root@${{ secrets.VULTR_WEB_HOST }}:/opt/workly/scripts/
+          scp -r deployment/web/* root@${{ secrets.WEB_PRODUCTION_HOST }}:/opt/workly/deployment/web/
+          scp deployment/scripts/* root@${{ secrets.WEB_PRODUCTION_HOST }}:/opt/workly/scripts/
 
       - name: Docker 이미지 풀 및 배포
         if: github.event.inputs.rollback != 'true'
         run: |
-          ssh root@${{ secrets.VULTR_WEB_HOST }} << 'EOF'
+          ssh root@${{ secrets.WEB_PRODUCTION_HOST }} << 'EOF'
             cd /opt/workly/deployment/web
             
             # GitHub Container Registry 로그인
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # 환경 변수 설정
-            export DOCKER_IMAGE="ghcr.io/${{ github.repository }}/workly-web:production"
+            export GITHUB_REPOSITORY="${{ vars.REPOSITORY_NAME }}"
             export DEPLOY_ENV="production"
+            export NEXT_PUBLIC_API_URL="${{ vars.WEB_PRODUCTION_API_URL }}"
             
             # 배포 스크립트 실행
             bash scripts/deploy-sequential.sh
@@ -203,32 +261,88 @@ jobs:
       - name: 롤백 실행
         if: github.event.inputs.rollback == 'true'
         run: |
-          ssh root@${{ secrets.VULTR_WEB_HOST }} << 'EOF'
+          ssh root@${{ secrets.WEB_PRODUCTION_HOST }} << 'EOF'
             cd /opt/workly/deployment/web
             bash /opt/workly/scripts/rollback.sh web
           EOF
 
       - name: 배포 완료
         run: |
-          echo "🚀 Production 배포 완료!"
-          echo "URL: https://worklyteam.cloud"
+          echo "🚀 Web Production 배포 완료!"
+          echo "URL: https://${{ vars.WEB_PRODUCTION_DOMAIN }}"
           echo "배포 버전: ${{ github.event.inputs.version }}"
 
-  verify-production:
-    name: Production 배포 검증
+  deploy-admin-production:
+    name: Admin Production 배포
     runs-on: ubuntu-latest
-    needs: deploy-production
+    needs: build-admin-docker
+    environment:
+      name: admin-production
+      url: https://${{ vars.ADMIN_PRODUCTION_DOMAIN }}
     steps:
-      - name: 배포 성공 확인
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 롤백 모드 확인
+        if: github.event.inputs.rollback == 'true'
         run: |
-          echo "✓ Production 배포가 성공적으로 완료되었습니다"
-          echo "배포 환경: production"
+          echo "⚠️ 롤백 모드가 활성화되었습니다"
+          echo "이전 배포로 롤백을 진행합니다"
+
+      - name: SSH 키 설정
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ADMIN_PRODUCTION_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.ADMIN_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 배포 파일 전송
+        if: github.event.inputs.rollback != 'true'
+        run: |
+          scp -r deployment/admin/* root@${{ secrets.ADMIN_PRODUCTION_HOST }}:/opt/workly/deployment/admin/
+          scp deployment/scripts/* root@${{ secrets.ADMIN_PRODUCTION_HOST }}:/opt/workly/scripts/
+
+      - name: Docker 이미지 풀 및 배포
+        if: github.event.inputs.rollback != 'true'
+        run: |
+          ssh root@${{ secrets.ADMIN_PRODUCTION_HOST }} << 'EOF'
+            cd /opt/workly/deployment/admin
+            
+            # GitHub Container Registry 로그인
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 환경 변수 설정
+            export GITHUB_REPOSITORY="${{ vars.REPOSITORY_NAME }}"
+            export DEPLOY_ENV="production"
+            export NEXT_PUBLIC_API_URL="${{ vars.ADMIN_PRODUCTION_API_URL }}"
+            
+            # 배포 스크립트 실행
+            bash scripts/deploy-sequential.sh
+          EOF
+
+      - name: 롤백 실행
+        if: github.event.inputs.rollback == 'true'
+        run: |
+          ssh root@${{ secrets.ADMIN_PRODUCTION_HOST }} << 'EOF'
+            cd /opt/workly/deployment/admin
+            bash /opt/workly/scripts/rollback.sh admin
+          EOF
+
+      - name: 배포 완료
+        run: |
+          echo "🚀 Admin Production 배포 완료!"
+          echo "URL: https://${{ vars.ADMIN_PRODUCTION_DOMAIN }}"
           echo "배포 버전: ${{ github.event.inputs.version }}"
 
+  verify-web-production:
+    name: Web Production 검증
+    runs-on: ubuntu-latest
+    needs: deploy-web-production
+    steps:
       - name: 헬스 체크
         run: |
           echo "헬스 체크 엔드포인트 호출..."
-          HEALTH_URL="https://worklyteam.cloud/api/health"
+          HEALTH_URL="https://${{ vars.WEB_PRODUCTION_DOMAIN }}/api/health"
           MAX_RETRIES=5
           RETRY_DELAY=10
           
@@ -247,15 +361,37 @@ jobs:
           echo "⚠️ 헬스 체크 실패 - 수동 확인 필요"
           exit 1
 
-      - name: 배포 완료 알림
+  verify-admin-production:
+    name: Admin Production 검증
+    runs-on: ubuntu-latest
+    needs: deploy-admin-production
+    steps:
+      - name: 헬스 체크
         run: |
-          echo "::notice::Production 배포가 성공적으로 완료되었습니다"
-          echo "배포 URL: https://worklyteam.cloud"
+          echo "헬스 체크 엔드포인트 호출..."
+          HEALTH_URL="https://${{ vars.ADMIN_PRODUCTION_DOMAIN }}/api/health"
+          MAX_RETRIES=5
+          RETRY_DELAY=10
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "헬스 체크 시도 $i/$MAX_RETRIES..."
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✓ 헬스 체크 통과"
+              exit 0
+            fi
+            if [ $i -lt $MAX_RETRIES ]; then
+              echo "재시도 대기 중... (${RETRY_DELAY}초)"
+              sleep $RETRY_DELAY
+            fi
+          done
+          echo "⚠️ 헬스 체크 실패 - 수동 확인 필요"
+          exit 1
 
   notify-failure:
     name: 실패 알림 및 롤백 가이드
     runs-on: ubuntu-latest
-    needs: [build-production, deploy-production, verify-production]
+    needs: [build-production, deploy-web-production, deploy-admin-production, verify-web-production, verify-admin-production]
     if: failure()
     steps:
       - name: 실패 정보 수집
@@ -280,37 +416,13 @@ jobs:
           echo "1. GitHub Actions에서 이 워크플로우를 다시 실행"
           echo "2. 'rollback' 옵션을 true로 설정"
           echo "3. 또는 서버에 SSH 접속하여 수동 롤백:"
-          echo "   ssh root@${{ secrets.VULTR_WEB_HOST }}"
+          echo ""
+          echo "Web 서버:"
+          echo "   ssh root@${{ secrets.WEB_PRODUCTION_HOST }}"
           echo "   cd /opt/workly/deployment/web"
           echo "   bash /opt/workly/scripts/rollback.sh web"
           echo ""
-          echo "긴급 연락처:"
-          echo "- DevOps 팀에 즉시 연락하세요"
-
-      # Slack 알림 (선택사항 - SLACK_WEBHOOK_URL secret 설정 시 활성화)
-      - name: Slack 알림
-        if: secrets.SLACK_WEBHOOK_URL != ''
-        uses: slackapi/slack-github-action@v1
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          payload: |
-            {
-              "text": "🚨 Production 배포 실패",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*🚨 Production 배포 실패*\n워크플로우: <${{ steps.failure-info.outputs.WORKFLOW_URL }}|실행 로그 보기>\n커밋: `${{ steps.failure-info.outputs.COMMIT_SHA }}`\n배포 버전: `${{ steps.failure-info.outputs.DEPLOY_VERSION }}`\n환경: Production"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*롤백 방법:*\n1. GitHub Actions에서 워크플로우 재실행 (rollback 옵션 활성화)\n2. 서버 SSH 접속하여 수동 롤백"
-                  }
-                }
-              ]
-            }
+          echo "Admin 서버:"
+          echo "   ssh root@${{ secrets.ADMIN_PRODUCTION_HOST }}"
+          echo "   cd /opt/workly/deployment/admin"
+          echo "   bash /opt/workly/scripts/rollback.sh admin"

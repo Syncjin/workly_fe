@@ -185,7 +185,8 @@ ssh-keygen -t ed25519 -C "github-actions"
 ssh-copy-id -i ~/.ssh/id_ed25519.pub root@<server-ip>
 
 # 개인 키를 GitHub Secrets에 등록
-# VULTR_WEB_SSH_KEY 또는 VULTR_ADMIN_SSH_KEY
+# WEB_STAGING_SSH_KEY, WEB_PRODUCTION_SSH_KEY,
+# ADMIN_STAGING_SSH_KEY, ADMIN_PRODUCTION_SSH_KEY
 cat ~/.ssh/id_ed25519
 ```
 
