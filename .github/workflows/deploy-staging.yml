@@ -214,7 +214,7 @@ jobs:
             cd /opt/workly/deployment/web
             
             # GitHub Container Registry 로그인
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # 환경 변수 설정
             export GITHUB_REPOSITORY="${{ vars.REPOSITORY_NAME }}"
@@ -280,7 +280,7 @@ jobs:
             cd /opt/workly/deployment/admin
             
             # GitHub Container Registry 로그인
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # 환경 변수 설정
             export GITHUB_REPOSITORY="${{ vars.REPOSITORY_NAME }}"
